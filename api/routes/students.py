@@ -4,12 +4,6 @@ Student Management Endpoints
 from fastapi import APIRouter, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel
-
-# FIX: Add parent directory to path
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from Executive_Assistant_Service import ExecutiveAssistantService
 
 router = APIRouter()
