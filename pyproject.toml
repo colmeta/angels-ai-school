@@ -5,7 +5,17 @@ description = "angels_ai___complete_educational_revolution_platform using crewAI
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]>=0.203.0,<1.0.0"
+    "crewai[tools]>=0.203.0,<1.0.0",
+    "psycopg2-binary>=2.9.9",  # Database
+    "python-dotenv>=1.0.0",    # Environment variables
+    "fastapi>=0.109.0",        # API framework
+    "uvicorn>=0.27.0",         # ASGI server
+    "pydantic>=2.5.0",         # Data validation
+    "httpx>=0.26.0",           # HTTP client
+    "pillow>=10.2.0",          # Image processing
+    "google-cloud-vision>=3.7.0",  # OCR
+    "boto3>=1.34.0",           # AWS S3
+]
 ]
 
 [project.scripts]
