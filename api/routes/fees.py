@@ -1,6 +1,14 @@
 """
 Fee Management Endpoints
 """
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from fastapi import APIRouter, HTTPException, Body
+from typing import Optional
+from pydantic import BaseModel
+from executive_assistant_service import ExecutiveAssistantService
 from fastapi import APIRouter, HTTPException
 from financial_operations_service import FinancialOperationsService
 
