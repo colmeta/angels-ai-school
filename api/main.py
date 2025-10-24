@@ -2,12 +2,6 @@
 Angels AI - FastAPI Application
 Main API entry point
 """
-# FIX FOR IMPORT ERROR - ADD THESE LINES AT THE TOP
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-# END FIX
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -28,7 +22,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure properly in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
