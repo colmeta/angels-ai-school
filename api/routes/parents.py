@@ -3,12 +3,6 @@ Parent Engagement Endpoints
 """
 from fastapi import APIRouter, HTTPException
 from typing import Optional
-
-# FIX: Add parent directory to path
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from Parent_Engagement_Service import ParentEngagementService
 
 router = APIRouter()
