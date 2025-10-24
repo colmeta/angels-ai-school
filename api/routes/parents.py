@@ -1,8 +1,15 @@
 """
 Parent Engagement Endpoints
 """
-from fastapi import APIRouter, HTTPException
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from fastapi import APIRouter, HTTPException, Body
 from typing import Optional
+from pydantic import BaseModel
+from executive_assistant_service import ExecutiveAssistantService
+from fastapi import APIRouter, HTTPException
 from parent_engagement_service import ParentEngagementService
 
 router = APIRouter()
