@@ -2,7 +2,7 @@
 Fee Management Endpoints
 """
 from fastapi import APIRouter, HTTPException
-from Financial_Operations_Service import FinancialOperationsService
+from financial_operations_service import FinancialOperationsService
 
 router = APIRouter()
 

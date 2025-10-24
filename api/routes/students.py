@@ -4,7 +4,7 @@ Student Management Endpoints
 from fastapi import APIRouter, HTTPException, Body
 from typing import Optional
 from pydantic import BaseModel
-from Executive_Assistant_Service import ExecutiveAssistantService
+from executive_assistant_service import ExecutiveAssistantService
 
 router = APIRouter()
 

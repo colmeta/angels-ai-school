@@ -2,8 +2,8 @@
 AI Agents Orchestration Endpoints
 """
 from fastapi import APIRouter, HTTPException
-from Master_Orchestrator_Complete import AngelsAIMasterOrchestrator
-from Digital_CEO_Service import DigitalCEOService
+from master_orchestrator_complete import AngelsAIMasterOrchestrator
+from digital_ceo_service import DigitalCEOService
 
 router = APIRouter()
 
