@@ -1,15 +1,15 @@
-"""
-Student Management Endpoints
-"""
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException
 from typing import Optional
 from pydantic import BaseModel
-from executive_assistant_service import ExecutiveAssistantService
-from fastapi import APIRouter, HTTPException, Body
+
+# Add project root to path
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from Executive_Assistant_Service import ExecutiveAssistantService
 
 router = APIRouter()
 
@@ -21,7 +21,6 @@ class StudentRegistration(BaseModel):
 
 @router.post("/register")
 async def register_student(data: StudentRegistration):
-    """Register a new student"""
     try:
         service = ExecutiveAssistantService(data.school_id)
         result = service.process_student_registration(data.dict())
@@ -31,7 +30,6 @@ async def register_student(data: StudentRegistration):
 
 @router.get("/enrollment/{school_id}")
 async def get_enrollment_stats(school_id: str, period: str = "week"):
-    """Get enrollment statistics"""
     try:
         service = ExecutiveAssistantService(school_id)
         stats = service.get_enrollment_statistics(period)
@@ -41,7 +39,6 @@ async def get_enrollment_stats(school_id: str, period: str = "week"):
 
 @router.get("/dashboard/{school_id}")
 async def get_executive_dashboard(school_id: str, report_type: str = "daily"):
-    """Get executive dashboard data"""
     try:
         service = ExecutiveAssistantService(school_id)
         report = service.generate_executive_report(report_type)

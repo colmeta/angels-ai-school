@@ -1,11 +1,14 @@
-"""
-Angels AI - FastAPI Application
-Main API entry point
-"""
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
+
+# Add project root to path FIRST
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 load_dotenv()
 

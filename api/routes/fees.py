@@ -1,22 +1,18 @@
-"""
-Fee Management Endpoints
-"""
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-from fastapi import APIRouter, HTTPException, Body
-from typing import Optional
-from pydantic import BaseModel
-from executive_assistant_service import ExecutiveAssistantService
 from fastapi import APIRouter, HTTPException
-from financial_operations_service import FinancialOperationsService
+
+# Add project root to path
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from Financial_Operations_Service import FinancialOperationsService
 
 router = APIRouter()
 
 @router.get("/ooda-loop/{school_id}")
 async def run_financial_ooda_loop(school_id: str):
-    """Run Financial OODA Loop"""
     try:
         service = FinancialOperationsService(school_id)
         result = service.run_ooda_loop()
@@ -26,7 +22,6 @@ async def run_financial_ooda_loop(school_id: str):
 
 @router.get("/report/{school_id}")
 async def get_financial_report(school_id: str):
-    """Get financial report"""
     try:
         service = FinancialOperationsService(school_id)
         report = service.generate_daily_financial_report()
@@ -36,7 +31,6 @@ async def get_financial_report(school_id: str):
 
 @router.get("/collection-summary/{school_id}")
 async def get_collection_summary(school_id: str):
-    """Get fee collection summary"""
     try:
         service = FinancialOperationsService(school_id)
         summary = service.fee_ops.get_fee_collection_summary(school_id)
