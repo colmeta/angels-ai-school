@@ -1,15 +1,8 @@
+"""Student Management Endpoints"""
 from fastapi import APIRouter, HTTPException
-from typing import Optional
 from pydantic import BaseModel
-
-# Add project root to path
-import sys
-from pathlib import Path
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from Executive_Assistant_Service import ExecutiveAssistantService
+from typing import Dict
+from services.executive import ExecutiveAssistant
 
 router = APIRouter()
 
@@ -22,26 +15,16 @@ class StudentRegistration(BaseModel):
 @router.post("/register")
 async def register_student(data: StudentRegistration):
     try:
-        service = ExecutiveAssistantService(data.school_id)
-        result = service.process_student_registration(data.dict())
+        assistant = ExecutiveAssistant(data.school_id)
+        result = assistant.process_registration(data.dict())
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/enrollment/{school_id}")
-async def get_enrollment_stats(school_id: str, period: str = "week"):
-    try:
-        service = ExecutiveAssistantService(school_id)
-        stats = service.get_enrollment_statistics(period)
-        return stats
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @router.get("/dashboard/{school_id}")
-async def get_executive_dashboard(school_id: str, report_type: str = "daily"):
+async def get_dashboard(school_id: str):
     try:
-        service = ExecutiveAssistantService(school_id)
-        report = service.generate_executive_report(report_type)
-        return report
+        assistant = ExecutiveAssistant(school_id)
+        return assistant.get_dashboard()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
