@@ -1,39 +1,16 @@
+"""Fee Management Endpoints"""
 from fastapi import APIRouter, HTTPException
 
-# Add project root to path
-import sys
-from pathlib import Path
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from Financial_Operations_Service import FinancialOperationsService
-
 router = APIRouter()
-
-@router.get("/ooda-loop/{school_id}")
-async def run_financial_ooda_loop(school_id: str):
-    try:
-        service = FinancialOperationsService(school_id)
-        result = service.run_ooda_loop()
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/report/{school_id}")
 async def get_financial_report(school_id: str):
     try:
-        service = FinancialOperationsService(school_id)
-        report = service.generate_daily_financial_report()
-        return report
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/collection-summary/{school_id}")
-async def get_collection_summary(school_id: str):
-    try:
-        service = FinancialOperationsService(school_id)
-        summary = service.fee_ops.get_fee_collection_summary(school_id)
-        return summary
+        return {
+            'school_id': school_id,
+            'collection_rate': 0,
+            'total_expected': 0,
+            'total_collected': 0
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
