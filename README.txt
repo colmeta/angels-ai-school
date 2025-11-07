@@ -15,6 +15,8 @@
    - Go to Settings → Secrets → Actions
    - Add `DATABASE_URL`
    - Add `OPENAI_API_KEY`
+   - Add `CLARITY_API_KEY`
+   - Optional: `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`
 
 4. **Deploy**:
    - Push to main branch
@@ -51,6 +53,15 @@
 ```bash
 curl https://your-app.onrender.com/api/health
 ```
+
+### Frontend PWA
+
+```bash
+cd webapp
+npm install
+npm run dev
+```
+Use `VITE_API_BASE_URL` in `webapp/.env` to point to your backend (defaults to `http://localhost:8000/api`).
 
 ### Documentation
 Visit `/docs` for interactive API documentation (Swagger UI)

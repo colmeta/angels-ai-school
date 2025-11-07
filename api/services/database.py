@@ -7,10 +7,12 @@ import os
 from typing import Optional, List, Dict, Any
 from contextlib import contextmanager
 import psycopg2
-from psycopg2.extras import RealDictCursor, execute_values
+from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool
 from datetime import datetime
 import json
+
+from api.core.config import get_settings
 
 
 class DatabaseManager:
@@ -535,6 +537,157 @@ class DocumentOperations:
             return dict(result)
 
 
+class SchoolOperations:
+    """School-level settings, branding, and feature configuration."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def upsert_branding(self, school_id: str, branding: Dict[str, Any]) -> Dict:
+        """
+        Create or update white-label branding settings for a school.
+        """
+        query = """
+        INSERT INTO school_branding (
+            school_id, display_name, primary_color, accent_color,
+            logo_url, favicon_url, hero_image_url, updated_by
+        ) VALUES (
+            %(school_id)s, %(display_name)s, %(primary_color)s, %(accent_color)s,
+            %(logo_url)s, %(favicon_url)s, %(hero_image_url)s, %(updated_by)s
+        )
+        ON CONFLICT (school_id)
+        DO UPDATE SET
+            display_name = EXCLUDED.display_name,
+            primary_color = EXCLUDED.primary_color,
+            accent_color = EXCLUDED.accent_color,
+            logo_url = EXCLUDED.logo_url,
+            favicon_url = EXCLUDED.favicon_url,
+            hero_image_url = EXCLUDED.hero_image_url,
+            updated_by = EXCLUDED.updated_by,
+            updated_at = NOW()
+        RETURNING *;
+        """
+
+        with self.db.get_cursor() as cur:
+            cur.execute(
+                query,
+                {
+                    "school_id": school_id,
+                    "display_name": branding.get("display_name"),
+                    "primary_color": branding.get("primary_color"),
+                    "accent_color": branding.get("accent_color"),
+                    "logo_url": branding.get("logo_url"),
+                    "favicon_url": branding.get("favicon_url"),
+                    "hero_image_url": branding.get("hero_image_url"),
+                    "updated_by": branding.get("updated_by", "system"),
+                },
+            )
+            result = cur.fetchone()
+            print(f"✅ Branding updated for school: {school_id}")
+            return dict(result)
+
+    def get_branding(self, school_id: str) -> Dict[str, Any]:
+        """Fetch branding settings for a school."""
+        query = """
+        SELECT
+            school_id,
+            COALESCE(display_name, %(default_name)s) AS display_name,
+            COALESCE(primary_color, %(default_primary)s) AS primary_color,
+            COALESCE(accent_color, %(default_accent)s) AS accent_color,
+            logo_url,
+            favicon_url,
+            hero_image_url,
+            updated_at
+        FROM school_branding
+        WHERE school_id = %(school_id)s
+        """
+        settings = get_settings()
+        params = {
+            "school_id": school_id,
+            "default_name": settings.default_brand_name,
+            "default_primary": settings.default_brand_primary_color,
+            "default_accent": settings.default_brand_accent_color,
+        }
+        with self.db.get_cursor() as cur:
+            cur.execute(query, params)
+            row = cur.fetchone()
+            if not row:
+                return {
+                    "school_id": school_id,
+                    "display_name": settings.default_brand_name,
+                    "primary_color": settings.default_brand_primary_color,
+                    "accent_color": settings.default_brand_accent_color,
+                    "logo_url": settings.default_brand_logo_url,
+                    "favicon_url": None,
+                    "hero_image_url": None,
+                    "updated_at": None,
+                }
+            return dict(row)
+
+    def upsert_feature_flags(self, school_id: str, flags: Dict[str, Any]) -> Dict:
+        """Enable/disable feature flags per school."""
+        query = """
+        INSERT INTO school_feature_flags (
+            school_id, enable_parent_chatbot, enable_background_sync,
+            enable_mobile_money_mtn, enable_mobile_money_airtel,
+            enable_student_portal, enable_staff_portal, updated_by
+        ) VALUES (
+            %(school_id)s, %(enable_parent_chatbot)s, %(enable_background_sync)s,
+            %(enable_mobile_money_mtn)s, %(enable_mobile_money_airtel)s,
+            %(enable_student_portal)s, %(enable_staff_portal)s, %(updated_by)s
+        )
+        ON CONFLICT (school_id)
+        DO UPDATE SET
+            enable_parent_chatbot = EXCLUDED.enable_parent_chatbot,
+            enable_background_sync = EXCLUDED.enable_background_sync,
+            enable_mobile_money_mtn = EXCLUDED.enable_mobile_money_mtn,
+            enable_mobile_money_airtel = EXCLUDED.enable_mobile_money_airtel,
+            enable_student_portal = EXCLUDED.enable_student_portal,
+            enable_staff_portal = EXCLUDED.enable_staff_portal,
+            updated_by = EXCLUDED.updated_by,
+            updated_at = NOW()
+        RETURNING *;
+        """
+
+        defaults = {
+            "enable_parent_chatbot": flags.get("enable_parent_chatbot", True),
+            "enable_background_sync": flags.get("enable_background_sync", True),
+            "enable_mobile_money_mtn": flags.get("enable_mobile_money_mtn", True),
+            "enable_mobile_money_airtel": flags.get("enable_mobile_money_airtel", True),
+            "enable_student_portal": flags.get("enable_student_portal", True),
+            "enable_staff_portal": flags.get("enable_staff_portal", True),
+            "updated_by": flags.get("updated_by", "system"),
+        }
+        defaults["school_id"] = school_id
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, defaults)
+            row = cur.fetchone()
+            print(f"✅ Feature flags updated for school: {school_id}")
+            return dict(row)
+
+    def get_feature_flags(self, school_id: str) -> Dict[str, Any]:
+        query = """
+        SELECT * FROM school_feature_flags WHERE school_id = %s
+        """
+        with self.db.get_cursor() as cur:
+            cur.execute(query, (school_id,))
+            row = cur.fetchone()
+            if not row:
+                settings = get_settings()
+                return {
+                    "school_id": school_id,
+                    "enable_parent_chatbot": settings.enable_parent_chatbot,
+                    "enable_background_sync": settings.enable_background_sync,
+                    "enable_mobile_money_mtn": True,
+                    "enable_mobile_money_airtel": True,
+                    "enable_student_portal": True,
+                    "enable_staff_portal": True,
+                    "updated_at": None,
+                }
+            return dict(row)
+
+
 # ============================================
 # INITIALIZE DATABASE MANAGER (SINGLETON)
 # ============================================
@@ -564,3 +717,6 @@ def get_message_ops() -> MessageOperations:
 
 def get_document_ops() -> DocumentOperations:
     return DocumentOperations(get_db())
+
+def get_school_ops() -> SchoolOperations:
+    return SchoolOperations(get_db())

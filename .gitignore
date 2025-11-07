@@ -1,3 +1,18 @@
-.env
 __pycache__/
-.DS_Store
+.pytest_cache/
+.idea/
+.vscode/
+*.pyc
+*.pyo
+*.DS_Store
+.env
+.env.local
+
+# Node
+webapp/node_modules/
+webapp/dist/
+
+# Python build
+build/
+dist/
+*.egg-info/

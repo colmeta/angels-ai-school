@@ -13,11 +13,9 @@ from crewai_tools import (
 	SpiderTool
 )
 
-
-
-
-
-
+from angels_ai___complete_educational_revolution_platform.tools import (
+	ClarityAnalyzeTool,
+)
 @CrewBase
 class AngelsAiCompleteEducationalRevolutionPlatformCrew:
     """AngelsAiCompleteEducationalRevolutionPlatform crew"""
@@ -31,12 +29,13 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["angels_ai_digital_ceo"],
             
             
-            tools=[
-				SerperDevTool(),
-				BraveSearchTool(),
-				EXASearchTool(),
-				ScrapeWebsiteTool()
-            ],
+              tools=[
+  				SerperDevTool(),
+  				BraveSearchTool(),
+  				EXASearchTool(),
+  				ScrapeWebsiteTool(),
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -59,9 +58,10 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["command_intelligence_agent___clarity_engine"],
             
             
-            tools=[
-				FileReadTool()
-            ],
+              tools=[
+  				FileReadTool(),
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -84,10 +84,11 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["document_intelligence_agent___rag_master"],
             
             
-            tools=[
-				OCRTool(),
-				FileReadTool()
-            ],
+              tools=[
+  				OCRTool(),
+  				FileReadTool(),
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -110,13 +111,9 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["opportunity_intelligence_agent___funding_hunter"],
             
             
-            tools=[
-				SerperDevTool(),
-				BraveSearchTool(),
-				EXASearchTool(),
-				ScrapeWebsiteTool(),
-				SpiderTool()
-            ],
+              tools=[
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -139,9 +136,9 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["parent_engagement_agent___the_oracle"],
             
             
-            tools=[
-
-            ],
+              tools=[
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -164,9 +161,9 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["financial_operations_agent___automated_treasurer"],
             
             
-            tools=[
-
-            ],
+              tools=[
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -189,9 +186,9 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["academic_operations_agent___educational_excellence_manager"],
             
             
-            tools=[
-
-            ],
+              tools=[
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -214,9 +211,9 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["teacher_liberation_agent___administrative_freedom_fighter"],
             
             
-            tools=[
-
-            ],
+              tools=[
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,
@@ -239,9 +236,10 @@ class AngelsAiCompleteEducationalRevolutionPlatformCrew:
             config=self.agents_config["executive_assistant_agent___ultimate_administrative_coordinator"],
             
             
-            tools=[
-				FileReadTool()
-            ],
+              tools=[
+  				FileReadTool(),
+  				ClarityAnalyzeTool(),
+              ],
             reasoning=False,
             max_reasoning_attempts=None,
             inject_date=True,

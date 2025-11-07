@@ -1,25 +1,20 @@
 """Student Management Endpoints"""
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Dict
-from services.executive import ExecutiveAssistant
+
+from api.models.schemas import StudentRegistrationRequest
+from api.services.executive import ExecutiveAssistant
 
 router = APIRouter()
 
-class StudentRegistration(BaseModel):
-    school_id: str
-    student: dict
-    parents: list
-    emergency: dict
 
 @router.post("/register")
-async def register_student(data: StudentRegistration):
+async def register_student(data: StudentRegistrationRequest):
     try:
         assistant = ExecutiveAssistant(data.school_id)
-        result = assistant.process_registration(data.dict())
+        result = assistant.process_registration(data.model_dump())
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @router.get("/dashboard/{school_id}")
 async def get_dashboard(school_id: str):
