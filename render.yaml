@@ -1,0 +1,56 @@
+# Render Blueprint for Angels AI School Platform
+# This file enables one-click deployment to Render
+
+services:
+  # Backend API Service
+  - type: web
+    name: angels-ai-school-api
+    env: python
+    region: frankfurt  # Change to your preferred region
+    plan: free  # Change to 'starter' or higher for production
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: CLARITY_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: CLARITY_BASE_URL
+        value: https://veritas-engine-zae0.onrender.com
+      - key: DEFAULT_BRAND_NAME
+        value: Angels AI School
+      - key: DEFAULT_BRAND_PRIMARY_COLOR
+        value: '#0B69FF'
+      - key: DEFAULT_BRAND_ACCENT_COLOR
+        value: '#FFB400'
+      - key: ENABLE_BACKGROUND_SYNC
+        value: 'true'
+      - key: ENABLE_PARENT_CHATBOT
+        value: 'true'
+      - key: PYTHON_VERSION
+        value: '3.11.8'
+
+  # Frontend Static Site (optional - if deploying separately)
+  # - type: web
+  #   name: angels-ai-school-webapp
+  #   env: static
+  #   region: frankfurt
+  #   plan: free
+  #   branch: main
+  #   buildCommand: cd webapp && npm install && npm run build
+  #   staticPublishPath: webapp/dist
+  #   envVars:
+  #     - key: VITE_API_URL
+  #       fromService:
+  #         type: web
+  #         name: angels-ai-school-api
+  #         envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  # PostgreSQL Database
+  - name: angels-ai-school-db
+    databaseName: angels_ai_school
+    user: angels_ai_user
+    region: frankfurt  # Match your service region
+    plan: free  # Change to 'starter' or higher for production
+    ipAllowList: []  # Empty = allow all internal connections
