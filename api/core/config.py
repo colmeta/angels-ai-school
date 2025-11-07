@@ -41,6 +41,22 @@ class Settings(BaseSettings):
     # Whitelabel options
     allowed_brand_domains: List[str] = Field(default_factory=list, env="ALLOWED_BRAND_DOMAINS")
 
+    # Mobile money providers (optional live credentials)
+    mtn_mobile_money_api_key: Optional[str] = Field(default=None, env="MTN_MOBILE_MONEY_API_KEY")
+    mtn_mobile_money_base_url: Optional[HttpUrl] = Field(
+        default="https://api.mtn.com/mobilemoney", env="MTN_MOBILE_MONEY_BASE_URL"
+    )
+    airtel_mobile_money_api_key: Optional[str] = Field(
+        default=None, env="AIRTEL_MOBILE_MONEY_API_KEY"
+    )
+    airtel_mobile_money_base_url: Optional[HttpUrl] = Field(
+        default="https://openapi.airtel.africa/mobile-money", env="AIRTEL_MOBILE_MONEY_BASE_URL"
+    )
+
+    # Chatbot integration (optional external provider)
+    chatbot_api_key: Optional[str] = Field(default=None, env="CHATBOT_API_KEY")
+    chatbot_api_base_url: Optional[HttpUrl] = Field(default=None, env="CHATBOT_API_BASE_URL")
+
     class Config:
         case_sensitive = False
         env_file = ".env"

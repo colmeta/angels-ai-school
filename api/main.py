@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from api.core.config import get_settings
-from api.routes import agents, clarity, fees, health, parents, schools, students
+from api.routes import agents, clarity, fees, health, parents, payments, schools, students, chatbot
 
 # Add project root to path FIRST
 project_root = Path(__file__).parent.parent
@@ -45,6 +45,8 @@ app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
 app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
 app.include_router(clarity.router, prefix="/api/clarity", tags=["Clarity Engine"])
 app.include_router(schools.router, prefix="/api/schools", tags=["School Configuration"])
+app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
+app.include_router(chatbot.router, prefix="/api", tags=["Chatbot"])
 
 @app.get("/")
 async def root():

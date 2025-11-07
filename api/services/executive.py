@@ -1,5 +1,6 @@
 """Angels AI - Executive Assistant"""
 from datetime import datetime
+import json
 from typing import Any, Dict, List
 from uuid import uuid4
 
@@ -162,7 +163,9 @@ class ExecutiveAssistant:
                     "prepare action items for school leadership. Highlight critical follow-ups."
                 ),
                 domain="data-entry",
-                files=[{"filename": "offline_events.json", "data": offline_events}],
+                files=[
+                    {"filename": "offline_events.json", "data": json.dumps(offline_events, default=str)}
+                ],
             )
         finally:
             clarity.close()

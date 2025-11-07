@@ -6,6 +6,7 @@ Handles all database connections and common operations
 import os
 from typing import Optional, List, Dict, Any
 from contextlib import contextmanager
+from decimal import Decimal
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool
@@ -688,6 +689,101 @@ class SchoolOperations:
             return dict(row)
 
 
+class MobileMoneyOperations:
+    """Operations for MTN/Airtel mobile money workflow."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def create_transaction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        query = """
+        INSERT INTO mobile_money_transactions (
+            school_id, student_id, student_fee_id, provider, msisdn,
+            amount, currency, status, reference, external_reference,
+            message, metadata
+        ) VALUES (
+            %(school_id)s, %(student_id)s, %(student_fee_id)s, %(provider)s, %(msisdn)s,
+            %(amount)s, %(currency)s, %(status)s, %(reference)s, %(external_reference)s,
+            %(message)s, %(metadata)s
+        )
+        RETURNING *;
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+        data.setdefault("external_reference", None)
+        data.setdefault("message", None)
+        amount = data.get("amount")
+        if amount is not None:
+            data["amount"] = Decimal(str(amount))
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, data)
+            result = cur.fetchone()
+            print(f"✅ Mobile money transaction created: {result['reference']}")
+            return dict(result)
+
+    def update_transaction(self, reference: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        set_parts = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            if key == "metadata" and value is not None:
+                value = json.dumps(value)
+            if key == "amount" and value is not None:
+                value = Decimal(str(value))
+            set_parts.append(f"{key} = %s")
+            values.append(value)
+        set_parts.append("updated_at = NOW()")
+
+        query = f"""
+        UPDATE mobile_money_transactions
+        SET {', '.join(set_parts)}
+        WHERE reference = %s
+        RETURNING *;
+        """
+        values.append(reference)
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, tuple(values))
+            result = cur.fetchone()
+            if not result:
+                raise ValueError("Transaction not found.")
+            print(f"✅ Mobile money transaction updated: {result['reference']} -> {result['status']}")
+            return dict(result)
+
+    def get_transaction(self, reference: str) -> Optional[Dict[str, Any]]:
+        query = """
+        SELECT * FROM mobile_money_transactions
+        WHERE reference = %s
+        """
+        results = self.db.execute_query(query, (reference,))
+        return dict(results[0]) if results else None
+
+    def list_transactions(
+        self,
+        school_id: str,
+        *,
+        student_id: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        filters = ["school_id = %s"]
+        params: List[Any] = [school_id]
+        if student_id:
+            filters.append("student_id = %s")
+            params.append(student_id)
+
+        query = f"""
+        SELECT *
+        FROM mobile_money_transactions
+        WHERE {' AND '.join(filters)}
+        ORDER BY created_at DESC
+        LIMIT %s
+        """
+        params.append(limit)
+        results = self.db.execute_query(query, tuple(params))
+        return [dict(row) for row in results]
+
+
 # ============================================
 # INITIALIZE DATABASE MANAGER (SINGLETON)
 # ============================================
@@ -720,3 +816,6 @@ def get_document_ops() -> DocumentOperations:
 
 def get_school_ops() -> SchoolOperations:
     return SchoolOperations(get_db())
+
+def get_mobile_money_ops() -> MobileMoneyOperations:
+    return MobileMoneyOperations(get_db())
