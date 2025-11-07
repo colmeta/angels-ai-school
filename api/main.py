@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from api.core.config import get_settings
 from api.routes import (
     agents,
+    analytics,
     clarity,
     fees,
     health,
@@ -18,6 +19,9 @@ from api.routes import (
     students,
     chatbot,
     support,
+    teachers,
+    parent_portal,
+    student_portal,
 )
 
 # Add project root to path FIRST
@@ -59,6 +63,10 @@ app.include_router(schools.router, prefix="/api/schools", tags=["School Configur
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(chatbot.router, prefix="/api", tags=["Chatbot"])
 app.include_router(support.router, prefix="/api", tags=["Support Operations"])
+app.include_router(teachers.router, prefix="/api/teachers", tags=["Teacher Workflows"])
+app.include_router(parent_portal.router, prefix="/api/parent", tags=["Parent Portal"])
+app.include_router(student_portal.router, prefix="/api/student", tags=["Student Portal"])
+app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics & Dashboards"])
 
 @app.get("/")
 async def root():
