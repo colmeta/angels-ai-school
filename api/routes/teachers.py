@@ -444,6 +444,33 @@ async def get_teacher_dashboard(school_id: str, teacher_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/notifications/teacher/{teacher_id}")
+async def get_teacher_notifications(teacher_id: str):
+    """
+    Get all notifications for teacher
+    """
+    try:
+        db = get_db_manager()
+        
+        query = """
+        SELECT id, notification_type, title, message, priority, is_read,
+               created_at, related_entity_type, related_entity_id
+        FROM notifications
+        WHERE recipient_id = %s AND recipient_type = 'teacher'
+        ORDER BY created_at DESC
+        LIMIT 50
+        """
+        notifications = db.execute_query(query, (teacher_id,), fetch=True)
+        
+        return {
+            "success": True,
+            "notifications": notifications
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/{school_id}/teacher/{teacher_id}/generate-report")
 async def generate_teacher_report(
     school_id: str,
