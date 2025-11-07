@@ -1,4 +1,15 @@
-from . import agents, clarity, fees, health, parents, payments, schools, students, chatbot
+from . import (
+    agents,
+    clarity,
+    fees,
+    health,
+    parents,
+    payments,
+    schools,
+    students,
+    chatbot,
+    support,
+)
 
 __all__ = [
     "agents",
@@ -10,4 +21,5 @@ __all__ = [
     "schools",
     "students",
     "chatbot",
+    "support",
 ]

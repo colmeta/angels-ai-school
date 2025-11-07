@@ -71,5 +71,18 @@ Use `VITE_API_BASE_URL` in `webapp/.env` to point to your backend (defaults to `
 - Mobile money works without live keys (queued/manual mode). Populate `MTN_MOBILE_MONEY_API_KEY` / `AIRTEL_MOBILE_MONEY_API_KEY` when ready for live APIs.
 - Chatbot falls back to Clarity if `CHATBOT_API_KEY` is not provided.
 
+### Support Operations Data Tables
+
+Create the following tables (or equivalent views) before deploying the new support module:
+
+- `incidents`
+- `inventory_items`
+- `inventory_transactions`
+- `health_visits`
+- `library_transactions`
+- `transport_logs`
+
+Each insert automatically captures metadata JSON payloads for Clarity-powered summaries.
+
 ### Documentation
 Visit `/docs` for interactive API documentation (Swagger UI)

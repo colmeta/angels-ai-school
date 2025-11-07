@@ -689,6 +689,227 @@ class SchoolOperations:
             return dict(row)
 
 
+class IncidentOperations:
+    """Operations for security/safety incidents."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def create_incident(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        query = """
+        INSERT INTO incidents (
+            school_id, category, description, severity, status,
+            reported_by, occurred_at, metadata
+        ) VALUES (
+            %(school_id)s, %(category)s, %(description)s, %(severity)s, %(status)s,
+            %(reported_by)s, %(occurred_at)s, %(metadata)s
+        )
+        RETURNING *;
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, data)
+            result = cur.fetchone()
+            print(f"✅ Incident logged: {result['id']} ({result['category']})")
+            return dict(result)
+
+    def list_incidents(self, school_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM incidents
+        WHERE school_id = %s
+        ORDER BY occurred_at DESC NULLS LAST, created_at DESC
+        LIMIT %s
+        """
+        results = self.db.execute_query(query, (school_id, limit))
+        return [dict(row) for row in results]
+
+
+class InventoryOperations:
+    """Operations for inventory items and movements."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def list_items(self, school_id: str) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM inventory_items
+        WHERE school_id = %s
+        ORDER BY item_name ASC
+        """
+        results = self.db.execute_query(query, (school_id,))
+        return [dict(row) for row in results]
+
+    def record_adjustment(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        adjust_query = """
+        INSERT INTO inventory_transactions (
+            school_id, item_name, change_quantity, reason, recorded_by, metadata
+        ) VALUES (
+            %(school_id)s, %(item_name)s, %(change_quantity)s, %(reason)s, %(recorded_by)s, %(metadata)s
+        )
+        RETURNING *;
+        """
+        summary_query = """
+        INSERT INTO inventory_items (
+            school_id, item_name, current_quantity, unit
+        ) VALUES (
+            %(school_id)s, %(item_name)s, %(change_quantity)s, %(unit)s
+        )
+        ON CONFLICT (school_id, item_name)
+        DO UPDATE SET current_quantity = inventory_items.current_quantity + EXCLUDED.current_quantity,
+                      updated_at = NOW();
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+        change_qty = Decimal(str(data.get("change_quantity", 0)))
+        data["change_quantity"] = change_qty
+
+        with self.db.get_cursor() as cur:
+            cur.execute(summary_query, {
+                "school_id": data["school_id"],
+                "item_name": data["item_name"],
+                "change_quantity": change_qty,
+                "unit": data.get("unit"),
+            })
+            cur.execute(adjust_query, data)
+            result = cur.fetchone()
+            print(f"✅ Inventory adjusted: {data['item_name']} ({change_qty})")
+            return dict(result)
+
+    def list_movements(self, school_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM inventory_transactions
+        WHERE school_id = %s
+        ORDER BY created_at DESC
+        LIMIT %s
+        """
+        results = self.db.execute_query(query, (school_id, limit))
+        return [dict(row) for row in results]
+
+
+class HealthOperations:
+    """Operations for sickbay / health visits."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def create_visit(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        query = """
+        INSERT INTO health_visits (
+            school_id, student_name, grade, symptoms, action_taken,
+            guardian_contacted, recorded_by, metadata
+        ) VALUES (
+            %(school_id)s, %(student_name)s, %(grade)s, %(symptoms)s, %(action_taken)s,
+            %(guardian_contacted)s, %(recorded_by)s, %(metadata)s
+        )
+        RETURNING *;
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, data)
+            result = cur.fetchone()
+            print(f"✅ Health visit recorded for {result['student_name']}")
+            return dict(result)
+
+    def list_visits(self, school_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM health_visits
+        WHERE school_id = %s
+        ORDER BY created_at DESC
+        LIMIT %s
+        """
+        results = self.db.execute_query(query, (school_id, limit))
+        return [dict(row) for row in results]
+
+
+class LibraryOperations:
+    """Operations for library check-in/out."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def record_transaction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        query = """
+        INSERT INTO library_transactions (
+            school_id, student_name, class_name, book_title,
+            action, due_date, recorded_by, metadata
+        ) VALUES (
+            %(school_id)s, %(student_name)s, %(class_name)s, %(book_title)s,
+            %(action)s, %(due_date)s, %(recorded_by)s, %(metadata)s
+        )
+        RETURNING *;
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, data)
+            result = cur.fetchone()
+            print(f"✅ Library {result['action']} recorded for {result['book_title']}")
+            return dict(result)
+
+    def list_transactions(self, school_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM library_transactions
+        WHERE school_id = %s
+        ORDER BY created_at DESC
+        LIMIT %s
+        """
+        results = self.db.execute_query(query, (school_id, limit))
+        return [dict(row) for row in results]
+
+
+class TransportOperations:
+    """Operations for transport / route events."""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def record_event(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        query = """
+        INSERT INTO transport_logs (
+            school_id, route_name, vehicle, status, notes,
+            recorded_by, metadata, event_time
+        ) VALUES (
+            %(school_id)s, %(route_name)s, %(vehicle)s, %(status)s, %(notes)s,
+            %(recorded_by)s, %(metadata)s, %(event_time)s
+        )
+        RETURNING *;
+        """
+        data = payload.copy()
+        metadata = data.get("metadata") or {}
+        data["metadata"] = json.dumps(metadata)
+
+        with self.db.get_cursor() as cur:
+            cur.execute(query, data)
+            result = cur.fetchone()
+            print(f"✅ Transport event recorded: {result['route_name']} - {result['status']}")
+            return dict(result)
+
+    def list_events(self, school_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        query = """
+        SELECT *
+        FROM transport_logs
+        WHERE school_id = %s
+        ORDER BY event_time DESC NULLS LAST, created_at DESC
+        LIMIT %s
+        """
+        results = self.db.execute_query(query, (school_id, limit))
+        return [dict(row) for row in results]
+
+
 class MobileMoneyOperations:
     """Operations for MTN/Airtel mobile money workflow."""
 
@@ -819,3 +1040,18 @@ def get_school_ops() -> SchoolOperations:
 
 def get_mobile_money_ops() -> MobileMoneyOperations:
     return MobileMoneyOperations(get_db())
+
+def get_incident_ops() -> IncidentOperations:
+    return IncidentOperations(get_db())
+
+def get_inventory_ops() -> InventoryOperations:
+    return InventoryOperations(get_db())
+
+def get_health_ops() -> HealthOperations:
+    return HealthOperations(get_db())
+
+def get_library_ops() -> LibraryOperations:
+    return LibraryOperations(get_db())
+
+def get_transport_ops() -> TransportOperations:
+    return TransportOperations(get_db())
