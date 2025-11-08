@@ -20,6 +20,7 @@ from api.routes import (
     export,
     fees,
     health,
+    multi_school,
     parents,
     payments,
     schools,
@@ -72,6 +73,7 @@ app.include_router(document_intelligence.router, prefix="/api", tags=["Document 
 app.include_router(data_migration.router, prefix="/api", tags=["Data Migration"])
 app.include_router(domain_intelligence.router, prefix="/api", tags=["Domain Intelligence"])
 app.include_router(export.router, prefix="/api", tags=["Data Export"])
+app.include_router(multi_school.router, prefix="/api", tags=["Multi-School"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(fees.router, prefix="/api/fees", tags=["Fees"])
 app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
