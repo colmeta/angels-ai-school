@@ -17,6 +17,7 @@ from api.routes import (
     data_migration,
     document_intelligence,
     domain_intelligence,
+    export,
     fees,
     health,
     parents,
@@ -29,6 +30,7 @@ from api.routes import (
     parent_portal,
     student_portal,
 )
+from api.middleware.rate_limiter import rate_limit_middleware
 
 # Add project root to path FIRST
 project_root = Path(__file__).parent.parent
@@ -58,6 +60,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Rate limiting middleware
+app.middleware("http")(rate_limit_middleware)
+
 # Include routers
 app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
@@ -66,6 +71,7 @@ app.include_router(command_intelligence.router, prefix="/api", tags=["Command In
 app.include_router(document_intelligence.router, prefix="/api", tags=["Document Intelligence"])
 app.include_router(data_migration.router, prefix="/api", tags=["Data Migration"])
 app.include_router(domain_intelligence.router, prefix="/api", tags=["Domain Intelligence"])
+app.include_router(export.router, prefix="/api", tags=["Data Export"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(fees.router, prefix="/api/fees", tags=["Fees"])
 app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
