@@ -15,6 +15,7 @@ from uuid import uuid4
 from api.services.clarity import ClarityClient
 from api.services.database import get_db_manager
 from api.services.notifications import NotificationService
+from api.services.bulk_operations import get_bulk_service
 
 
 class CommandIntelligenceService:
@@ -126,6 +127,10 @@ class CommandIntelligenceService:
         """Extract intent from command using keywords"""
         command_lower = command.lower()
         
+        # Bulk attendance intents (must check BEFORE single attendance)
+        if any(phrase in command_lower for phrase in ["mark all", "mark entire", "all students", "whole class"]):
+            return "bulk_mark_attendance"
+        
         # Attendance intents
         if any(word in command_lower for word in ["mark", "present", "absent", "attendance", "late"]):
             return "mark_attendance"
@@ -145,6 +150,10 @@ class CommandIntelligenceService:
         # Incident intents
         if any(word in command_lower for word in ["incident", "report", "issue", "problem", "fight", "damage"]):
             return "create_incident"
+        
+        # Bulk message intents (must check BEFORE single message)
+        if any(phrase in command_lower for phrase in ["send to all", "notify all", "message all", "tell everyone"]):
+            return "bulk_send_message"
         
         # Message intents
         if any(word in command_lower for word in ["send", "message", "notify", "tell", "inform"]):
@@ -189,6 +198,12 @@ class CommandIntelligenceService:
         if subject_match:
             entities["subject"] = subject_match.group(1).strip()
         
+        # Extract class name (e.g., "Class 5A", "Primary 3", "Form 2")
+        class_pattern = r'\b((?:Class|Primary|Secondary|Form)\s+\d+[A-Z]?)\b'
+        class_match = re.search(class_pattern, command, re.IGNORECASE)
+        if class_match:
+            entities["class_name"] = class_match.group(1)
+        
         # Extract date (today, yesterday, or specific date)
         if "today" in command.lower():
             entities["date"] = date.today().isoformat()
@@ -222,7 +237,13 @@ class CommandIntelligenceService:
     async def _execute_intent(self, intent: str, entities: Dict, user_id: str) -> Dict[str, Any]:
         """Execute the parsed intent"""
         
-        if intent == "mark_attendance":
+        if intent == "bulk_mark_attendance":
+            return await self._bulk_mark_attendance(entities)
+        
+        elif intent == "bulk_send_message":
+            return await self._bulk_send_message(entities)
+        
+        elif intent == "mark_attendance":
             return await self._mark_attendance(entities)
         
         elif intent == "record_grade":
@@ -561,6 +582,60 @@ class CommandIntelligenceService:
             "action": "inventory_management",
             "note": "Inventory management via commands coming soon"
         }
+    
+    async def _bulk_mark_attendance(self, entities: Dict) -> Dict[str, Any]:
+        """Mark attendance for entire class"""
+        class_name = entities.get("class_name")
+        status = entities.get("status", "present")
+        date_str = entities.get("date")
+        
+        if not class_name:
+            # Try to extract from student_name if it looks like a class
+            potential_class = entities.get("student_name", "")
+            if any(word in potential_class.lower() for word in ["class", "primary", "secondary", "form"]):
+                class_name = potential_class
+        
+        if not class_name:
+            return {"error": "Class name not specified"}
+        
+        bulk_service = get_bulk_service(self.school_id)
+        result = await bulk_service.mark_class_attendance(
+            class_name=class_name,
+            status=status,
+            date_str=date_str
+        )
+        
+        return result
+    
+    async def _bulk_send_message(self, entities: Dict) -> Dict[str, Any]:
+        """Send message to multiple recipients"""
+        message = entities.get("message", "")
+        class_name = entities.get("class_name")
+        
+        if not message:
+            return {"error": "Message content not specified"}
+        
+        # Determine recipient type
+        if class_name:
+            recipient_type = "class_parents"
+            filters = {"class_name": class_name}
+            title = f"Message for {class_name} Parents"
+        else:
+            # Default to all parents
+            recipient_type = "all_parents"
+            filters = None
+            title = "School Announcement"
+        
+        bulk_service = get_bulk_service(self.school_id)
+        result = await bulk_service.send_bulk_message(
+            recipient_type=recipient_type,
+            title=title,
+            message=message,
+            filters=filters,
+            channels=["app", "sms"]
+        )
+        
+        return result
     
     def _calculate_grade(self, marks: float) -> str:
         """Calculate grade from marks"""

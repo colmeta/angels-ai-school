@@ -11,6 +11,7 @@ from api.routes import (
     agents,
     analytics,
     auth,
+    bulk_operations,
     clarity,
     command_intelligence,
     fees,
@@ -57,6 +58,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
+app.include_router(bulk_operations.router, prefix="/api", tags=["Bulk Operations"])
 app.include_router(command_intelligence.router, prefix="/api", tags=["Command Intelligence"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(fees.router, prefix="/api/fees", tags=["Fees"])
