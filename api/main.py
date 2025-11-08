@@ -14,6 +14,9 @@ from api.routes import (
     bulk_operations,
     clarity,
     command_intelligence,
+    data_migration,
+    document_intelligence,
+    domain_intelligence,
     fees,
     health,
     parents,
@@ -60,6 +63,9 @@ app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
 app.include_router(bulk_operations.router, prefix="/api", tags=["Bulk Operations"])
 app.include_router(command_intelligence.router, prefix="/api", tags=["Command Intelligence"])
+app.include_router(document_intelligence.router, prefix="/api", tags=["Document Intelligence"])
+app.include_router(data_migration.router, prefix="/api", tags=["Data Migration"])
+app.include_router(domain_intelligence.router, prefix="/api", tags=["Domain Intelligence"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(fees.router, prefix="/api/fees", tags=["Fees"])
 app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
