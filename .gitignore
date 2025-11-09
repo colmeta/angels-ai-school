@@ -1,18 +1,71 @@
+# Python
 __pycache__/
-.pytest_cache/
-.idea/
-.vscode/
-*.pyc
-*.pyo
-*.DS_Store
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# Environment variables
 .env
 .env.local
+.env.*.local
+ACTUAL_API_KEYS.md
 
-# Node
-webapp/node_modules/
-webapp/dist/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Python build
-build/
-dist/
-*.egg-info/
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+.cache/
+
+# Node (if using frontend)
+node_modules/
+.pnpm-store/
+
+# Build outputs
+*.pyc
+__pycache__/
