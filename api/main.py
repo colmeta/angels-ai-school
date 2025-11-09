@@ -30,6 +30,7 @@ from api.routes import (
     health,
     homework,
     library,
+    monitoring,
     multi_role,
     multi_school,
     parents,
@@ -131,6 +132,9 @@ app.include_router(uneb.router, prefix="/api", tags=["UNEB Integration"])
 app.include_router(canteen.router, prefix="/api", tags=["Canteen/Tuck Shop"])
 app.include_router(payroll.router, prefix="/api", tags=["Staff Payroll"])
 app.include_router(alumni.router, prefix="/api", tags=["Alumni Tracking"])
+
+# Production Monitoring
+app.include_router(monitoring.router, prefix="/api", tags=["Monitoring"])
 
 @app.get("/")
 async def root():
