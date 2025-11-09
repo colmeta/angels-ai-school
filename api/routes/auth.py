@@ -17,7 +17,7 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8)
     first_name: str
     last_name: str
-    role: str = Field(..., regex="^(admin|teacher|parent|student|staff)$")
+    role: str = Field(..., pattern="^(admin|teacher|parent|student|staff)$")
     phone: Optional[str] = None
     entity_type: Optional[str] = None
     entity_id: Optional[str] = None
