@@ -1,0 +1,165 @@
+# ============================================================================
+# RENDER ENVIRONMENT VARIABLES - COPY & PASTE INTO RENDER
+# Complete setup for Angels AI School Management Platform
+# ============================================================================
+
+# ============================================================================
+# 🔴 CRITICAL - DATABASE (Supabase)
+# ============================================================================
+DATABASE_URL
+postgresql://postgres:18January2005@db.hsmfffgszcgmmyynaeqi.supabase.co:5432/postgres
+
+# ============================================================================
+# 🔐 AUTHENTICATION & SECURITY
+# ============================================================================
+
+# Generate with: openssl rand -hex 32
+JWT_SECRET_KEY
+PASTE_YOUR_GENERATED_KEY_HERE
+
+# Generate with: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+ENCRYPTION_KEY
+PASTE_YOUR_GENERATED_KEY_HERE
+
+ACCESS_TOKEN_EXPIRE_MINUTES
+60
+
+REFRESH_TOKEN_EXPIRE_DAYS
+7
+
+# ============================================================================
+# 🤖 CLARITY ENGINE (11 Domains - Powers School System)
+# Document processing, data analysis, reports, insights
+# ============================================================================
+CLARITY_ENGINE_API_URL
+https://veritas-engine-zae0.onrender.com
+
+CLARITY_ENGINE_API_KEY
+QmlSn68qp7tXGv0EdqMiX41Qqo8LlRPI5J4W2cawPcA
+
+# ============================================================================
+# 💬 CLARITY PEARL AI (Chatbot for Parents/Teachers/Students)
+# Conversational AI, Q&A, help desk
+# ============================================================================
+CLARITY_PEARL_API_URL
+https://clarity-pearl-ai-api.onrender.com
+
+CLARITY_PEARL_API_KEY
+YOUR_CLARITY_PEARL_API_KEY_HERE
+
+# ============================================================================
+# 🎓 APP SETTINGS
+# ============================================================================
+DEFAULT_BRAND_NAME
+Angels AI School
+
+API_BASE_URL
+https://YOUR-RENDER-SERVICE-NAME.onrender.com
+
+FRONTEND_URL
+https://YOUR-FRONTEND-URL.onrender.com
+
+LOG_LEVEL
+INFO
+
+# ============================================================================
+# 📧 EMAIL NOTIFICATIONS (Optional for now - SendGrid Free: 100/day)
+# ============================================================================
+# SENDGRID_API_KEY
+# YOUR_SENDGRID_KEY_HERE
+
+# SENDGRID_FROM_EMAIL
+# noreply@your-school.com
+
+# SENDGRID_FROM_NAME
+# Angels AI School
+
+# ============================================================================
+# 📱 SMS NOTIFICATIONS (Optional for now - Africa's Talking Sandbox)
+# ============================================================================
+# AFRICAS_TALKING_API_KEY
+# YOUR_AFRICAS_TALKING_KEY
+
+# AFRICAS_TALKING_USERNAME
+# YOUR_USERNAME
+
+# ============================================================================
+# 💰 MOBILE MONEY (Optional for now - Get keys when ready)
+# ============================================================================
+# MTN MOBILE MONEY UGANDA
+# MTN_MOMO_API_KEY
+# YOUR_MTN_KEY
+
+# MTN_MOMO_USER_ID
+# YOUR_MTN_USER_ID
+
+# MTN_MOMO_SUBSCRIPTION_KEY
+# YOUR_SUBSCRIPTION_KEY
+
+# MTN_MOMO_ENVIRONMENT
+# sandbox
+
+# AIRTEL MONEY UGANDA
+# AIRTEL_MONEY_API_KEY
+# YOUR_AIRTEL_KEY
+
+# AIRTEL_MONEY_CLIENT_ID
+# YOUR_CLIENT_ID
+
+# AIRTEL_MONEY_CLIENT_SECRET
+# YOUR_CLIENT_SECRET
+
+# AIRTEL_MONEY_ENVIRONMENT
+# sandbox
+
+# ============================================================================
+# 📸 OCR (Optional for now - Google Cloud Vision Free: 1000/month)
+# ============================================================================
+# GOOGLE_APPLICATION_CREDENTIALS_JSON
+# {"type":"service_account","project_id":"...","private_key":"..."}
+
+# ============================================================================
+# 🔔 WEB PUSH NOTIFICATIONS (Optional for now)
+# ============================================================================
+# VAPID_PUBLIC_KEY
+# YOUR_VAPID_PUBLIC_KEY
+
+# VAPID_PRIVATE_KEY
+# YOUR_VAPID_PRIVATE_KEY
+
+# VAPID_SUBJECT
+# mailto:admin@your-school.com
+
+# ============================================================================
+# 📊 MONITORING (Optional - Sentry Free: 5000 errors/month)
+# ============================================================================
+# SENTRY_DSN
+# https://your-sentry-dsn@sentry.io/project-id
+
+# ============================================================================
+# ⚠️ SECURITY WARNING
+# ============================================================================
+# Your Supabase password (18January2005) is now in our public conversation.
+# CHANGE IT IMMEDIATELY after first successful deployment!
+#
+# Steps to change:
+# 1. Go to Supabase → Settings → Database
+# 2. Click "Database password"
+# 3. Click "Reset database password"
+# 4. Update DATABASE_URL in Render with new password
+
+# ============================================================================
+# 📝 REQUIRED TO GENERATE BEFORE DEPLOYING
+# ============================================================================
+# 
+# Run these commands locally:
+#
+# JWT Secret:
+# openssl rand -hex 32
+#
+# Encryption Key:
+# python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+#
+# Then paste the generated values above!
+#
+# ============================================================================
