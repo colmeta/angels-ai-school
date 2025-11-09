@@ -16,7 +16,7 @@ export function ParentPortalMultiSchool({ userId }: ParentPortalMultiSchoolProps
   const [isAllSchools, setIsAllSchools] = useState(true);
 
   // Fetch combined dashboard for all schools
-  const { data: combinedData, isLoading: loadingCombined } = useQuery({
+  const { data: combinedData, isPending: loadingCombined } = useQuery({
     queryKey: ['combined-dashboard', userId],
     queryFn: async () => {
       const response = await apiClient.get(`/multi-school/user/${userId}/dashboard/combined`);
@@ -26,7 +26,7 @@ export function ParentPortalMultiSchool({ userId }: ParentPortalMultiSchoolProps
   });
 
   // Fetch single school dashboard
-  const { data: singleSchoolData, isLoading: loadingSingle } = useQuery({
+  const { data: singleSchoolData, isPending: loadingSingle } = useQuery({
     queryKey: ['single-school-dashboard', userId, selectedSchool],
     queryFn: async () => {
       const response = await apiClient.get(`/${selectedSchool}/parent/${userId}/dashboard`);

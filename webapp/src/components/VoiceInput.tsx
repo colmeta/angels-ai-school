@@ -25,7 +25,7 @@ export function VoiceInput({ schoolId, onResult, onError, disabled }: VoiceInput
     stopListening,
   } = useVoiceCommands({
     schoolId,
-    onResult: (result) => {
+    onResult: (result: any) => {
       if (result.success) {
         setFeedback(`✅ ${result.command || 'Command executed successfully'}`);
         setFeedbackType('success');
@@ -38,7 +38,7 @@ export function VoiceInput({ schoolId, onResult, onError, disabled }: VoiceInput
       // Clear feedback after 5 seconds
       setTimeout(() => setFeedback(''), 5000);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setFeedback(`❌ ${error}`);
       setFeedbackType('error');
       onError?.(error);

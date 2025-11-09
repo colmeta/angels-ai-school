@@ -352,10 +352,10 @@ export const TeacherWorkspace = () => {
                 <div className="flex gap-4">
                   <button
                     onClick={handleUpload}
-                    disabled={uploadMutation.isLoading}
+                    disabled={uploadMutation.isPending}
                     className="rounded-lg bg-green-600 px-6 py-3 font-semibold hover:bg-green-500 disabled:opacity-50"
                   >
-                    {uploadMutation.isLoading ? "⏳ Processing..." : "✅ Upload & Process"}
+                    {uploadMutation.isPending ? "⏳ Processing..." : "✅ Upload & Process"}
                   </button>
                   <button
                     onClick={() => setCapturedPhoto(null)}

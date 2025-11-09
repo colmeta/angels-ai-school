@@ -51,7 +51,7 @@ export const useOfflineSync = () => {
     if ("serviceWorker" in navigator && "SyncManager" in window) {
       const registration = await navigator.serviceWorker.ready;
       try {
-        await registration.sync.register("sync-offline-queue");
+        await (registration as any).sync.register("sync-offline-queue");
       } catch (error) {
         console.error("Background sync registration failed", error);
         processQueue();

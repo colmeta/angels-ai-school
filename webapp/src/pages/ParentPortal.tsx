@@ -675,9 +675,9 @@ export const ParentPortal = () => {
             <button
               onClick={handlePayment}
               className="rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-black hover:bg-emerald-400"
-              disabled={paymentMutation.isLoading}
+              disabled={paymentMutation.isPending}
             >
-              {paymentMutation.isLoading
+              {paymentMutation.isPending
                 ? "Processing..."
                 : navigator.onLine
                 ? "Send Payment Request"

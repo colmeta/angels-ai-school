@@ -45,7 +45,14 @@ export const SupportOps = () => {
     recorded_by: "",
   });
 
-  const [libraryForm, setLibraryForm] = useState({
+  const [libraryForm, setLibraryForm] = useState<{
+    student_name: string;
+    class_name: string;
+    book_title: string;
+    action: "borrow" | "return";
+    due_date: string;
+    recorded_by: string;
+  }>({
     student_name: "",
     class_name: "",
     book_title: "",
@@ -604,7 +611,7 @@ export const SupportOps = () => {
 
       <section className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 space-y-2">
         <h2 className="text-lg font-semibold">Clarity Support Intelligence</h2>
-        {reportQuery.isLoading ? (
+        {reportQuery.isPending ? (
           <p className="text-sm text-slate-400">Generating report…</p>
         ) : reportQuery.data ? (
           <>
