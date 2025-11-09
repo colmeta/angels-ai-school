@@ -1019,6 +1019,10 @@ def get_db() -> DatabaseManager:
         _db_instance = DatabaseManager()
     return _db_instance
 
+def get_db_manager() -> DatabaseManager:
+    """Alias for get_db() - returns the database manager instance"""
+    return get_db()
+
 # Helper to get operation classes
 def get_student_ops() -> StudentOperations:
     return StudentOperations(get_db())
