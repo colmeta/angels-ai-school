@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import json
 import psycopg2.extras
 
-from api.services.database import DatabaseService
+from api.services.database import get_db_manager
 
 
 class AuditLogger:
@@ -20,7 +20,7 @@ class AuditLogger:
     """
     
     def __init__(self):
-        self.db = DatabaseService()
+        self.db = get_db_manager()
     
     def log_action(
         self,
