@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 from api.core.config import get_settings
 from api.routes import (
     agents,
+    alumni,
     analytics,
     auth,
     boarding,
     bulk_operations,
+    canteen,
     clarity,
     command_intelligence,
     data_migration,
@@ -31,6 +33,7 @@ from api.routes import (
     multi_role,
     multi_school,
     parents,
+    payroll,
     payments,
     requirements,
     schools,
@@ -123,6 +126,11 @@ app.include_router(ussd.router, prefix="/api", tags=["USSD Support"])
 app.include_router(whatsapp.router, prefix="/api", tags=["WhatsApp Integration"])
 app.include_router(translation.router, prefix="/api", tags=["Multi-Language Support"])
 app.include_router(uneb.router, prefix="/api", tags=["UNEB Integration"])
+
+# Additional Critical Features (Phase 3)
+app.include_router(canteen.router, prefix="/api", tags=["Canteen/Tuck Shop"])
+app.include_router(payroll.router, prefix="/api", tags=["Staff Payroll"])
+app.include_router(alumni.router, prefix="/api", tags=["Alumni Tracking"])
 
 @app.get("/")
 async def root():
