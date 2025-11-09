@@ -17,7 +17,6 @@ from uuid import uuid4
 
 from api.services.database import get_db_manager
 from api.services.notifications import NotificationService
-from api.services.command_intelligence import CommandIntelligenceService
 
 
 class BulkOperationsService:
