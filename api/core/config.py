@@ -11,10 +11,41 @@ class Settings(BaseSettings):
     # Database
     database_url: str = Field(..., validation_alias="DATABASE_URL")
 
+    # Environment
+    environment: str = Field(default="production", validation_alias="ENVIRONMENT")
+    
+    # API Settings
+    api_host: str = Field(default="0.0.0.0", validation_alias="API_HOST")
+    api_port: int = Field(default=8000, validation_alias="API_PORT")
+    api_secret_key: str = Field(default="change-in-production", validation_alias="API_SECRET_KEY")
+    
+    # JWT Authentication
+    jwt_secret_key: Optional[str] = Field(default=None, validation_alias="JWT_SECRET_KEY")
+    access_token_expire_minutes: int = Field(default=60, validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+    refresh_token_expire_days: int = Field(default=30, validation_alias="REFRESH_TOKEN_EXPIRE_DAYS")
+    
+    # Encryption
+    encryption_key: Optional[str] = Field(default=None, validation_alias="ENCRYPTION_KEY")
+    
+    # Frontend
+    frontend_url: str = Field(default="http://localhost:3000", validation_alias="FRONTEND_URL")
+    
+    # Redis (optional)
+    redis_url: Optional[str] = Field(default=None, validation_alias="REDIS_URL")
+    
+    # Webhooks
+    webhook_base_url: Optional[str] = Field(default=None, validation_alias="WEBHOOK_BASE_URL")
+
     # Clarity Engine
     clarity_api_key: Optional[str] = Field(default=None, validation_alias="CLARITY_API_KEY")
-    clarity_base_url: HttpUrl = Field(
+    clarity_base_url: str = Field(
         default="https://veritas-engine-zae0.onrender.com", validation_alias="CLARITY_BASE_URL"
+    )
+    
+    # Clarity Pearl AI Chatbot
+    clarity_pearl_api_key: Optional[str] = Field(default=None, validation_alias="CLARITY_PEARL_API_KEY")
+    clarity_pearl_api_url: str = Field(
+        default="https://clarity-pearl-ai-api.onrender.com", validation_alias="CLARITY_PEARL_API_URL"
     )
 
     # Optional fallback LLM providers
@@ -31,37 +62,70 @@ class Settings(BaseSettings):
     default_brand_accent_color: str = Field(
         default="#FFB400", validation_alias="DEFAULT_BRAND_ACCENT_COLOR"
     )
-    default_brand_logo_url: Optional[HttpUrl] = Field(
+    default_brand_logo_url: Optional[str] = Field(
         default=None, validation_alias="DEFAULT_BRAND_LOGO_URL"
     )
 
     # Feature flags
     enable_background_sync: bool = Field(default=True, validation_alias="ENABLE_BACKGROUND_SYNC")
     enable_parent_chatbot: bool = Field(default=True, validation_alias="ENABLE_PARENT_CHATBOT")
+    enable_whatsapp: bool = Field(default=False, validation_alias="ENABLE_WHATSAPP")
+    enable_sms: bool = Field(default=True, validation_alias="ENABLE_SMS")
+    enable_email: bool = Field(default=False, validation_alias="ENABLE_EMAIL")
+    enable_mpesa: bool = Field(default=False, validation_alias="ENABLE_MPESA")
+    enable_ai_agents: bool = Field(default=True, validation_alias="ENABLE_AI_AGENTS")
+    enable_ocr: bool = Field(default=True, validation_alias="ENABLE_OCR")
+    demo_mode: bool = Field(default=False, validation_alias="DEMO_MODE")
+
+    # Rate limiting
+    rate_limit_per_minute: int = Field(default=60, validation_alias="RATE_LIMIT_PER_MINUTE")
+    rate_limit_per_hour: int = Field(default=1000, validation_alias="RATE_LIMIT_PER_HOUR")
 
     # Whitelabel options
     allowed_brand_domains: List[str] = Field(default_factory=list, validation_alias="ALLOWED_BRAND_DOMAINS")
 
     # Mobile money providers (optional live credentials)
     mtn_mobile_money_api_key: Optional[str] = Field(default=None, validation_alias="MTN_MOBILE_MONEY_API_KEY")
-    mtn_mobile_money_base_url: HttpUrl = Field(
+    mtn_mobile_money_base_url: str = Field(
         default="https://api.mtn.com/mobilemoney", validation_alias="MTN_MOBILE_MONEY_BASE_URL"
     )
     airtel_mobile_money_api_key: Optional[str] = Field(
         default=None, validation_alias="AIRTEL_MOBILE_MONEY_API_KEY"
     )
-    airtel_mobile_money_base_url: HttpUrl = Field(
+    airtel_mobile_money_base_url: str = Field(
         default="https://openapi.airtel.africa/mobile-money", validation_alias="AIRTEL_MOBILE_MONEY_BASE_URL"
     )
 
     # Chatbot integration (optional external provider)
     chatbot_api_key: Optional[str] = Field(default=None, validation_alias="CHATBOT_API_KEY")
-    chatbot_api_base_url: Optional[HttpUrl] = Field(default=None, validation_alias="CHATBOT_API_BASE_URL")
+    chatbot_api_base_url: Optional[str] = Field(default=None, validation_alias="CHATBOT_API_BASE_URL")
+    
+    # Notifications
+    africas_talking_api_key: Optional[str] = Field(default=None, validation_alias="AFRICAS_TALKING_API_KEY")
+    africas_talking_username: Optional[str] = Field(default="sandbox", validation_alias="AFRICAS_TALKING_USERNAME")
+    africas_talking_sender_id: Optional[str] = Field(default="AngelsAI", validation_alias="AFRICAS_TALKING_SENDER_ID")
+    twilio_account_sid: Optional[str] = Field(default=None, validation_alias="TWILIO_ACCOUNT_SID")
+    twilio_auth_token: Optional[str] = Field(default=None, validation_alias="TWILIO_AUTH_TOKEN")
+    twilio_phone_number: Optional[str] = Field(default=None, validation_alias="TWILIO_PHONE_NUMBER")
+    sendgrid_api_key: Optional[str] = Field(default=None, validation_alias="SENDGRID_API_KEY")
+    sendgrid_from_email: Optional[str] = Field(default="noreply@angelsai.school", validation_alias="SENDGRID_FROM_EMAIL")
+    
+    # Web Push
+    vapid_public_key: Optional[str] = Field(default=None, validation_alias="VAPID_PUBLIC_KEY")
+    vapid_private_key: Optional[str] = Field(default=None, validation_alias="VAPID_PRIVATE_KEY")
+    vapid_email: Optional[str] = Field(default="admin@angelsai.school", validation_alias="VAPID_EMAIL")
+    
+    # Google Cloud Vision OCR
+    google_application_credentials: Optional[str] = Field(default=None, validation_alias="GOOGLE_APPLICATION_CREDENTIALS")
+    
+    # CrewAI
+    crewai_telemetry_opt_out: bool = Field(default=True, validation_alias="CREWAI_TELEMETRY_OPT_OUT")
 
     model_config = {
         "case_sensitive": False,
         "env_file": ".env",
         "env_file_encoding": "utf-8",
+        "extra": "ignore",  # CRITICAL: Ignore extra environment variables not defined here
     }
 
     @field_validator("allowed_brand_domains", mode="before")
