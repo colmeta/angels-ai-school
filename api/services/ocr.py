@@ -22,10 +22,11 @@ from api.services.clarity import ClarityClient
 class OCRService:
     """Production OCR service using Google Cloud Vision + Clarity fallback"""
     
-    def __init__(self):
-        self.settings = get_settings()
-        self.vision_client = None
-        if VISION_AVAILABLE:
+    def __init__(self, settings=None, vision_client=None):
+        self.settings = settings or get_settings()
+        self.vision_client = vision_client
+        
+        if self.vision_client is None and VISION_AVAILABLE:
             try:
                 self.vision_client = vision.ImageAnnotatorClient()
             except Exception:

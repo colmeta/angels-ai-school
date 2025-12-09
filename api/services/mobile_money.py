@@ -16,11 +16,11 @@ SUPPORTED_PROVIDERS = {"MTN", "AIRTEL"}
 class MobileMoneyService:
     """Manages MTN/Airtel mobile money initiation, reconciliation, and fallbacks."""
 
-    def __init__(self, school_id: str):
+    def __init__(self, school_id: str, ops=None, fees=None, settings=None):
         self.school_id = school_id
-        self.settings = get_settings()
-        self.ops = get_mobile_money_ops()
-        self.fees = get_fee_ops()
+        self.settings = settings or get_settings()
+        self.ops = ops or get_mobile_money_ops()
+        self.fees = fees or get_fee_ops()
 
     def initiate_payment(
         self,

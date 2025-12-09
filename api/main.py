@@ -49,6 +49,7 @@ from api.routes import (
     uneb,
     ussd,
     whatsapp,
+    messaging,
 )
 from api.middleware.rate_limiter import rate_limit_middleware
 
@@ -123,6 +124,7 @@ app.include_router(homework.router, prefix="/api", tags=["Homework Tracking"])
 app.include_router(events.router, prefix="/api", tags=["School Events"])
 
 # Communication & Integration (Top 6 from Field Research)
+app.include_router(messaging.router, prefix="/api", tags=["Internal Messaging (Free)"])
 app.include_router(ussd.router, prefix="/api", tags=["USSD Support"])
 app.include_router(whatsapp.router, prefix="/api", tags=["WhatsApp Integration"])
 app.include_router(translation.router, prefix="/api", tags=["Multi-Language Support"])
