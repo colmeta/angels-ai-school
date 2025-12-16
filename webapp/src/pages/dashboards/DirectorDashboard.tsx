@@ -169,7 +169,7 @@ export const DirectorDashboard = () => {
                         <div>
                             <h4 className="text-white font-medium">Fee Arrears - Senior 4</h4>
                             <p className="text-slate-400 text-sm mt-1">
-                12 students have outstanding balances > 500k. Recommended Action: Trigger automated SMS reminders.
+                                12 students have outstanding balances &gt; 500k. Recommended Action: Trigger automated SMS reminders.
                             </p>
                         </div>
                     </div>
