@@ -61,6 +61,12 @@ if str(project_root) not in sys.path:
 load_dotenv()
 settings = get_settings()
 
+# Initialize MCP Provider (Default to Clarity for now)
+from api.services.clarity import get_clarity_client
+# This call initializes the singleton
+get_clarity_client()
+
+
 # Create FastAPI app with branding-aware metadata
 app = FastAPI(
     title=f"{settings.default_brand_name} API",
@@ -101,8 +107,12 @@ app.include_router(requirements.router, prefix="/api", tags=["School Requirement
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(fees.router, prefix="/api/fees", tags=["Fees"])
 app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
-app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
-app.include_router(clarity.router, prefix="/api/clarity", tags=["Clarity Engine"])
+from api.routes.finance import router as finance_router
+
+app.include_router(agents.router, prefix="/api/v1/agents", tags=["AI Agents"])
+app.include_router(clarity.router, prefix="/api/v1/clarity", tags=["Clarity Engine"])
+app.include_router(finance_router, prefix="/api/v1", tags=["Financial Intelligence"])
+
 app.include_router(schools.router, prefix="/api/schools", tags=["School Configuration"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(chatbot.router, prefix="/api", tags=["Chatbot"])

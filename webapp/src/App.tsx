@@ -12,6 +12,10 @@ import { AgentsOverview } from "./pages/AgentsOverview";
 import { useBranding } from "./hooks/useBranding";
 import { useBrandingStore } from "./stores/branding";
 import { useOfflineSync } from "./hooks/useOfflineSync";
+import { DirectorDashboard } from "./pages/dashboards/DirectorDashboard";
+import { ClassDashboard } from "./pages/dashboards/ClassDashboard";
+import { StudentProfile } from "./pages/dashboards/StudentProfile";
+import { StaffProfile } from "./pages/dashboards/StaffProfile";
 
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
@@ -27,6 +31,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/director" element={<DirectorDashboard />} />
+          <Route path="/dashboard/class" element={<ClassDashboard />} />
+          <Route path="/dashboard/student/:id" element={<StudentProfile />} />
+          <Route path="/dashboard/staff/:id" element={<StaffProfile />} />
           <Route path="/teacher" element={<TeacherWorkspace />} />
           <Route path="/parent" element={<ParentPortal />} />
           <Route path="/student" element={<StudentPulse />} />

@@ -7,8 +7,12 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 from api.services.executive import ExecutiveAssistant
-from api.services.clarity import ClarityClient
+from api.core.mcp import get_mcp_client, MCPAgentRequest
 from api.services.database import get_db_manager
+from api.models.agents import (
+    CommandStartRequest, DocumentBatchRequest, AutomateTaskRequest, 
+    ParentQueryRequest
+)
 
 router = APIRouter()
 
@@ -21,7 +25,6 @@ async def digital_ceo_briefing(school_id: str):
     """
     try:
         db = get_db_manager()
-        clarity = ClarityClient()
         
         # Gather school-wide metrics
         metrics = {
@@ -52,10 +55,10 @@ async def digital_ceo_briefing(school_id: str):
             )[0]["total"]
         }
         
-        # Use Clarity to generate strategic briefing
+        # Use MCP for strategic briefing
         try:
-            briefing = clarity.analyze(
-                directive=f"""
+            mcp = get_mcp_client()
+            directive = f"""
                 You are the Digital CEO of this school. Produce an executive strategic briefing.
                 Current metrics:
                 - Total Students: {metrics['enrollment']}
@@ -69,11 +72,16 @@ async def digital_ceo_briefing(school_id: str):
                 3. Critical risks
                 4. Strategic recommendations
                 5. Priority action items
-                """,
-                domain="education"
-            )
-        finally:
-            clarity.close()
+            """
+            response = mcp.analyze(MCPAgentRequest(
+                directive=directive,
+                domain="education",
+                context=metrics
+            ))
+            briefing = response.content
+        except Exception as e:
+            # Fallback for robustness
+            briefing = {"error": "Intelligence unavailable", "details": str(e)}
         
         return {
             "success": True,
@@ -88,27 +96,26 @@ async def digital_ceo_briefing(school_id: str):
 
 
 @router.post("/{school_id}/command-intelligence/process")
-async def command_intelligence(school_id: str, directive: str):
+async def command_intelligence(school_id: str, request: CommandStartRequest):
     """
     Command Intelligence Agent - Translates natural language to actions
     Real implementation that actually executes commands
     """
     try:
-        clarity = ClarityClient()
+
         
-        # Use Clarity to understand and structure the command
-        try:
-            command_analysis = clarity.analyze(
-                directive=f"""
-                You are the Command Intelligence Agent. Parse this directive and return a structured action plan.
-                Return JSON with: {{"intent": "...", "entities": [...], "actions": [...]}}
-                
-                Directive: {directive}
-                """,
-                domain="data-science"
-            )
-        finally:
-            clarity.close()
+        # Use MCP to understand and structure the command
+        mcp = get_mcp_client()
+        response = mcp.analyze(MCPAgentRequest(
+            directive=f"""
+            You are the Command Intelligence Agent. Parse this directive and return a structured action plan.
+            Return JSON with: {{"intent": "...", "entities": [...], "actions": [...]}}
+            
+            Directive: {request.directive}
+            """,
+            domain="data-science"
+        ))
+        command_analysis = response.content
         
         # Execute the command (placeholder for complex execution logic)
         execution_result = {
@@ -120,7 +127,7 @@ async def command_intelligence(school_id: str, directive: str):
         return {
             "success": True,
             "agent": "Command Intelligence",
-            "directive": directive,
+            "directive": request.directive,
             "execution": execution_result,
             "timestamp": datetime.now().isoformat()
         }
@@ -130,7 +137,7 @@ async def command_intelligence(school_id: str, directive: str):
 
 
 @router.post("/{school_id}/document-intelligence/process-batch")
-async def document_intelligence_batch(school_id: str, documents: List[Dict]):
+async def document_intelligence_batch(school_id: str, request: DocumentBatchRequest):
     """
     Document Intelligence Agent - Mass document processing with OCR
     Real implementation handling multiple documents
@@ -141,13 +148,13 @@ async def document_intelligence_batch(school_id: str, documents: List[Dict]):
         ocr = OCRService()
         results = []
         
-        for doc in documents:
+        for doc in request.documents:
             result = ocr.process_image(
-                image_data=doc.get("image_data"),
-                image_type=doc.get("type", "base64")
+                image_data=doc.image_data,
+                image_type=doc.type
             )
             results.append({
-                "document_id": doc.get("id"),
+                "document_id": doc.id,
                 "success": result["success"],
                 "text_extracted": result.get("text", ""),
                 "confidence": result.get("confidence", 0)
@@ -165,7 +172,7 @@ async def document_intelligence_batch(school_id: str, documents: List[Dict]):
 
 
 @router.post("/{school_id}/parent-engagement/respond")
-async def parent_engagement_agent(school_id: str, parent_id: str, query: str):
+async def parent_engagement_agent(school_id: str, request: ParentQueryRequest):
     """
     Parent Engagement Oracle - 24/7 multilingual support
     Real chatbot implementation
@@ -175,15 +182,15 @@ async def parent_engagement_agent(school_id: str, parent_id: str, query: str):
         
         chatbot = ChatbotService(school_id)
         response = await chatbot.query(
-            user_query=query,
+            user_query=request.query,
             user_type="parent",
-            user_id=parent_id
+            user_id=request.parent_id
         )
         
         return {
             "success": True,
             "agent": "Parent Engagement Oracle",
-            "query": query,
+            "query": request.query,
             "response": response
         }
         
@@ -199,7 +206,7 @@ async def financial_operations_agent(school_id: str):
     """
     try:
         db = get_db_manager()
-        clarity = ClarityClient()
+
         
         # Observe - Gather financial data
         financial_data = {
@@ -221,30 +228,30 @@ async def financial_operations_agent(school_id: str):
             )[0]["total"]
         }
         
-        # Orient, Decide, Act - Use Clarity for analysis
-        try:
-            ooda_analysis = clarity.analyze(
-                directive=f"""
-                You are the Financial Operations Agent running OODA loop analysis.
-                
-                Financial Data:
-                - Total Fees Due: {financial_data['total_fees_due']}
-                - Total Collected: {financial_data['total_collected']}
-                - Pending Balance: {financial_data['pending_balance']}
-                - Monthly Expenses: {financial_data['monthly_expenses']}
-                
-                Provide:
-                1. Financial health assessment
-                2. Cash flow forecast (next 90 days)
-                3. Risk areas
-                4. Revenue optimization opportunities
-                5. Cost reduction recommendations
-                6. Specific actions to take NOW
-                """,
-                domain="financial"
-            )
-        finally:
-            clarity.close()
+        # Orient, Decide, Act - Use MCP for analysis
+        mcp = get_mcp_client()
+        response = mcp.analyze(MCPAgentRequest(
+            directive=f"""
+            You are the Financial Operations Agent running OODA loop analysis.
+            
+            Financial Data:
+            - Total Fees Due: {financial_data['total_fees_due']}
+            - Total Collected: {financial_data['total_collected']}
+            - Pending Balance: {financial_data['pending_balance']}
+            - Monthly Expenses: {financial_data['monthly_expenses']}
+            
+            Provide:
+            1. Financial health assessment
+            2. Cash flow forecast (next 90 days)
+            3. Risk areas
+            4. Revenue optimization opportunities
+            5. Cost reduction recommendations
+            6. Specific actions to take NOW
+            """,
+            domain="financial",
+            context=financial_data
+        ))
+        ooda_analysis = response.content
         
         return {
             "success": True,
@@ -267,7 +274,7 @@ async def academic_operations_agent(school_id: str):
     """
     try:
         db = get_db_manager()
-        clarity = ClarityClient()
+
         
         # Get academic performance data
         performance_data = db.execute_query(
@@ -286,25 +293,25 @@ async def academic_operations_agent(school_id: str):
             (school_id,), fetch=True
         )
         
-        # Use Clarity for predictive analysis
-        try:
-            predictions = clarity.analyze(
-                directive=f"""
-                You are the Academic Operations Agent. Analyze student performance and predict outcomes.
-                
-                At-risk students data: {performance_data}
-                
-                For each student, provide:
-                1. Risk level (high/medium/low)
-                2. Predicted outcome without intervention
-                3. Specific intervention recommendations
-                4. Timeline for intervention
-                5. Success probability with intervention
-                """,
-                domain="education"
-            )
-        finally:
-            clarity.close()
+        # Use MCP for predictive analysis
+        mcp = get_mcp_client()
+        response = mcp.analyze(MCPAgentRequest(
+            directive=f"""
+            You are the Academic Operations Agent. Analyze student performance and predict outcomes.
+            
+            At-risk students data: {performance_data}
+            
+            For each student, provide:
+            1. Risk level (high/medium/low)
+            2. Predicted outcome without intervention
+            3. Specific intervention recommendations
+            4. Timeline for intervention
+            5. Success probability with intervention
+            """,
+            domain="education",
+            context={"student_count": len(performance_data)}
+        ))
+        predictions = response.content
         
         return {
             "success": True,
@@ -319,70 +326,62 @@ async def academic_operations_agent(school_id: str):
 
 
 @router.post("/{school_id}/teacher-liberation/automate-task")
-async def teacher_liberation_agent(school_id: str, teacher_id: str, task_type: str, task_data: Dict):
+async def teacher_liberation_agent(school_id: str, request: AutomateTaskRequest):
     """
     Teacher Liberation Agent - Automates administrative tasks
     Real automation that actually does the work
     """
     try:
-        clarity = ClarityClient()
+        mcp = get_mcp_client()
         
-        automated_result = None
-        
-        if task_type == "generate_lesson_plan":
+        if request.task_type == "generate_lesson_plan":
             # Generate lesson plan
-            try:
-                automated_result = clarity.analyze(
-                    directive=f"""
-                    Generate a detailed lesson plan for:
-                    Subject: {task_data.get('subject')}
-                    Topic: {task_data.get('topic')}
-                    Class: {task_data.get('class_name')}
-                    Duration: {task_data.get('duration', 40)} minutes
-                    
-                    Include: objectives, materials, activities, assessment, homework
-                    """,
-                    domain="education"
-                )
-            finally:
-                clarity.close()
+            response = mcp.analyze(MCPAgentRequest(
+                directive=f"""
+                Generate a detailed lesson plan for:
+                Subject: {request.task_data.get('subject')}
+                Topic: {request.task_data.get('topic')}
+                Class: {request.task_data.get('class_name')}
+                Duration: {request.task_data.get('duration', 40)} minutes
                 
-        elif task_type == "generate_parent_letters":
+                Include: objectives, materials, activities, assessment, homework
+                """,
+                domain="education"
+            ))
+            automated_result = response.content
+                
+        elif request.task_type == "generate_parent_letters":
             # Generate personalized parent communication
-            try:
-                automated_result = clarity.analyze(
-                    directive=f"""
-                    Generate personalized parent communication letters for:
-                    Purpose: {task_data.get('purpose')}
-                    Tone: Professional and friendly
-                    Language: Clear and accessible
-                    
-                    Include: greeting, body, action items, contact info
-                    """,
-                    domain="education"
-                )
-            finally:
-                clarity.close()
+            response = mcp.analyze(MCPAgentRequest(
+                 directive=f"""
+                Generate personalized parent communication letters for:
+                Purpose: {request.task_data.get('purpose')}
+                Tone: Professional and friendly
+                Language: Clear and accessible
                 
-        elif task_type == "grade_analysis":
+                Include: greeting, body, action items, contact info
+                """,
+                domain="education"
+            ))
+            automated_result = response.content
+                
+        elif request.task_type == "grade_analysis":
             # Analyze grades and generate insights
-            try:
-                automated_result = clarity.analyze(
-                    directive=f"""
-                    Analyze these grades and provide insights:
-                    {task_data.get('grades_data')}
-                    
-                    Provide: trends, outliers, recommendations, commendations
-                    """,
-                    domain="education"
-                )
-            finally:
-                clarity.close()
+            response = mcp.analyze(MCPAgentRequest(
+                directive=f"""
+                Analyze these grades and provide insights:
+                {request.task_data.get('grades_data')}
+                
+                Provide: trends, outliers, recommendations, commendations
+                """,
+                domain="education"
+            ))
+            automated_result = response.content
         
         return {
             "success": True,
             "agent": "Teacher Liberation",
-            "task_type": task_type,
+            "task_type": request.task_type,
             "result": automated_result,
             "time_saved_minutes": 30  # Average time saved
         }
@@ -442,7 +441,7 @@ async def security_guardian_agent(school_id: str):
     """
     try:
         db = get_db_manager()
-        clarity = ClarityClient()
+
         
         # Get recent incidents
         incidents_data = db.execute_query(
@@ -456,25 +455,25 @@ async def security_guardian_agent(school_id: str):
         )
         
         # Analyze patterns and provide recommendations
-        try:
-            security_analysis = clarity.analyze(
-                directive=f"""
-                You are the Security & Safety Guardian. Analyze these incidents and provide security recommendations.
-                
-                Incidents (last 30 days): {incidents_data}
-                
-                Provide:
-                1. Pattern analysis (hot spots, times, types)
-                2. Risk assessment
-                3. Prevention strategies
-                4. Recommended safety drills
-                5. Policy updates needed
-                6. Immediate actions required
-                """,
-                domain="security"
-            )
-        finally:
-            clarity.close()
+        mcp = get_mcp_client()
+        response = mcp.analyze(MCPAgentRequest(
+            directive=f"""
+            You are the Security & Safety Guardian. Analyze these incidents and provide security recommendations.
+            
+            Incidents (last 30 days): {incidents_data}
+            
+            Provide:
+            1. Pattern analysis (hot spots, times, types)
+            2. Risk assessment
+            3. Prevention strategies
+            4. Recommended safety drills
+            5. Policy updates needed
+            6. Immediate actions required
+            """,
+            domain="security",
+            context={"incident_count": len(incidents_data)}
+        ))
+        security_analysis = response.content
         
         return {
             "success": True,
