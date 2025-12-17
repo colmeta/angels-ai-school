@@ -16,6 +16,9 @@ import { DirectorDashboard } from "./pages/dashboards/DirectorDashboard";
 import { ClassDashboard } from "./pages/dashboards/ClassDashboard";
 import { StudentProfile } from "./pages/dashboards/StudentProfile";
 import { StaffProfile } from "./pages/dashboards/StaffProfile";
+import { TemplateBuilder } from "./pages/tools/TemplateBuilder";
+import { UniversalImport } from "./pages/tools/UniversalImport";
+import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
 
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
@@ -40,6 +43,9 @@ const App = () => {
           <Route path="/student" element={<StudentPulse />} />
           <Route path="/support" element={<SupportOps />} />
           <Route path="/agents" element={<AgentsOverview />} />
+          <Route path="/tools/template-builder" element={<TemplateBuilder />} />
+          <Route path="/tools/import" element={<UniversalImport />} />
+          <Route path="/admin/whatsapp-config" element={<WhatsAppConfig />} />
         </Routes>
       </AppShell>
     </>

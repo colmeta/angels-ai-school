@@ -1,8 +1,9 @@
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
-import { TrendingUp, Users, BookOpen } from "lucide-react";
+import { TrendingUp, Users, BookOpen, Sparkles, Send, Mic } from "lucide-react";
 import clsx from "clsx";
+import { SmartEntryService } from "../../services/SmartEntryService";
 
 const MOCK_CLASS_DATA = [
     { term: 'Term 1', math: 65, science: 70, english: 75 },
@@ -22,6 +23,43 @@ export const ClassDashboard = () => {
                     <span className="px-3 py-1 bg-blue-500/10 text-blue-500 rounded-full text-xs font-medium border border-blue-500/20">
                         Trajectory: UP ↗
                     </span>
+                </div>
+            </div>
+
+            {/* Smart Entry "Magic Box" */}
+            <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Sparkles size={100} className="text-white" />
+                </div>
+                <h3 className="text-white font-semibold flex items-center gap-2 mb-2">
+                    <Sparkles size={20} className="text-yellow-400" />
+                    Smart Entry
+                </h3>
+                <p className="text-indigo-200 text-sm mb-4">
+                    Just say what happened. Example: "Everyone is present except Mark and Sarah."
+                </p>
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        placeholder="Type here..."
+                        className="flex-1 bg-slate-950/50 border border-indigo-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                        onKeyDown={async (e) => {
+                            if (e.key === 'Enter') {
+                                const val = e.currentTarget.value;
+                                e.currentTarget.value = 'Processing...';
+                                // In real app, call SmartEntryService here
+                                await new Promise(r => setTimeout(r, 1000));
+                                alert(`Magic! Processed: "${val}"`);
+                                e.currentTarget.value = '';
+                            }
+                        }}
+                    />
+                    <button className="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition-colors">
+                        <Send size={20} />
+                    </button>
+                    <button className="bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl transition-colors">
+                        <Mic size={20} />
+                    </button>
                 </div>
             </div>
 

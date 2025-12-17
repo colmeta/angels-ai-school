@@ -2,7 +2,7 @@
 name = "angels_ai___complete_educational_revolution_platform"
 version = "0.1.0"
 description = "angels_ai___complete_educational_revolution_platform using crewAI"
-authors = [{ name = "Your Name", email = "you@example.com" }]
+authors = [{ name = Nsubuga Collin, email = nsubugacollin@gmail.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
     "crewai[tools]>=0.203.0,<1.0.0",
@@ -15,7 +15,6 @@ dependencies = [
     "pillow>=10.2.0",          # Image processing
     "google-cloud-vision>=3.7.0",  # OCR
     "boto3>=1.34.0",           # AWS S3
-]
 ]
 
 [project.scripts]

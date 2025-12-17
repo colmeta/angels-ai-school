@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import {
     TrendingUp, TrendingDown, Users, DollarSign,
-    AlertTriangle, CheckCircle, Activity
+    AlertTriangle, CheckCircle, Activity, Layout, Upload
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -20,7 +20,15 @@ const MOCK_TREND_DATA = [
     { name: 'Jul', fees: 3490, attendance: 4300 },
 ];
 
-const KPICard = ({ title, value, trend, status, icon: Icon }: any) => (
+interface KPICardProps {
+    title: string;
+    value: string | number;
+    trend: number;
+    status: 'good' | 'warning' | 'alert';
+    icon: React.ElementType;
+}
+
+const KPICard = ({ title, value, trend, status, icon: Icon }: KPICardProps) => (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div className="flex justify-between items-start mb-4">
             <div>
@@ -68,6 +76,22 @@ export const DirectorDashboard = () => {
                         System Healthy
                     </span>
                 </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button
+                    onClick={() => window.location.href = '/tools/template-builder'}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-900/20"
+                >
+                    <Layout size={20} /> Report Card Builder
+                </button>
+                <button
+                    onClick={() => window.location.href = '/tools/import'}
+                    className="bg-green-600 hover:bg-green-500 text-white p-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-900/20"
+                >
+                    <Upload size={20} /> Universal Import
+                </button>
             </div>
 
             {/* KPI Grid - The "Traffic Light" View */}
@@ -169,7 +193,7 @@ export const DirectorDashboard = () => {
                         <div>
                             <h4 className="text-white font-medium">Fee Arrears - Senior 4</h4>
                             <p className="text-slate-400 text-sm mt-1">
-                12 students have outstanding balances > 500k. Recommended Action: Trigger automated SMS reminders.
+                                12 students have outstanding balances &gt; 500k. Recommended Action: Trigger automated SMS reminders.
                             </p>
                         </div>
                     </div>
