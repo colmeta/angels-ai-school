@@ -1,56 +1,52 @@
-# Render Blueprint for Angels AI School Platform
-# This file enables one-click deployment to Render
+# Render.yaml optimized for 512MB free tier
 
 services:
-  # Backend API Service
+  # Backend API
   - type: web
-    name: angels-ai-school-api
+    name: angels-ai-backend
     env: python
-    region: frankfurt  # Change to your preferred region
-    plan: free  # Change to 'starter' or higher for production
-    branch: main
+    region: frankfurt  # Or closest to your users
+    plan: free
+    
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 20
-    healthCheckPath: /api/health
+    startCommand: python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 50 --timeout-keep-alive 5
+    
     envVars:
-      - key: CLARITY_API_KEY
-        sync: false  # Set manually in Render dashboard
-      - key: CLARITY_BASE_URL
-        value: https://veritas-engine-zae0.onrender.com
-      - key: DEFAULT_BRAND_NAME
-        value: Angels AI School
-      - key: DEFAULT_BRAND_PRIMARY_COLOR
-        value: '#0B69FF'
-      - key: DEFAULT_BRAND_ACCENT_COLOR
-        value: '#FFB400'
-      - key: ENABLE_BACKGROUND_SYNC
-        value: 'true'
-      - key: ENABLE_PARENT_CHATBOT
-        value: 'true'
       - key: PYTHON_VERSION
-        value: '3.11.8'
-
-  # Frontend Static Site (optional - if deploying separately)
-  # - type: web
-  #   name: angels-ai-school-webapp
-  #   env: static
-  #   region: frankfurt
-  #   plan: free
-  #   branch: main
-  #   buildCommand: cd webapp && npm install && npm run build
-  #   staticPublishPath: webapp/dist
-  #   envVars:
-  #     - key: VITE_API_URL
-  #       fromService:
-  #         type: web
-  #         name: angels-ai-school-api
-  #         envVarKey: RENDER_EXTERNAL_URL
-
-databases:
-  # PostgreSQL Database
-  - name: angels-ai-school-db
-    databaseName: angels_ai_school
-    user: angels_ai_user
-    region: frankfurt  # Match your service region
-    plan: free  # Change to 'starter' or higher for production
-    ipAllowList: []  # Empty = allow all internal connections
+        value: 3.11.0
+      
+      - key: DATABASE_URL
+        sync: false  # Set in Render dashboard
+      
+      - key: SECRET_KEY
+        generateValue: true
+      
+      # Memory optimization flags
+      - key: PYTHONUNBUFFERED
+        value: 1
+      
+      - key: PYTHONDONTWRITEBYTECODE
+        value: 1
+      
+      - key: DB_POOL_SIZE
+        value: 5
+      
+      - key: DB_MAX_OVERFLOW
+        value: 2
+      
+      # Optional services (set in dashboard)
+      - key: SENTRY_DSN
+        sync: false
+      
+      - key: SENDGRID_API_KEY
+        sync: false
+      
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+    
+    healthCheckPath: /api/health
+    
+    autoDeploy: true

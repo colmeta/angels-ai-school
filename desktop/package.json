@@ -1,0 +1,63 @@
+{
+    "name": "angels-ai-desktop",
+    "version": "1.0.0",
+    "description": "Angels AI School Management - Desktop App",
+    "main": "electron/main.js",
+    "author": "Angels AI",
+    "license": "MIT",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder",
+        "build:win": "electron-builder --win",
+        "build:mac": "electron-builder --mac",
+        "build:linux": "electron-builder --linux"
+    },
+    "dependencies": {
+        "electron-store": "^8.1.0",
+        "electron-updater": "^6.1.0"
+    },
+    "devDependencies": {
+        "electron": "^28.1.0",
+        "electron-builder": "^24.9.0"
+    },
+    "build": {
+        "appId": "com.angels-ai.school",
+        "productName": "Angels AI School",
+        "directories": {
+            "output": "dist-desktop"
+        },
+        "files": [
+            "electron/**/*",
+            "webapp/dist/**/*"
+        ],
+        "win": {
+            "target": [
+                "nsis",
+                "portable"
+            ],
+            "icon": "assets/icon.ico"
+        },
+        "mac": {
+            "target": [
+                "dmg",
+                "zip"
+            ],
+            "icon": "assets/icon.icns",
+            "category": "public.app-category.education"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb"
+            ],
+            "icon": "assets/icon.png",
+            "category": "Education"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true
+        }
+    }
+}
