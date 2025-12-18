@@ -53,7 +53,7 @@ from api.routes import (
 )
 
 # NEW: Webhook and Import Routers
-from api.routers import ussd_webhook, whatsapp_webhook, universal_import
+from api.routers import ussd_webhook, whatsapp_webhook, universal_import, school_registration, receptionist, branding
 from api.middleware.rate_limiter import rate_limit_middleware
 
 # Add project root to path FIRST
@@ -147,6 +147,9 @@ app.include_router(uneb.router, prefix="/api", tags=["UNEB Integration"])
 app.include_router(ussd_webhook.router, tags=["USSD Webhooks"])  # Africa's Talking, Twilio
 app.include_router(whatsapp_webhook.router, tags=["WhatsApp Webhooks"])  # Twilio Business API
 app.include_router(universal_import.router, tags=["Universal Import"])  # Zero-friction onboarding
+app.include_router(school_registration.router, tags=["School Registration"])  # Self-service signup
+app.include_router(receptionist.router, tags=["24/7 AI Receptionist"])  # Embeddable chatbot
+app.include_router(branding.router, tags=["Dynamic Branding"])  # White-label customization
 
 # Additional Critical Features (Phase 3)
 app.include_router(canteen.router, prefix="/api", tags=["Canteen/Tuck Shop"])

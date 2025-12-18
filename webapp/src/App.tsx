@@ -19,6 +19,7 @@ import { StaffProfile } from "./pages/dashboards/StaffProfile";
 import { TemplateBuilder } from "./pages/tools/TemplateBuilder";
 import { UniversalImport } from "./pages/tools/UniversalImport";
 import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
+import { SchoolSignup } from "./pages/auth/SchoolSignup";
 
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
@@ -32,6 +33,7 @@ const App = () => {
       <OfflineBanner />
       <AppShell>
         <Routes>
+          <Route path="/signup" element={<SchoolSignup />} />
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/director" element={<DirectorDashboard />} />
