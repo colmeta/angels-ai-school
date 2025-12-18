@@ -17,15 +17,15 @@ class Settings(BaseSettings):
     # API Settings
     api_host: str = Field(default="0.0.0.0", validation_alias="API_HOST")
     api_port: int = Field(default=8000, validation_alias="API_PORT")
-    api_secret_key: str = Field(default="change-in-production", validation_alias="API_SECRET_KEY")
+    api_secret_key: str = Field(..., validation_alias="API_SECRET_KEY")  # NO DEFAULT - MUST BE SET
     
     # JWT Authentication
-    jwt_secret_key: Optional[str] = Field(default=None, validation_alias="JWT_SECRET_KEY")
+    jwt_secret_key: str = Field(..., validation_alias="JWT_SECRET_KEY")  # NO DEFAULT - MUST BE SET
     access_token_expire_minutes: int = Field(default=60, validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_days: int = Field(default=30, validation_alias="REFRESH_TOKEN_EXPIRE_DAYS")
     
     # Encryption
-    encryption_key: Optional[str] = Field(default=None, validation_alias="ENCRYPTION_KEY")
+    encryption_key: str = Field(..., validation_alias="ENCRYPTION_KEY")  # NO DEFAULT - MUST BE SET
     
     # Frontend
     frontend_url: str = Field(default="http://localhost:3000", validation_alias="FRONTEND_URL")
