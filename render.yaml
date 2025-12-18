@@ -9,7 +9,7 @@ services:
     plan: free
     
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 50 --timeout-keep-alive 5
+    startCommand: python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 30 --timeout-keep-alive 5 --limit-max-requests 800
     
     envVars:
       - key: PYTHON_VERSION
@@ -29,10 +29,10 @@ services:
         value: 1
       
       - key: DB_POOL_SIZE
-        value: 5
+        value: 3
       
       - key: DB_MAX_OVERFLOW
-        value: 2
+        value: 1
       
       # Optional services (set in dashboard)
       - key: SENTRY_DSN
