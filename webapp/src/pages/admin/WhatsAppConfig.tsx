@@ -1,7 +1,7 @@
-"""
-Admin Configuration UI for WhatsApp Business Account
-Allows directors to set up Twilio credentials and test messages
-"""
+/**
+ * Admin Configuration UI for WhatsApp Business Account
+ * Allows directors to set up Twilio credentials and test messages
+ */
 
 import { useState } from 'react';
 import { MessageSquare, CheckCircle, AlertCircle, Send } from 'lucide-react';
