@@ -1,7 +1,7 @@
 # Existing dependencies
 FastAPI
 uvicorn[standard]
-pydantic
+pydantic[email]
 pydantic-settings
 python-multipart
 python-jose[cryptography]
@@ -23,7 +23,6 @@ sqlalchemy
 
 # Data Processing
 pandas
-openpyxl
 numpy
 
 # Email Service
@@ -50,7 +49,6 @@ celery
 pytest
 pytest-asyncio
 pytest-cov
-httpx
 
 # Code Quality
 black
