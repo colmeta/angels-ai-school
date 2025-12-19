@@ -24,6 +24,7 @@ sqlalchemy
 # Data Processing
 pandas
 numpy
+reportlab
 
 # Email Service
 sendgrid
