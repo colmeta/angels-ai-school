@@ -90,9 +90,11 @@ async def register_school(registration: SchoolRegistration):
         ))
         
         # 4. Create director user account
-        import hashlib
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
         temp_password = f"Angels{school_id[:8]}"  # Temporary password
-        password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
+        password_hash = pwd_context.hash(temp_password)
         
         user_id = str(uuid.uuid4())
         cursor.execute("""
@@ -105,7 +107,7 @@ async def register_school(registration: SchoolRegistration):
             registration.director_first_name,
             registration.director_last_name,
             registration.director_phone,
-            'admin',
+            'admin',  # maps to Director role
             True
         ))
         

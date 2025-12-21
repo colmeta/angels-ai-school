@@ -22,6 +22,7 @@ import { TemplateBuilder } from "./pages/tools/TemplateBuilder";
 import { UniversalImport } from "./pages/tools/UniversalImport";
 import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
 import { SchoolSignup } from "./pages/auth/SchoolSignup";
+import { Login } from "./pages/auth/Login";
 
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
@@ -38,6 +39,7 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/signup" element={<SchoolSignup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/tools/import" element={<UniversalImport />} />
 
