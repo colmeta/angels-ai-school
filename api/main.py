@@ -134,6 +134,8 @@ from api.routes import (
     ussd,
     whatsapp,
     messaging,
+    director,
+    inventory,
 )
 
 # NEW: Webhook and Import Routers
