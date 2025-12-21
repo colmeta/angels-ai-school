@@ -38,7 +38,7 @@ class MonitoringService:
         }
         
         # Check database
-        db_status = self._check_database()
+        db_status = await self._check_database()
         checks["checks"]["database"] = db_status
         
         # Check Clarity API
@@ -58,17 +58,56 @@ class MonitoringService:
         
         return checks
     
-    def _check_database(self) -> Dict[str, Any]:
-        """Check database connectivity and response time"""
+    async def _check_database(self) -> Dict[str, Any]:
+        """Check database connectivity and response time (Non-blocking, IPv4-forced)"""
         start = time.time()
         
         try:
-            conn = psycopg2.connect(self.settings.database_url)
-            cursor = conn.cursor()
-            cursor.execute("SELECT 1")
-            result = cursor.fetchone()
-            cursor.close()
-            conn.close()
+            import asyncio
+            from urllib.parse import urlparse, parse_qs
+            
+            def _sync_check():
+                # Parse DATABASE_URL to extract components
+                parsed = urlparse(self.settings.database_url)
+                
+                # Build connection parameters with IPv4 enforcement
+                conn_params = {
+                    'host': parsed.hostname,
+                    'port': parsed.port or 5432,
+                    'user': parsed.username,
+                    'password': parsed.password,
+                    'database': parsed.path.lstrip('/') if parsed.path else 'postgres',
+                    'connect_timeout': 3,
+                    'options': '-c search_path=public',
+                }
+                
+                # Force IPv4 by resolving hostname to IPv4 address
+                try:
+                    import socket
+                    # Get IPv4 address only
+                    addr_info = socket.getaddrinfo(
+                        parsed.hostname, 
+                        parsed.port or 5432,
+                        socket.AF_INET,  # Force IPv4
+                        socket.SOCK_STREAM
+                    )
+                    if addr_info:
+                        ipv4_addr = addr_info[0][4][0]
+                        conn_params['host'] = ipv4_addr
+                except Exception:
+                    # If resolution fails, try with original hostname
+                    pass
+                
+                conn = psycopg2.connect(**conn_params)
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1")
+                result = cursor.fetchone()
+                cursor.close()
+                conn.close()
+                return result
+
+            # Run in thread pool to prevent blocking main loop
+            await asyncio.to_thread(_sync_check)
             
             response_time = (time.time() - start) * 1000  # ms
             
