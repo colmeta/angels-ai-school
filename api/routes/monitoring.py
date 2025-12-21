@@ -2,7 +2,7 @@
 Monitoring and Health Check Endpoints
 Production monitoring, metrics, and alerts
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response, status
 from typing import Dict, Any
 
 from api.services.monitoring import get_monitoring_service
@@ -12,8 +12,8 @@ from api.services.audit import get_audit_logger
 router = APIRouter(tags=["Monitoring"])
 
 
-@router.get("/health")
-async def health_check() -> Dict[str, Any]:
+@router.api_route("/health", methods=["GET", "HEAD"])
+async def health_check(response: Response) -> Dict[str, Any]:
     """
     **Production Health Check**
     
@@ -29,7 +29,13 @@ async def health_check() -> Dict[str, Any]:
     - CI/CD deployment verification
     """
     monitoring = get_monitoring_service()
-    return await monitoring.health_check()
+    health_status = await monitoring.health_check()
+    
+    # If Database is unhealthy, return 503
+    if health_status["status"] == "unhealthy":
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        
+    return health_status
 
 
 @router.get("/health/simple")
