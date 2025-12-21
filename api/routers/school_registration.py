@@ -127,7 +127,8 @@ async def register_school(registration: SchoolRegistration):
         plans = {
             "starter": ["basic_dashboard", "attendance", "fees"],
             "professional": ["basic_dashboard", "attendance", "fees", "reports", "whatsapp"],
-            "enterprise": ["all_features", "white_label", "custom_domain", "priority_support"]
+            "enterprise": ["all_features", "white_label", "custom_domain", "priority_support"],
+            "pilot": ["all_features", "white_label", "custom_domain", "priority_support", "pilot_access"]
         }
         
         for feature in plans.get(registration.plan, plans["starter"]):
