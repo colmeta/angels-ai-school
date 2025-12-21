@@ -265,6 +265,7 @@ class ExportService:
         buffer.seek(0)
         return buffer.getvalue()
     
+    
     def export_fee_receipt_pdf(self, payment_id: str) -> bytes:
         """Generate PDF fee receipt"""
         # Get payment details
@@ -334,6 +335,66 @@ class ExportService:
         elements.append(Paragraph(f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}", footer_style))
         
         # Build PDF
+        doc.build(elements)
+        buffer.seek(0)
+        return buffer.getvalue()
+
+    def export_payslip_pdf(self, payroll_id: str) -> bytes:
+        """Generate PDF Payslip for Staff"""
+        from api.services.payroll import get_payroll_service
+        
+        # Get Payroll Data
+        payroll_service = get_payroll_service(self.school_id)
+        payslip = payroll_service.get_payslip(payroll_id)
+        
+        if not payslip:
+            raise ValueError("Payslip not found")
+            
+        # Create PDF
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Header
+        elements.append(Paragraph("SALARY SLIP", styles['Title']))
+        elements.append(Paragraph(f"Period: {payslip['month'].title()} {payslip['year']}", styles['Heading2']))
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # Staff Info
+        elements.append(Paragraph(f"Name: {payslip['first_name']} {payslip['last_name']}", styles['Normal']))
+        elements.append(Paragraph(f"Employee ID: {payslip['employee_id']}", styles['Normal']))
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # Table Data
+        data = [
+            ["Description", "Earnings", "Deductions"],
+            ["Basic & Allowances", f"{payslip['gross_salary']:,.0f}", ""],
+            ["Bonus", f"{payslip['bonus']:,.0f}", ""],
+            ["PAYE Tax", "", f"{payslip['paye_tax']:,.0f}"],
+            ["NSSF (5%)", "", f"{payslip['nssf']:,.0f}"],
+            ["Other Deductions", "", f"{payslip['deductions']:,.0f}"],
+            ["TOTAL", f"{(payslip['gross_salary'] + payslip['bonus']):,.0f}", f"{(payslip['paye_tax'] + payslip['nssf'] + payslip['deductions']):,.0f}"],
+        ]
+        
+        t = Table(data, colWidths=[3*inch, 1.5*inch, 1.5*inch])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.grey),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0,0), (-1,0), 12),
+            ('BACKGROUND', (0,-1), (-1,-1), colors.lightgrey),
+            ('GRID', (0,0), (-1,-1), 1, colors.black),
+        ]))
+        elements.append(t)
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # Net Pay
+        net_style = ParagraphStyle('NetPay', parent=styles['Heading2'], alignment=TA_RIGHT)
+        elements.append(Paragraph(f"NET PAY: {payslip['net_salary']:,.0f} UGX", net_style))
+        
+        # Build
         doc.build(elements)
         buffer.seek(0)
         return buffer.getvalue()

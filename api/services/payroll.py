@@ -66,6 +66,8 @@ class PayrollService:
         deduction_reason: Optional[str] = None
     ) -> Dict[str, Any]:
         """Process monthly payroll for a staff member"""
+        from api.services.tax_engine import TaxEngine
+        
         # Get salary structure
         salary_query = """
         SELECT gross_salary FROM staff_salaries WHERE staff_id = %s
@@ -76,17 +78,25 @@ class PayrollService:
             return {"success": False, "error": "Salary structure not found"}
         
         gross_salary = float(salary_result[0]['gross_salary'])
+        taxable_income = gross_salary + bonus # Bonuses are taxable
         
-        # Calculate PAYE (Uganda tax - simplified)
-        paye = self._calculate_paye(gross_salary)
+        # Use Enterprise Tax Engine
+        engine = TaxEngine() # Defaults to UG config
         
-        # Calculate NSSF (Uganda pension - 10% of gross, capped)
-        nssf = min(gross_salary * 0.10, 200000)  # Cap at 200k UGX
+        # 1. Calculate NSSF (5% Employee, 10% Employer)
+        nssf_breakdown = engine.calculate_nssf(gross_salary) # NSSF usually on basic+allowances (gross)
+        nssf_employee = nssf_breakdown["employee"]
+        nssf_employer = nssf_breakdown["employer"]
         
-        # Calculate net salary
-        net_salary = gross_salary + bonus - deductions - paye - nssf
+        # 2. Calculate PAYE
+        paye = engine.calculate_paye(taxable_income)
         
-        # Record transaction
+        # 3. Net Salary
+        # Net = (Gross + Bonus) - (PAYE + NSSF_Employee + Other Deductions)
+        net_salary = taxable_income - paye - nssf_employee - deductions
+        
+        # Record transaction (Now storing employer NSSF too if schema supports, else just log)
+        # We will stick to the existing schema for now but update logic
         query = """
         INSERT INTO payroll_transactions (
             school_id, staff_id, month, year, gross_salary, bonus,
@@ -98,7 +108,7 @@ class PayrollService:
         result = self.db.execute_query(
             query,
             (self.school_id, staff_id, month, year, gross_salary, bonus,
-             deductions, deduction_reason, paye, nssf, net_salary),
+             deductions, deduction_reason, paye, nssf_employee, net_salary),
             fetch=True
         )
         
@@ -111,26 +121,14 @@ class PayrollService:
             "breakdown": {
                 "gross_salary": gross_salary,
                 "bonus": bonus,
+                "gross_taxable": taxable_income,
                 "deductions": deductions,
                 "paye_tax": paye,
-                "nssf": nssf,
+                "nssf_employee": nssf_employee,
+                "nssf_employer": nssf_employer, # Bonus info
                 "net_salary": net_salary
             }
         }
-    
-    def _calculate_paye(self, gross_salary: float) -> float:
-        """Calculate PAYE tax (Uganda rates - simplified)"""
-        # Uganda PAYE bands (2025 approximation)
-        if gross_salary <= 235000:
-            return 0.0
-        elif gross_salary <= 335000:
-            return (gross_salary - 235000) * 0.10
-        elif gross_salary <= 410000:
-            return 10000 + (gross_salary - 335000) * 0.20
-        elif gross_salary <= 10000000:
-            return 25000 + (gross_salary - 410000) * 0.30
-        else:
-            return 2902000 + (gross_salary - 10000000) * 0.40
     
     def mark_as_paid(
         self,

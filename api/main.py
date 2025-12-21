@@ -1,12 +1,96 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
 import os
 import sys
+import logging
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from api.core.config import get_settings
+from api.middleware.rate_limiter import rate_limit_middleware
+from api.middleware.audit import AuditMiddleware
+from api.core.circuit_breakers import CircuitBreakerOpenException
+
+# Add project root to path FIRST
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+load_dotenv()
+settings = get_settings()
+
+# Initialize Logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("angels.api")
+
+# Initialize MCP Provider (Default to Clarity for now)
+from api.services.clarity import get_clarity_client
+# This call initializes the singleton
+get_clarity_client()
+
+# Create FastAPI app with branding-aware metadata
+app = FastAPI(
+    title=f"{settings.default_brand_name} API",
+    description="Complete Educational Revolution Platform for African Schools",
+    version="1.0.0",
+    docs_url=None if settings.environment == "production" else "/docs",
+    redoc_url=None,
+    contact={
+        "name": settings.default_brand_name,
+        "url": "https://your-school-domain.com",
+    },
+)
+
+# Global Exception Handler for Circuit Breakers
+@app.exception_handler(CircuitBreakerOpenException)
+async def circuit_breaker_handler(request: Request, exc: CircuitBreakerOpenException):
+    return JSONResponse(
+        status_code=503,
+        content={"error": "Service temporarily degraded. Operating in Safe Mode.", "retry_after": 60}
+    )
+
+# 1. Trusted Host Middleware (Security Header)
+allowed_hosts = ["localhost", "127.0.0.1", ".onrender.com"] 
+if settings.allowed_brand_domains:
+    allowed_hosts.extend(settings.allowed_brand_domains)
+
+app.add_middleware(
+    TrustedHostMiddleware, 
+    allowed_hosts=allowed_hosts
+)
+
+# 2. GZip Compression (Performance)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# 3. CORS Middleware (Strict Security)
+# Only allow known frontends. NO MORE "*"
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    settings.frontend_url,
+]
+# Add custom domains from config
+if settings.allowed_brand_domains:
+    origins.extend([f"https://{d}" for d in settings.allowed_brand_domains])
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-School-ID"],
+)
+
+# 4. Audit Logging Middleware (Security Trail)
+app.add_middleware(AuditMiddleware)
+
+# 5. Rate Limiting Middleware
+app.middleware("http")(rate_limit_middleware)
+
 from api.routes import (
     agents,
     alumni,
@@ -113,6 +197,8 @@ app.include_router(parents.router, prefix="/api/parents", tags=["Parents"])
 from api.routes.finance import router as finance_router
 
 app.include_router(agents.router, prefix="/api/v1/agents", tags=["AI Agents"])
+app.include_router(director.router, prefix="/api/v1", tags=["Director"]) # Register Director
+app.include_router(inventory.router, prefix="/api/v1", tags=["Inventory"]) # Register Inventory
 app.include_router(clarity.router, prefix="/api/v1/clarity", tags=["Clarity Engine"])
 app.include_router(finance_router, prefix="/api/v1", tags=["Financial Intelligence"])
 

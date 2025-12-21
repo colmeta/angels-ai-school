@@ -199,6 +199,35 @@ async def export_fee_receipt_pdf(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/export/payslip/{payroll_id}/pdf")
+async def export_payslip_pdf(
+    payroll_id: str,
+    school_id: str
+):
+    """
+    Generate PDF Payslip
+    
+    Path params:
+    - payroll_id: Payroll Transaction ID
+    
+    Query params:
+    - school_id: School ID
+    """
+    try:
+        export_service = get_export_service(school_id)
+        pdf_data = export_service.export_payslip_pdf(payroll_id)
+        
+        return Response(
+            content=pdf_data,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=payslip_{payroll_id}.pdf"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ============================================================================
 # EXPORT FORMATS INFO
 # ============================================================================

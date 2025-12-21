@@ -1,110 +1,151 @@
+/**
+ * Class Dashboard (Teacher View)
+ * ==============================
+ * Real-time academic performance tracking.
+ * CONNECTED TO: api/routes/analytics.py
+ */
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
-import { TrendingUp, Users, BookOpen, Sparkles, Send, Mic } from "lucide-react";
+import { Users, BookOpen, AlertTriangle } from "lucide-react";
 import clsx from "clsx";
-import { SmartEntryService } from "../../services/SmartEntryService";
 
-const MOCK_CLASS_DATA = [
-    { term: 'Term 1', math: 65, science: 70, english: 75 },
-    { term: 'Term 2', math: 68, science: 72, english: 74 },
-    { term: 'Term 3', math: 75, science: 78, english: 80 },
-];
+import { apiClient } from "../../lib/apiClient";
+import { useBrandingStore } from "../../stores/branding";
 
 export const ClassDashboard = () => {
+    const schoolId = useBrandingStore(state => state.schoolId) || "demo-school";
+    const [selectedClass, setSelectedClass] = useState("Grade 10-A"); // Default or fetch from teacher profile
+
+    // Fetch Real Analytics Data
+    const { data: analytics, isLoading } = useQuery({
+        queryKey: ["class-analytics", schoolId, selectedClass],
+        queryFn: async () => {
+            const res = await apiClient.get(`/${schoolId}/analytics/academic?class_name=${selectedClass}`);
+            return res.data;
+        }
+    });
+
+    const subjectPerformance = analytics?.subject_performance || [];
+    const decliningStudents = analytics?.declining_students || [];
+
     return (
-        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-            <div className="flex justify-between items-center">
+        <div className="p-6 max-w-7xl mx-auto space-y-6">
+            <header className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Class 5A Overview</h1>
-                    <p className="text-slate-400">Class Teacher: Mr. Okello</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Class Performance</h1>
+                    <p className="text-slate-500">Real-time academic analysis for {selectedClass}</p>
                 </div>
-                <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-blue-500/10 text-blue-500 rounded-full text-xs font-medium border border-blue-500/20">
-                        Trajectory: UP ↗
-                    </span>
-                </div>
-            </div>
+                <select
+                    value={selectedClass}
+                    onChange={(e) => setSelectedClass(e.target.value)}
+                    className="p-2 border rounded-lg bg-white dark:bg-slate-800 dark:text-white"
+                >
+                    <option>Grade 10-A</option>
+                    <option>Grade 10-B</option>
+                    <option>Grade 11-Science</option>
+                </select>
+            </header>
 
-            {/* Smart Entry "Magic Box" */}
-            <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <Sparkles size={100} className="text-white" />
-                </div>
-                <h3 className="text-white font-semibold flex items-center gap-2 mb-2">
-                    <Sparkles size={20} className="text-yellow-400" />
-                    Smart Entry
-                </h3>
-                <p className="text-indigo-200 text-sm mb-4">
-                    Just say what happened. Example: "Everyone is present except Mark and Sarah."
-                </p>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        placeholder="Type here..."
-                        className="flex-1 bg-slate-950/50 border border-indigo-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
-                        onKeyDown={async (e) => {
-                            if (e.key === 'Enter') {
-                                const val = e.currentTarget.value;
-                                e.currentTarget.value = 'Processing...';
-                                // In real app, call SmartEntryService here
-                                await new Promise(r => setTimeout(r, 1000));
-                                alert(`Magic! Processed: "${val}"`);
-                                e.currentTarget.value = '';
-                            }
-                        }}
-                    />
-                    <button className="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition-colors">
-                        <Send size={20} />
-                    </button>
-                    <button className="bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl transition-colors">
-                        <Mic size={20} />
-                    </button>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h3 className="text-slate-400 text-sm">Class Average</h3>
-                    <p className="text-3xl font-bold text-white mt-2">72%</p>
-                    <div className="flex items-center gap-1 text-green-500 text-sm mt-2">
-                        <TrendingUp size={16} /> +4% vs Last Term
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                            <BookOpen size={24} />
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-500">Subject Average</p>
+                            <h3 className="text-2xl font-bold dark:text-white">
+                                {subjectPerformance.length > 0
+                                    ? Math.round(subjectPerformance.reduce((acc: any, curr: any) => acc + curr.avg_percentage, 0) / subjectPerformance.length)
+                                    : 0}%
+                            </h3>
+                        </div>
                     </div>
                 </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h3 className="text-slate-400 text-sm">Students</h3>
-                    <p className="text-3xl font-bold text-white mt-2">45</p>
-                    <div className="flex items-center gap-1 text-slate-500 text-sm mt-2">
-                        <Users size={16} /> Full Capacity
-                    </div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h3 className="text-slate-400 text-sm">Top Subject</h3>
-                    <p className="text-3xl font-bold text-white mt-2">English</p>
-                    <div className="flex items-center gap-1 text-blue-500 text-sm mt-2">
-                        <BookOpen size={16} /> 80% Avg
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-amber-100 text-amber-600 rounded-lg">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-500">Students At Risk</p>
+                            <h3 className="text-2xl font-bold dark:text-white text-amber-500">
+                                {decliningStudents.length}
+                            </h3>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-6">Subject Performance Trajectory</h3>
-                <div className="h-[300px] w-full">
+            {/* Performance Chart */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm h-[400px]">
+                <h3 className="text-lg font-bold mb-4 dark:text-white">Subject Performance</h3>
+                {isLoading ? (
+                    <div className="h-full flex items-center justify-center text-slate-400">Loading Analysis...</div>
+                ) : subjectPerformance.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={MOCK_CLASS_DATA}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                            <XAxis dataKey="term" stroke="#64748b" />
-                            <YAxis stroke="#64748b" />
+                        <BarChart data={subjectPerformance}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                            <XAxis dataKey="subject" />
+                            <YAxis domain={[0, 100]} />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }}
+                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             />
-                            <Line type="monotone" dataKey="math" stroke="#EF4444" strokeWidth={2} />
-                            <Line type="monotone" dataKey="science" stroke="#10B981" strokeWidth={2} />
-                            <Line type="monotone" dataKey="english" stroke="#3B82F6" strokeWidth={2} />
-                        </LineChart>
+                            <Bar
+                                dataKey="avg_percentage"
+                                fill="#4F46E5"
+                                radius={[4, 4, 0, 0]}
+                                barSize={50}
+                            />
+                        </BarChart>
                     </ResponsiveContainer>
-                </div>
+                ) : (
+                    <div className="h-full flex items-center justify-center text-slate-400">
+                        No assessment data available for this class period.
+                    </div>
+                )}
             </div>
+
+            {/* At Risk List */}
+            {decliningStudents.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 className="text-lg font-bold mb-4 text-red-500 flex items-center gap-2">
+                        <AlertTriangle size={20} /> Attention Required
+                    </h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b dark:border-slate-800 text-slate-500 text-sm">
+                                    <th className="p-3">Student</th>
+                                    <th className="p-3">Trend</th>
+                                    <th className="p-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {decliningStudents.map((student: any) => (
+                                    <tr key={student.id} className="border-b dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                        <td className="p-3 font-medium dark:text-white">
+                                            {student.first_name} {student.last_name}
+                                        </td>
+                                        <td className="p-3 text-red-500">
+                                            {student.change}% Decline
+                                        </td>
+                                        <td className="p-3">
+                                            <button className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-semibold hover:bg-indigo-100 transition-colors">
+                                                Schedule Meeting
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -158,3 +158,24 @@ async def get_library_statistics(school_id: str):
     """Get library statistics"""
     service = get_library_service(school_id)
     return service.get_library_statistics()
+
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+
+class LibrarySettings(BaseModel):
+    fine_per_day: float
+    borrow_limit_days: int = 14
+
+@router.post("/library/settings")
+async def update_library_settings(school_id: str, settings: LibrarySettings):
+    """Update library rules (Fines, Limits)"""
+    service = get_library_service(school_id)
+    return service.update_settings(settings.fine_per_day, settings.borrow_limit_days)
+
+@router.get("/library/settings")
+async def get_library_settings(school_id: str):
+    """Get current library rules"""
+    service = get_library_service(school_id)
+    return service.get_settings()

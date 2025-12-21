@@ -1,74 +1,67 @@
+/**
+ * Smart Entry Service
+ * ===================
+ * Bridges the Frontend "Magic Box" input to the Backend "Command Intelligence" Agent.
+ * Replaces previous client-side regex mocks with real NLP.
+ */
+import { apiClient } from "../lib/apiClient";
 
-export interface SmartEntryResult {
-    present: string[];
-    absent: string[];
-    action: 'attendance' | 'grades' | 'unknown';
+export interface ParsedCommand {
+    action: string;
+    entity: string;
+    data: any;
     confidence: number;
-    summary: string;
 }
 
 export const SmartEntryService = {
     /**
-     * Mocks an NLP parser that takes natural language and returns structured data.
-     * In the real app, this would call the Python 'Clarity Engine'.
+     * Sends natural language command to the backend AI agent.
+     * @param input Natural language string (e.g., "Add student John Doe")
+     * @param schoolId The school context ID
      */
-    parseNaturalLanguageEntry: async (input: string, allStudents: string[]): Promise<SmartEntryResult> => {
-        // Simulate network delay for "AI Processing" feel
-        await new Promise(resolve => setTimeout(resolve, 1500));
+    parse: async (input: string, schoolId: string): Promise<ParsedCommand> => {
+        try {
+            // Call the Backend Command Intelligence Agent
+            const response = await apiClient.post(`/agents/command`, {
+                command: input,
+                school_id: schoolId,
+                user_role: "admin" // Context aware in future
+            });
 
-        const lowerInput = input.toLowerCase();
-
-        // 1. Attendance Logic
-        if (lowerInput.includes('present') || lowerInput.includes('absent') || lowerInput.includes('came') || lowerInput.includes('missed')) {
-            const absentNames: string[] = [];
-            const presentNames: string[] = [];
-
-            // Heuristic: "Everyone is present except X, Y"
-            if (lowerInput.includes('except')) {
-                // Find names after "except"
-                // This is a naive mock implementation
-                allStudents.forEach(student => {
-                    if (lowerInput.includes(student.toLowerCase())) {
-                        absentNames.push(student);
-                    } else {
-                        presentNames.push(student);
-                    }
-                });
-
-                return {
-                    action: 'attendance',
-                    present: presentNames,
-                    absent: absentNames,
-                    confidence: 0.95,
-                    summary: `Marked ${presentNames.length} students present and ${absentNames.length} absent.`
-                };
+            if (response.data && response.data.parsed) {
+                return response.data.parsed;
             }
 
-            // Heuristic: "Mark X, Y, Z as absent"
-            if (lowerInput.includes('absent')) {
-                allStudents.forEach(student => {
-                    if (lowerInput.includes(student.toLowerCase())) {
-                        absentNames.push(student);
-                    } else {
-                        presentNames.push(student); // Default to present if not mentioned as absent
-                    }
-                });
-                return {
-                    action: 'attendance',
-                    present: presentNames,
-                    absent: absentNames,
-                    confidence: 0.92,
-                    summary: `Marked ${absentNames.join(', ')} as absent.`
-                };
-            }
+            // Fallback if backend returns generic success but no structured parse
+            return {
+                action: "unknown",
+                entity: "unknown",
+                data: {},
+                confidence: 0
+            };
+
+        } catch (error) {
+            console.error("SmartEntry AI Error:", error);
+            throw new Error("Failed to process command. The AI agent might be offline.");
         }
+    },
 
-        return {
-            present: [],
-            absent: [],
-            action: 'unknown',
-            confidence: 0.0,
-            summary: "I didn't quite catch that. Try saying 'Everyone is present except John'."
-        };
+    /**
+     * Executes the parsed command after user confirmation.
+     */
+    execute: async (command: ParsedCommand, schoolId: string) => {
+        // In a perfect world, the backend agent executes it.
+        // For safety, the UI often confirms then sends an 'abuse' or 'confirm' signal.
+        // For this implementation, we assume the 'parse' step was just a preview,
+        // and we might need a separate 'execute' endpoint or the parse already did it?
+
+        // Use Case: The user types "Add student", sees the preview form filled, then clicks "Save".
+        // In that case, the UI takes the 'data' from parse() and calls the standard API (e.g. useStudentStore.add).
+        // This method helps if we want "Zero-Click" execution.
+
+        return apiClient.post(`/agents/execute-command`, {
+            command: command,
+            school_id: schoolId
+        });
     }
 };
