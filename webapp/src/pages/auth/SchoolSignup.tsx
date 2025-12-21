@@ -264,12 +264,12 @@ export const SchoolSignup = () => {
                     {/* Plan Selection */}
                     <div className="bg-slate-900 border border-slate-700 rounded-xl p-6">
                         <h3 className="font-semibold text-white mb-4">Choose Your Plan</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {[
+                                { id: 'pilot', name: 'Free Tier', price: '$0/student', features: ['All Features', 'Pilot Access'], recommended: true },
                                 { id: 'starter', name: 'Starter', price: '$1/student', features: ['Basic Dashboard', 'Attendance', 'Fees'] },
-                                { id: 'professional', name: 'Professional', price: '$2/student', features: ['All Starter +', 'Reports', 'WhatsApp'], recommended: true },
-                                { id: 'enterprise', name: 'Enterprise', price: '$3/student', features: ['All Pro +', 'White Label', 'Priority Support'] },
-                                { id: 'pilot', name: 'Pilot (Free)', price: '$0/student', features: ['All Features', 'Pilot Access'] }
+                                { id: 'professional', name: 'Professional', price: '$2/student', features: ['All Starter +', 'Reports', 'WhatsApp'], recommended: false },
+                                { id: 'enterprise', name: 'Enterprise', price: '$3/student', features: ['All Pro +', 'White Label', 'Priority Support'] }
                             ].map(plan => (
                                 <label
                                     key={plan.id}
