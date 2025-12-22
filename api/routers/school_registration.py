@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from services.database import get_db
 
-router = APIRouter(prefix="/api/schools/register", tags=["school-registration"])
+router = APIRouter(prefix="/api/schools", tags=["school-registration"])
 
 class SchoolRegistration(BaseModel):
     school_name: str
@@ -38,7 +38,7 @@ class SchoolRegistrationResponse(BaseModel):
     message: str
 
 
-@router.post("/", response_model=SchoolRegistrationResponse)
+@router.post("/register", response_model=SchoolRegistrationResponse)
 async def register_school(registration: SchoolRegistration):
     """
     Self-service school registration
@@ -48,102 +48,106 @@ async def register_school(registration: SchoolRegistration):
     """
     try:
         db = get_db()
-        cursor = db.cursor()
         
-        # 1. Check if school already exists
-        cursor.execute(
-            "SELECT id FROM schools WHERE email = %s",
-            (registration.email,)
-        )
-        existing = cursor.fetchone()
-        
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="School with this email already registered"
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # 1. Check if school already exists
+            cursor.execute(
+                "SELECT id FROM schools WHERE email = %s",
+                (registration.email,)
             )
-        
-        # 2. Create school record
-        school_id = str(uuid.uuid4())
-        cursor.execute("""
-            INSERT INTO schools (id, name, address, phone, email, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (
-            school_id,
-            registration.school_name,
-            registration.address,
-            registration.phone,
-            registration.email,
-            datetime.now()
-        ))
-        
-        # 3. Create default school branding
-        cursor.execute("""
-            INSERT INTO school_branding (id, school_id, brand_name, primary_color, secondary_color)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (
-            str(uuid.uuid4()),
-            school_id,
-            registration.school_name,
-            '#2563eb',  # Default blue
-            '#1e40af'
-        ))
-        
-        # 4. Create director user account
-        from passlib.context import CryptContext
-        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        
-        temp_password = f"Angels{school_id[:8]}"  # Temporary password
-        password_hash = pwd_context.hash(temp_password)
-        
-        user_id = str(uuid.uuid4())
-        cursor.execute("""
-            INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role, is_active)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            user_id,
-            registration.director_email,
-            password_hash,
-            registration.director_first_name,
-            registration.director_last_name,
-            registration.director_phone,
-            'admin',  # maps to Director role
-            True
-        ))
-        
-        # 5. Link user to school
-        cursor.execute("""
-            INSERT INTO user_schools (id, user_id, school_id, role, is_primary)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (
-            str(uuid.uuid4()),
-            user_id,
-            school_id,
-            'director',
-            True
-        ))
-        
-        # 6. Set school plan/features
-        plans = {
-            "starter": ["basic_dashboard", "attendance", "fees"],
-            "professional": ["basic_dashboard", "attendance", "fees", "reports", "whatsapp"],
-            "enterprise": ["all_features", "white_label", "custom_domain", "priority_support"],
-            "pilot": ["all_features", "white_label", "custom_domain", "priority_support", "pilot_access"]
-        }
-        
-        for feature in plans.get(registration.plan, plans["starter"]):
+            existing = cursor.fetchone()
+            
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="School with this email already registered"
+                )
+            
+            # 2. Create school record
+            school_id = str(uuid.uuid4())
             cursor.execute("""
-                INSERT INTO school_feature_flags (id, school_id, feature_name, is_enabled)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO schools (id, name, address, phone, email, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                school_id,
+                registration.school_name,
+                registration.address,
+                registration.phone,
+                registration.email,
+                datetime.now()
+            ))
+            
+            # 3. Create default school branding
+            cursor.execute("""
+                INSERT INTO school_branding (id, school_id, brand_name, primary_color, secondary_color)
+                VALUES (%s, %s, %s, %s, %s)
             """, (
                 str(uuid.uuid4()),
                 school_id,
-                feature,
+                registration.school_name,
+                '#2563eb',  # Default blue
+                '#1e40af'
+            ))
+            
+            # 4. Create director user account
+            from passlib.context import CryptContext
+            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+            
+            temp_password = f"Angels{school_id[:8]}"  # Temporary password
+            password_hash = pwd_context.hash(temp_password)
+            
+            user_id = str(uuid.uuid4())
+            # FIX: Included school_id and changed is_active to status
+            cursor.execute("""
+                INSERT INTO users (id, school_id, email, password_hash, first_name, last_name, phone, role, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                user_id,
+                school_id,
+                registration.director_email,
+                password_hash,
+                registration.director_first_name,
+                registration.director_last_name,
+                registration.director_phone,
+                'admin',  # maps to Director role
+                'active'
+            ))
+            
+            # 5. Link user to school (Crucial for RLS isolation)
+            cursor.execute("""
+                INSERT INTO user_schools (id, user_id, school_id, role, is_primary)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                str(uuid.uuid4()),
+                user_id,
+                school_id,
+                'director',
                 True
             ))
-        
-        db.commit()
-        cursor.close()
+            
+            # 6. Set school plan/features
+            plans = {
+                "starter": ["basic_dashboard", "attendance", "fees"],
+                "professional": ["basic_dashboard", "attendance", "fees", "reports", "whatsapp"],
+                "enterprise": ["all_features", "white_label", "custom_domain", "priority_support"],
+                "pilot": ["all_features", "white_label", "custom_domain", "priority_support", "pilot_access"]
+            }
+            
+            for feature in plans.get(registration.plan, plans["starter"]):
+                cursor.execute("""
+                    INSERT INTO school_feature_flags (id, school_id, feature_name, is_enabled)
+                    VALUES (%s, %s, %s, %s)
+                """, (
+                    str(uuid.uuid4()),
+                    school_id,
+                    feature,
+                    True
+                ))
+            
+            # Transaction is committed automatically by db.get_connection()
+            cursor.close()
         
         # 7. Send welcome email (TODO: integrate with email service)
         # send_welcome_email(registration.director_email, temp_password)
@@ -160,7 +164,7 @@ async def register_school(registration: SchoolRegistration):
     except HTTPException:
         raise
     except Exception as e:
-        db.rollback()
+        # Transaction is rolled back automatically by db.get_connection()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Registration failed: {str(e)}"
