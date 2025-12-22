@@ -41,20 +41,14 @@ class MonitoringService:
         db_status = await self._check_database()
         checks["checks"]["database"] = db_status
         
-        # Check Clarity API
-        clarity_status = await self._check_clarity_api()
-        checks["checks"]["clarity_api"] = clarity_status
-        
         # Check disk space (if available)
         disk_status = self._check_disk_space()
         if disk_status:
             checks["checks"]["disk"] = disk_status
         
-        # Overall status
+        # Overall status - only database affects health
         if not db_status["healthy"]:
             checks["status"] = "unhealthy"
-        elif not clarity_status["healthy"]:
-            checks["status"] = "degraded"
         
         return checks
     

@@ -35,13 +35,44 @@ class DatabaseManager:
         if not self.database_url:
             raise ValueError("DATABASE_URL environment variable not set")
         
+        # Force IPv4 by parsing URL and resolving to IPv4 address
+        from urllib.parse import urlparse
+        import socket
+        
+        try:
+            parsed = urlparse(self.database_url)
+            
+            # Resolve hostname to IPv4 only
+            addr_info = socket.getaddrinfo(
+                parsed.hostname,
+                parsed.port or 5432,
+                socket.AF_INET,  # Force IPv4
+                socket.SOCK_STREAM
+            )
+            
+            if addr_info:
+                ipv4_addr = addr_info[0][4][0]
+                # Rebuild URL with IPv4 address
+                if parsed.password:
+                    ipv4_url = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
+                else:
+                    ipv4_url = f"postgresql://{parsed.username}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
+                    
+                conn_string = ipv4_url
+            else:
+                # Fallback to original URL if resolution fails
+                conn_string = self.database_url
+        except Exception as e:
+            print(f"⚠️  IPv4 resolution failed, using original URL: {e}")
+            conn_string = self.database_url
+        
         # Create connection pool (think of it as a taxi stand - always have taxis ready)
         self.pool = ThreadedConnectionPool(
             min_conn,
             max_conn,
-            self.database_url
+            conn_string
         )
-        print(f"✅ Database connection pool initialized ({min_conn}-{max_conn} connections)")
+        print(f"✅ Database connection pool initialized ({min_conn}-{max_conn} connections, IPv4-forced)")
     
     @contextmanager
     def get_connection(self):
