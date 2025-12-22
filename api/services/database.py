@@ -38,33 +38,33 @@ class DatabaseManager:
         # Force IPv4 by parsing URL and resolving to IPv4 address
         from urllib.parse import urlparse
         import socket
+        import time
         
         try:
             parsed = urlparse(self.database_url)
             hostname = parsed.hostname
             
-            # More robust resolution: get all addresses and filter for IPv4
+            # Ultra-robust resolution for v3.4
             ipv4_addr = None
             try:
-                addr_info = socket.getaddrinfo(hostname, None)
-                for info in addr_info:
-                    if info[0] == socket.AF_INET:
-                        ipv4_addr = info[4][0]
-                        break
-                
-                # If getaddrinfo didn't find it, try gethostbyname
-                if not ipv4_addr:
-                    ipv4_addr = socket.gethostbyname(hostname)
-            except Exception as inner_e:
-                print(f"⚠️ Primary IPv4 resolution failed: {inner_e}")
-                # Last ditch effort: try gethostbyname directly
+                # 1. Try gethostbyname first (it's the simplest way to get IPv4)
+                ipv4_addr = socket.gethostbyname(hostname)
+                print(f"📡 Resolved {hostname} via gethostbyname: {ipv4_addr}")
+            except Exception as e1:
+                print(f"⚠️ gethostbyname failed: {e1}")
                 try:
-                    ipv4_addr = socket.gethostbyname(hostname)
-                except:
-                    ipv4_addr = None
+                    # 2. Try getaddrinfo as fallback
+                    addr_info = socket.getaddrinfo(hostname, None)
+                    for info in addr_info:
+                        if info[0] == socket.AF_INET:
+                            ipv4_addr = info[4][0]
+                            print(f"📡 Resolved {hostname} via getaddrinfo: {ipv4_addr}")
+                            break
+                except Exception as e2:
+                    print(f"⚠️ getaddrinfo also failed: {e2}")
             
             conn_string = self.database_url
-            if ipv4_addr:
+            if ipv4_addr and ":" not in ipv4_addr: # Ensure it's not an IPv6 address that leaked in
                 # Rebuild URL with IPv4 address
                 port = parsed.port or 5432
                 if parsed.password:
@@ -74,16 +74,16 @@ class DatabaseManager:
             
             print(f"🔌 DatabaseManager connecting to: {conn_string.split('@')[-1] if '@' in conn_string else 'unknown host'}")
         except Exception as e:
-            print(f"⚠️ Detailed IPv4 resolution error: {e}")
+            print(f"⚠️ Detailed IPv4 resolution error in v3.4: {e}")
             conn_string = self.database_url
         
-        # Create connection pool (think of it as a taxi stand - always have taxis ready)
+        # Create connection pool
         self.pool = ThreadedConnectionPool(
             min_conn,
             max_conn,
             conn_string
         )
-        print(f"✅ Database connection pool initialized ({min_conn}-{max_conn} connections, IPv4-forced)")
+        print(f"✅ DB Pool v3.4 initialized (IPv4: {conn_string.split('@')[-1] if '@' in conn_string else 'No'})")
     
     @contextmanager
     def get_connection(self):

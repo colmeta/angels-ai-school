@@ -31,7 +31,8 @@ class MonitoringService:
         Returns status of all critical services
         """
         checks = {
-            "v": "3.3-robust-ipv4",
+            "v": "3.4-robust-ipv4-final",
+            "deployed_at": "2025-12-22T08:55:00",
             "timestamp": datetime.now().isoformat(),
             "uptime_seconds": int(time.time() - self.start_time),
             "status": "healthy",
@@ -82,25 +83,25 @@ class MonitoringService:
                     import socket
                     ipv4_addr = None
                     try:
-                        addr_info = socket.getaddrinfo(hostname, None)
-                        for info in addr_info:
-                            if info[0] == socket.AF_INET:
-                                ipv4_addr = info[4][0]
-                                break
-                        if not ipv4_addr:
-                            ipv4_addr = socket.gethostbyname(hostname)
+                        # 1. Try gethostbyname first
+                        ipv4_addr = socket.gethostbyname(hostname)
                     except:
                         try:
-                            ipv4_addr = socket.gethostbyname(hostname)
+                            # 2. Try getaddrinfo as fallback
+                            addr_info = socket.getaddrinfo(hostname, None)
+                            for info in addr_info:
+                                if info[0] == socket.AF_INET:
+                                    ipv4_addr = info[4][0]
+                                    break
                         except:
                             ipv4_addr = None
                             
-                    if ipv4_addr:
+                    if ipv4_addr and ":" not in ipv4_addr:
                         conn_params['host'] = ipv4_addr
                 except Exception as e:
                     print(f"Health check IPv4 resolution warning: {e}")
                 
-                print(f"🔌 Health check connecting to DB host: {conn_params.get('host')}")
+                print(f"🔌 v3.4 connecting to DB host: {conn_params.get('host')}")
                 conn = psycopg2.connect(**conn_params)
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
