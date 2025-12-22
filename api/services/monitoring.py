@@ -31,7 +31,7 @@ class MonitoringService:
         Returns status of all critical services
         """
         checks = {
-            "v": "3.2-forcing-live",
+            "v": "3.3-robust-ipv4",
             "timestamp": datetime.now().isoformat(),
             "uptime_seconds": int(time.time() - self.start_time),
             "status": "healthy",
@@ -64,10 +64,11 @@ class MonitoringService:
             def _sync_check():
                 # Parse DATABASE_URL to extract components
                 parsed = urlparse(self.settings.database_url)
+                hostname = parsed.hostname
                 
-                # Build connection parameters with IPv4 enforcement
+                # Build connection parameters
                 conn_params = {
-                    'host': parsed.hostname,
+                    'host': hostname,
                     'port': parsed.port or 5432,
                     'user': parsed.username,
                     'password': parsed.password,
@@ -79,22 +80,24 @@ class MonitoringService:
                 # Force IPv4 by resolving hostname to IPv4 address
                 try:
                     import socket
-                    # Get IPv4 address only
-                    addr_info = socket.getaddrinfo(
-                        parsed.hostname, 
-                        parsed.port or 5432,
-                        socket.AF_INET,  # Force IPv4
-                        socket.SOCK_STREAM
-                    )
-                    if addr_info:
-                        # Find first IPv4 address
+                    ipv4_addr = None
+                    try:
+                        addr_info = socket.getaddrinfo(hostname, None)
                         for info in addr_info:
                             if info[0] == socket.AF_INET:
                                 ipv4_addr = info[4][0]
-                                conn_params['host'] = ipv4_addr
                                 break
+                        if not ipv4_addr:
+                            ipv4_addr = socket.gethostbyname(hostname)
+                    except:
+                        try:
+                            ipv4_addr = socket.gethostbyname(hostname)
+                        except:
+                            ipv4_addr = None
+                            
+                    if ipv4_addr:
+                        conn_params['host'] = ipv4_addr
                 except Exception as e:
-                    # If resolution fails, try with original hostname
                     print(f"Health check IPv4 resolution warning: {e}")
                 
                 print(f"🔌 Health check connecting to DB host: {conn_params.get('host')}")

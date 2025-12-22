@@ -41,32 +41,40 @@ class DatabaseManager:
         
         try:
             parsed = urlparse(self.database_url)
+            hostname = parsed.hostname
             
-            # Resolve hostname to IPv4 only
-            addr_info = socket.getaddrinfo(
-                parsed.hostname,
-                parsed.port or 5432,
-                socket.AF_INET,  # Force IPv4
-                socket.SOCK_STREAM
-            )
-            
-            conn_string = self.database_url
-            if addr_info:
+            # More robust resolution: get all addresses and filter for IPv4
+            ipv4_addr = None
+            try:
+                addr_info = socket.getaddrinfo(hostname, None)
                 for info in addr_info:
                     if info[0] == socket.AF_INET:
                         ipv4_addr = info[4][0]
-                        # Rebuild URL with IPv4 address
-                        if parsed.password:
-                            ipv4_url = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
-                        else:
-                            ipv4_url = f"postgresql://{parsed.username}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
-                            
-                        conn_string = ipv4_url
                         break
+                
+                # If getaddrinfo didn't find it, try gethostbyname
+                if not ipv4_addr:
+                    ipv4_addr = socket.gethostbyname(hostname)
+            except Exception as inner_e:
+                print(f"⚠️ Primary IPv4 resolution failed: {inner_e}")
+                # Last ditch effort: try gethostbyname directly
+                try:
+                    ipv4_addr = socket.gethostbyname(hostname)
+                except:
+                    ipv4_addr = None
+            
+            conn_string = self.database_url
+            if ipv4_addr:
+                # Rebuild URL with IPv4 address
+                port = parsed.port or 5432
+                if parsed.password:
+                    conn_string = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{port}{parsed.path}"
+                else:
+                    conn_string = f"postgresql://{parsed.username}@{ipv4_addr}:{port}{parsed.path}"
             
             print(f"🔌 DatabaseManager connecting to: {conn_string.split('@')[-1] if '@' in conn_string else 'unknown host'}")
         except Exception as e:
-            print(f"⚠️  IPv4 resolution failed, using original URL: {e}")
+            print(f"⚠️ Detailed IPv4 resolution error: {e}")
             conn_string = self.database_url
         
         # Create connection pool (think of it as a taxi stand - always have taxis ready)
