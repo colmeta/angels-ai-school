@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 import { localAgent } from '../../services/LocalAgentService';
+import { useOfflineSync } from '../../hooks/useOfflineSync';
 
 interface ImportPreview {
     detected_mapping: Record<string, string>;
@@ -80,15 +81,10 @@ export const UniversalImport = () => {
         setLoading(true);
 
         try {
-            // In a real scenario, we'd chunk this or send a bulk request.
-            // For Edge AI offline validation, we'll enqueue the entire dataset 
-            // as a "smart_import" operation.
-
+            // E2E Verification: Enqueue the import task for offline sync
             enqueueTask('/students/import', {
                 mapping: preview.detected_mapping,
                 file_name: file?.name,
-                // In production, we'd probably upload the file too, 
-                // but for this MVP, we send the mapping + context.
                 data_count: preview.total_rows
             }, 'POST');
 

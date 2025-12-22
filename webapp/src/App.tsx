@@ -20,6 +20,7 @@ import { StudentProfile } from "./pages/dashboards/StudentProfile";
 import { StaffProfile } from "./pages/dashboards/StaffProfile";
 import { TemplateBuilder } from "./pages/tools/TemplateBuilder";
 import { UniversalImport } from "./pages/tools/UniversalImport";
+import { SmartScan } from "./components/SmartScan";
 import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
 import { SchoolSignup } from "./pages/auth/SchoolSignup";
 import { Login } from "./pages/auth/Login";
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/tools/import" element={<UniversalImport />} />
+          <Route path="/tools/scan" element={<SmartScan />} />
 
           {/* 1. ADMIN OS (Core Config) */}
           <Route element={<RouteGuard allowedRoles={["admin", "director"]} />}>
