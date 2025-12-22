@@ -1082,6 +1082,34 @@ class GradesOperations:
         """
         return self.db.execute_query(query, (school_id, limit), fetch=True)
 
+    def get_class_performance(self, school_id: str, class_name: str) -> Dict[str, Any]:
+        """Get average and at-risk students for a specific class"""
+        query = """
+        SELECT 
+            ROUND(AVG(marks), 2) as average_marks,
+            COUNT(*) as total_records
+        FROM grades
+        WHERE school_id = %s AND class_name = %s
+        """
+        stats = self.db.execute_query(query, (school_id, class_name), fetch=True)
+        
+        # Get students below 50%
+        at_risk_query = """
+        SELECT DISTINCT student_id, marks
+        FROM grades
+        WHERE school_id = %s AND class_name = %s AND marks < 50
+        ORDER BY marks ASC
+        LIMIT 5
+        """
+        at_risk = self.db.execute_query(at_risk_query, (school_id, class_name), fetch=True)
+        
+        return {
+            "average": float(stats[0]["average_marks"] or 0) if stats else 0,
+            "total_records": stats[0]["total_records"] if stats else 0,
+            "at_risk_count": len(at_risk),
+            "flagged_student_ids": [r["student_id"] for r in at_risk]
+        }
+
 
 # ============================================
 # INITIALIZE DATABASE MANAGER (SINGLETON)

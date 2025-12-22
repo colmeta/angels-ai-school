@@ -9,6 +9,8 @@ from datetime import datetime
 from api.services.executive import ExecutiveAssistant
 from api.core.mcp import get_mcp_client, MCPAgentRequest
 from api.services.database import get_db_manager
+from api.agents.staff.director import DigitalCEO
+from api.agents.staff.bursar import Bursar
 from api.models.agents import (
     CommandStartRequest, DocumentBatchRequest, AutomateTaskRequest, 
     ParentQueryRequest
@@ -20,77 +22,23 @@ router = APIRouter()
 @router.post("/{school_id}/ceo/strategic-briefing")
 async def digital_ceo_briefing(school_id: str):
     """
-    Digital CEO Agent - Strategic intelligence and executive dashboard
-    Real implementation using Clarity for analysis
+    Digital CEO Agent - Strategic intelligence and executive dashboard.
+    Now uses the standardized DigitalCEO staff agent.
     """
     try:
-        db = get_db_manager()
+        ceo = DigitalCEO()
+        response = await ceo.perform_task("get_school_overview", {"school_id": school_id})
         
-        # Gather school-wide metrics
-        metrics = {
-            "enrollment": db.execute_query(
-                "SELECT COUNT(*) as total FROM students WHERE school_id = %s AND status = 'active'",
-                (school_id,), fetch=True
-            )[0]["total"],
-            "fee_collection_rate": db.execute_query(
-                """SELECT 
-                   COALESCE(SUM(amount_paid) / NULLIF(SUM(amount_due), 0) * 100, 0) as rate
-                   FROM student_fees sf 
-                   JOIN students s ON sf.student_id = s.id 
-                   WHERE s.school_id = %s""",
-                (school_id,), fetch=True
-            )[0]["rate"],
-            "attendance_rate": db.execute_query(
-                """SELECT 
-                   COALESCE(COUNT(CASE WHEN status='present' THEN 1 END)::float / 
-                   NULLIF(COUNT(*), 0) * 100, 0) as rate
-                   FROM attendance a
-                   JOIN students s ON a.student_id = s.id
-                   WHERE s.school_id = %s AND a.date >= CURRENT_DATE - INTERVAL '7 days'""",
-                (school_id,), fetch=True
-            )[0]["rate"],
-            "active_incidents": db.execute_query(
-                "SELECT COUNT(*) as total FROM incidents WHERE school_id = %s AND status != 'closed'",
-                (school_id,), fetch=True
-            )[0]["total"]
-        }
-        
-        # Use MCP for strategic briefing
-        try:
-            mcp = get_mcp_client()
-            directive = f"""
-                You are the Digital CEO of this school. Produce an executive strategic briefing.
-                Current metrics:
-                - Total Students: {metrics['enrollment']}
-                - Fee Collection Rate: {metrics['fee_collection_rate']}%
-                - Weekly Attendance Rate: {metrics['attendance_rate']}%
-                - Open Incidents: {metrics['active_incidents']}
-                
-                Provide:
-                1. Overall health assessment
-                2. Key opportunities
-                3. Critical risks
-                4. Strategic recommendations
-                5. Priority action items
-            """
-            response = mcp.analyze(MCPAgentRequest(
-                directive=directive,
-                domain="education",
-                context=metrics
-            ))
-            briefing = response.content
-        except Exception as e:
-            # Fallback for robustness
-            briefing = {"error": "Intelligence unavailable", "details": str(e)}
-        
+        if not response.success:
+            raise HTTPException(status_code=500, detail=response.error)
+
         return {
             "success": True,
-            "agent": "Digital CEO",
-            "metrics": metrics,
-            "briefing": briefing,
-            "generated_at": datetime.now().isoformat()
+            "agent": response.agent,
+            "metrics": response.result,
+            "briefing": response.result.get("strategic_insight", "Briefing unavailable."),
+            "generated_at": response.timestamp
         }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -201,67 +149,25 @@ async def parent_engagement_agent(school_id: str, request: ParentQueryRequest):
 @router.post("/{school_id}/financial-ops/run-ooda-loop")
 async def financial_operations_agent(school_id: str):
     """
-    Financial Operations Agent - Automated treasurer with OODA loop
-    Real financial analysis and forecasting
+    Financial Operations Agent - Automated treasurer with OODA loop.
+    Now uses the standardized Bursar staff agent.
     """
     try:
-        db = get_db_manager()
+        bursar = Bursar()
+        # The Bursar's check_fees_collected performs the 'Observe' part of OODA
+        response = await bursar.perform_task("check_fees_collected", {"school_id": school_id})
+        
+        if not response.success:
+            raise HTTPException(status_code=500, detail=response.error)
 
-        
-        # Observe - Gather financial data
-        financial_data = {
-            "total_fees_due": db.execute_query(
-                "SELECT COALESCE(SUM(amount_due), 0) as total FROM student_fees sf JOIN students s ON sf.student_id = s.id WHERE s.school_id = %s",
-                (school_id,), fetch=True
-            )[0]["total"],
-            "total_collected": db.execute_query(
-                "SELECT COALESCE(SUM(amount_paid), 0) as total FROM student_fees sf JOIN students s ON sf.student_id = s.id WHERE s.school_id = %s",
-                (school_id,), fetch=True
-            )[0]["total"],
-            "pending_balance": db.execute_query(
-                "SELECT COALESCE(SUM(balance), 0) as total FROM student_fees sf JOIN students s ON sf.student_id = s.id WHERE s.school_id = %s",
-                (school_id,), fetch=True
-            )[0]["total"],
-            "monthly_expenses": db.execute_query(
-                "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE school_id = %s AND expense_date >= CURRENT_DATE - INTERVAL '30 days'",
-                (school_id,), fetch=True
-            )[0]["total"]
-        }
-        
-        # Orient, Decide, Act - Use MCP for analysis
-        mcp = get_mcp_client()
-        response = mcp.analyze(MCPAgentRequest(
-            directive=f"""
-            You are the Financial Operations Agent running OODA loop analysis.
-            
-            Financial Data:
-            - Total Fees Due: {financial_data['total_fees_due']}
-            - Total Collected: {financial_data['total_collected']}
-            - Pending Balance: {financial_data['pending_balance']}
-            - Monthly Expenses: {financial_data['monthly_expenses']}
-            
-            Provide:
-            1. Financial health assessment
-            2. Cash flow forecast (next 90 days)
-            3. Risk areas
-            4. Revenue optimization opportunities
-            5. Cost reduction recommendations
-            6. Specific actions to take NOW
-            """,
-            domain="financial",
-            context=financial_data
-        ))
-        ooda_analysis = response.content
-        
         return {
             "success": True,
-            "agent": "Financial Operations",
+            "agent": response.agent,
             "ooda_cycle": "completed",
-            "financial_data": financial_data,
-            "analysis": ooda_analysis,
-            "timestamp": datetime.now().isoformat()
+            "financial_data": response.result,
+            # We can still add an AI analysis layer for the 'Orient/Decide/Act' if needed
+            "timestamp": response.timestamp
         }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
