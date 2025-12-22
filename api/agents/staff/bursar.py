@@ -5,7 +5,9 @@ Role: Financial Health & Collections
 Specialty: Fee collection tracking & ROI analysis.
 Optimized for: 0 Token Usage on Financial Reports.
 """
+from typing import Any, Dict, Optional
 from api.services.database import get_fee_ops
+from .base import StaffAgent
 
 class Bursar(StaffAgent):
     def __init__(self):

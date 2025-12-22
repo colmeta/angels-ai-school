@@ -5,7 +5,9 @@ Role: Academic Standards & Teacher Performance
 Specialty: Class performance analysis & Parent communication.
 Optimized for: 0 Token Usage on Routine Checks.
 """
+from typing import Any, Dict, Optional
 from api.services.database import get_grades_ops
+from .base import StaffAgent
 
 class Headteacher(StaffAgent):
     def __init__(self):
