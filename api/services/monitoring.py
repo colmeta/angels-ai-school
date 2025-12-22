@@ -31,6 +31,7 @@ class MonitoringService:
         Returns status of all critical services
         """
         checks = {
+            "v": "3.1-stable",
             "timestamp": datetime.now().isoformat(),
             "uptime_seconds": int(time.time() - self.start_time),
             "status": "healthy",
@@ -86,12 +87,17 @@ class MonitoringService:
                         socket.SOCK_STREAM
                     )
                     if addr_info:
-                        ipv4_addr = addr_info[0][4][0]
-                        conn_params['host'] = ipv4_addr
-                except Exception:
+                        # Find first IPv4 address
+                        for info in addr_info:
+                            if info[0] == socket.AF_INET:
+                                ipv4_addr = info[4][0]
+                                conn_params['host'] = ipv4_addr
+                                break
+                except Exception as e:
                     # If resolution fails, try with original hostname
-                    pass
+                    print(f"Health check IPv4 resolution warning: {e}")
                 
+                print(f"🔌 Health check connecting to DB host: {conn_params.get('host')}")
                 conn = psycopg2.connect(**conn_params)
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")

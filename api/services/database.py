@@ -50,18 +50,21 @@ class DatabaseManager:
                 socket.SOCK_STREAM
             )
             
+            conn_string = self.database_url
             if addr_info:
-                ipv4_addr = addr_info[0][4][0]
-                # Rebuild URL with IPv4 address
-                if parsed.password:
-                    ipv4_url = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
-                else:
-                    ipv4_url = f"postgresql://{parsed.username}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
-                    
-                conn_string = ipv4_url
-            else:
-                # Fallback to original URL if resolution fails
-                conn_string = self.database_url
+                for info in addr_info:
+                    if info[0] == socket.AF_INET:
+                        ipv4_addr = info[4][0]
+                        # Rebuild URL with IPv4 address
+                        if parsed.password:
+                            ipv4_url = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
+                        else:
+                            ipv4_url = f"postgresql://{parsed.username}@{ipv4_addr}:{parsed.port or 5432}{parsed.path}"
+                            
+                        conn_string = ipv4_url
+                        break
+            
+            print(f"🔌 DatabaseManager connecting to: {conn_string.split('@')[-1] if '@' in conn_string else 'unknown host'}")
         except Exception as e:
             print(f"⚠️  IPv4 resolution failed, using original URL: {e}")
             conn_string = self.database_url
