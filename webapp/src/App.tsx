@@ -24,6 +24,8 @@ import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
 import { SchoolSignup } from "./pages/auth/SchoolSignup";
 import { Login } from "./pages/auth/Login";
 
+import { AILoader } from "./components/AILoader";
+
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
 const App = () => {
@@ -35,6 +37,7 @@ const App = () => {
   return (
     <>
       <OfflineBanner />
+      <AILoader />
       <AppShell>
         <Routes>
           {/* Public Routes */}

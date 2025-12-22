@@ -4,7 +4,7 @@
  * Bridges the Frontend "Magic Box" input to the Backend "Command Intelligence" Agent.
  * Replaces previous client-side regex mocks with real NLP.
  */
-import { apiClient } from "../lib/apiClient";
+import { localAgent } from "./LocalAgentService";
 
 export interface ParsedCommand {
     action: string;
@@ -16,34 +16,49 @@ export interface ParsedCommand {
 export const SmartEntryService = {
     /**
      * Sends natural language command to the backend AI agent.
-     * @param input Natural language string (e.g., "Add student John Doe")
-     * @param schoolId The school context ID
+     * With Edge AI fallback for offline/low-latency usage.
      */
     parse: async (input: string, schoolId: string): Promise<ParsedCommand> => {
-        try {
-            // Call the Backend Command Intelligence Agent
-            const response = await apiClient.post(`/agents/command`, {
-                command: input,
-                school_id: schoolId,
-                user_role: "admin" // Context aware in future
-            });
-
-            if (response.data && response.data.parsed) {
-                return response.data.parsed;
+        // 1. Try Local Edge AI if ready
+        if (localAgent.getStatus() === 'ready') {
+            try {
+                console.log("[SmartEntry] Using Local Edge AI Core...");
+                const localResult = await localAgent.parse(input);
+                return {
+                    action: localResult.action || "unknown",
+                    entity: localResult.entity || "unknown",
+                    data: localResult.data || localResult,
+                    confidence: 1.0 // Local is deterministic once parsed
+                };
+            } catch (e) {
+                console.warn("[SmartEntry] Local AI failed, falling back...", e);
             }
-
-            // Fallback if backend returns generic success but no structured parse
-            return {
-                action: "unknown",
-                entity: "unknown",
-                data: {},
-                confidence: 0
-            };
-
-        } catch (error) {
-            console.error("SmartEntry AI Error:", error);
-            throw new Error("Failed to process command. The AI agent might be offline.");
         }
+
+        // 2. Fallback to Cloud AI if online
+        if (navigator.onLine) {
+            try {
+                const response = await apiClient.post(`/agents/command`, {
+                    command: input,
+                    school_id: schoolId,
+                    user_role: "admin"
+                });
+
+                if (response.data && response.data.parsed) {
+                    return response.data.parsed;
+                }
+            } catch (error) {
+                console.error("SmartEntry Cloud AI Error:", error);
+            }
+        }
+
+        // 3. Final Fallback (Unknown)
+        return {
+            action: "unknown",
+            entity: "unknown",
+            data: {},
+            confidence: 0
+        };
     },
 
     /**

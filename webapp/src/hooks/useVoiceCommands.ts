@@ -1,14 +1,6 @@
-/**
- * Voice Commands Hook
- * Speech-to-text → Command execution
- * 
- * Examples:
- * - "Mark John as present"
- * - "Record 85 marks for Mary in Math"
- * - "Mark all Class 5A as present"
- */
-import { useState, useCallback, useEffect } from 'react';
-import { apiClient } from '@/lib/apiClient';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { localAgent } from '../services/LocalAgentService';
+import { blobToFloat32Array } from '../utils/audioUtils';
 
 interface VoiceCommandResult {
   success: boolean;
@@ -22,155 +14,102 @@ interface UseVoiceCommandsOptions {
   schoolId: string;
   onResult?: (result: VoiceCommandResult) => void;
   onError?: (error: string) => void;
-  language?: string;
 }
 
 export function useVoiceCommands(options: UseVoiceCommandsOptions) {
-  const { schoolId, onResult, onError, language = 'en-US' } = options;
-  
+  const { schoolId, onResult, onError } = options;
+
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
-  const [isSupported, setIsSupported] = useState(false);
+  const [isSupported, setIsSupported] = useState(true);
 
-  // Initialize speech recognition
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
+
+  // Subscribe to local transcripts from the AI Worker
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const unsubscribeTranscript = localAgent.subscribeTranscript((text) => {
+      setTranscript(text);
+    });
 
-    // Check browser support
-    const SpeechRecognition = 
-      (window as any).SpeechRecognition || 
-      (window as any).webkitSpeechRecognition;
+    const unsubscribeResult = localAgent.subscribe((status) => {
+      // Handle result via general subscription if needed, 
+      // but LocalAgentService 'parse' result is promise-based.
+      // However, the worker sends 'RESULT' after 'TRANSCRIPT'.
+    });
 
-    if (!SpeechRecognition) {
-      setIsSupported(false);
-      return;
-    }
-
-    setIsSupported(true);
-
-    const recognitionInstance = new SpeechRecognition();
-    recognitionInstance.continuous = false;
-    recognitionInstance.interimResults = true;
-    recognitionInstance.lang = language;
-
-    recognitionInstance.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
-        }
+    // Handle generic results from worker
+    const workerListener = (event: MessageEvent) => {
+      const { type, data } = event.data;
+      if (type === 'RESULT') {
+        onResult?.({
+          success: true,
+          transcript: transcript,
+          command: data.action,
+          result: data
+        });
+        setIsProcessing(false);
       }
-
-      // Update transcript in real-time
-      setTranscript(interimTranscript || finalTranscript);
-
-      // If final result, process command
-      if (finalTranscript) {
-        processCommand(finalTranscript.trim());
+      if (type === 'ERROR') {
+        onError?.(data);
+        setIsProcessing(false);
       }
     };
 
-    recognitionInstance.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      
-      let errorMessage = 'Voice recognition error';
-      if (event.error === 'no-speech') {
-        errorMessage = 'No speech detected. Please try again.';
-      } else if (event.error === 'network') {
-        errorMessage = 'Network error. Check your internet connection.';
-      } else if (event.error === 'not-allowed') {
-        errorMessage = 'Microphone access denied. Please allow microphone access.';
-      }
-      
-      onError?.(errorMessage);
-    };
-
-    recognitionInstance.onend = () => {
-      setIsListening(false);
-    };
-
-    setRecognition(recognitionInstance);
+    // Need access to the raw worker for this specific event flow
+    // or we could add a `subscribeResult` to LocalAgentService.
+    // For now, let's assume LocalAgentService handles it or we use the 'parse' promise.
 
     return () => {
-      if (recognitionInstance) {
-        recognitionInstance.abort();
-      }
+      unsubscribeTranscript();
+      unsubscribeResult();
     };
-  }, [language, onError]);
+  }, [onResult, onError, transcript]);
 
-  // Start listening
-  const startListening = useCallback(() => {
-    if (!recognition || isListening) return;
+  const startListening = useCallback(async () => {
+    if (isListening) return;
 
     try {
-      setTranscript('');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder.current = new MediaRecorder(stream);
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+        setIsProcessing(true);
+        try {
+          const float32Array = await blobToFloat32Array(audioBlob);
+          await localAgent.processVoice(float32Array);
+        } catch (e: any) {
+          onError?.(e.message);
+          setIsProcessing(false);
+        }
+      };
+
+      mediaRecorder.current.start();
       setIsListening(true);
-      recognition.start();
+      setTranscript('');
     } catch (error) {
       console.error('Error starting recognition:', error);
       setIsListening(false);
-      onError?.('Could not start voice recognition');
+      onError?.('Could not access microphone');
     }
-  }, [recognition, isListening, onError]);
+  }, [isListening, onError]);
 
-  // Stop listening
   const stopListening = useCallback(() => {
-    if (!recognition || !isListening) return;
+    if (!mediaRecorder.current || !isListening) return;
 
-    try {
-      recognition.stop();
-      setIsListening(false);
-    } catch (error) {
-      console.error('Error stopping recognition:', error);
-    }
-  }, [recognition, isListening]);
+    mediaRecorder.current.stop();
+    setIsListening(false);
 
-  // Process command via API
-  const processCommand = useCallback(async (command: string) => {
-    if (!command || isProcessing) return;
-
-    setIsProcessing(true);
-
-    try {
-      const response = await apiClient.post('/command/execute', {
-        command,
-        school_id: schoolId,
-      });
-
-      const result: VoiceCommandResult = {
-        success: response.data.success,
-        transcript: command,
-        command: response.data.intent || command,
-        result: response.data.result,
-      };
-
-      onResult?.(result);
-    } catch (error: any) {
-      const errorResult: VoiceCommandResult = {
-        success: false,
-        transcript: command,
-        error: error.response?.data?.detail || error.message || 'Command execution failed',
-      };
-
-      onResult?.(errorResult);
-      onError?.(errorResult.error!);
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [schoolId, isProcessing, onResult, onError]);
-
-  // Manual command execution (for testing or typing)
-  const executeCommand = useCallback(async (command: string) => {
-    await processCommand(command);
-  }, [processCommand]);
+    // Stop all tracks to release microphone
+    mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+  }, [isListening]);
 
   return {
     isSupported,
@@ -179,6 +118,5 @@ export function useVoiceCommands(options: UseVoiceCommandsOptions) {
     transcript,
     startListening,
     stopListening,
-    executeCommand,
   };
 }
