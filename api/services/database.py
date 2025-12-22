@@ -602,12 +602,11 @@ class SchoolOperations:
         query = """
         SELECT
             school_id,
-            COALESCE(display_name, %(default_name)s) AS display_name,
+            COALESCE(brand_name, %(default_name)s) AS display_name,
             COALESCE(primary_color, %(default_primary)s) AS primary_color,
-            COALESCE(accent_color, %(default_accent)s) AS accent_color,
+            COALESCE(secondary_color, %(default_accent)s) AS accent_color,
             logo_url,
             favicon_url,
-            hero_image_url,
             updated_at
         FROM school_branding
         WHERE school_id = %(school_id)s
