@@ -118,6 +118,10 @@ class Settings(BaseSettings):
     # Google Cloud Vision OCR
     google_application_credentials: Optional[str] = Field(default=None, validation_alias="GOOGLE_APPLICATION_CREDENTIALS")
     
+    # Google OAuth2 Settings
+    google_client_id: Optional[str] = Field(default=None, validation_alias="GOOGLE_CLIENT_ID")
+    google_client_secret: Optional[str] = Field(default=None, validation_alias="GOOGLE_CLIENT_SECRET")
+    
     # CrewAI
     crewai_telemetry_opt_out: bool = Field(default=True, validation_alias="CREWAI_TELEMETRY_OPT_OUT")
 

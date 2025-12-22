@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import { registerSW } from "./serviceWorkerRegistration";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+          <App />
+        </GoogleOAuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

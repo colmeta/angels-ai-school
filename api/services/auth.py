@@ -168,6 +168,106 @@ class AuthService:
             "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
         }
     
+    # Google/Social Login
+    def google_login(
+        self,
+        google_id: str,
+        email: str,
+        first_name: str,
+        last_name: str,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Authenticate or register a user via Google
+        """
+        # 1. Check if user exists by google_id
+        users = self.db.execute_query(
+            """
+            SELECT id, school_id, email, first_name, last_name, role, status, google_id
+            FROM users WHERE google_id = %s
+            """,
+            (google_id,),
+            fetch=True
+        )
+        
+        user = None
+        if users:
+            user = users[0]
+        else:
+            # 2. Check if user exists by email (to link account)
+            users = self.db.execute_query(
+                """
+                SELECT id, school_id, email, first_name, last_name, role, status, google_id
+                FROM users WHERE email = %s
+                """,
+                (email,),
+                fetch=True
+            )
+            
+            if users:
+                user = users[0]
+                # Link Google ID to existing email account
+                self.db.execute_query(
+                    "UPDATE users SET google_id = %s, auth_provider = 'google' WHERE id = %s",
+                    (google_id, user["id"])
+                )
+            else:
+                # 3. Create new user (default to 'guest' or ask for school_id?)
+                # For schools, they usually need to belong to a school.
+                # If they are signing up via Google, we might need a separate flow.
+                # For now, let's assume they belong to a 'Global' school or first school found
+                schools = self.db.execute_query("SELECT id FROM schools LIMIT 1", fetch=True)
+                school_id = schools[0]["id"] if schools else "00000000-0000-0000-0000-000000000000"
+                
+                # Auto-register
+                user = self.db.execute_query(
+                    """
+                    INSERT INTO users (school_id, email, first_name, last_name, role, google_id, auth_provider, email_verified)
+                    VALUES (%s, %s, %s, %s, 'staff', %s, 'google', true)
+                    RETURNING id, school_id, email, first_name, last_name, role, status
+                    """,
+                    (school_id, email, first_name, last_name, google_id),
+                    fetch=True
+                )[0]
+        
+        # Check status
+        if user["status"] != "active":
+            raise ValueError(f"Account is {user['status']}")
+            
+        # Update last login
+        self.db.execute_query(
+            "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s",
+            (user["id"],)
+        )
+        
+        # Generate tokens
+        access_token, access_jti = self._create_access_token(user)
+        refresh_token, refresh_jti = self._create_refresh_token(user)
+        
+        # Create session
+        self.db.execute_query(
+            """
+            INSERT INTO user_sessions (user_id, token_jti, ip_address, user_agent, expires_at)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                user["id"],
+                access_jti,
+                ip_address,
+                user_agent,
+                datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            )
+        )
+        
+        return {
+            "user": user,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        }
+    
     # Token Operations
     def _create_access_token(self, user: Dict) -> Tuple[str, str]:
         """Create JWT access token"""

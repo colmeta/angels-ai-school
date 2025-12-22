@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { Lock, Mail, ArrowRight, School, User, Users, GraduationCap, Shield } from 'lucide-react';
 import { useBrandingStore } from '../../stores/branding';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 type RoleType = 'director' | 'teacher' | 'parent' | 'student' | 'admin';
 
@@ -18,6 +19,52 @@ export const Login = () => {
     const [error, setError] = useState('');
 
     const { register, handleSubmit } = useForm();
+
+    const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+        if (!credentialResponse.credential) return;
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/google/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: credentialResponse.credential
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.access_token) {
+                // Store session
+                localStorage.setItem('access_token', result.access_token);
+                localStorage.setItem('refresh_token', result.refresh_token);
+                localStorage.setItem('user_role', result.user.role);
+                localStorage.setItem('user_school', result.user.school_id);
+
+                // Redirect based on role
+                const roleRoutes: Record<string, string> = {
+                    'admin': '/director',
+                    'director': '/director',
+                    'teacher': '/teacher',
+                    'parent': '/parent',
+                    'student': '/student',
+                    'super_admin': '/admin'
+                };
+
+                navigate(roleRoutes[result.user.role] || '/');
+            } else {
+                setError(result.detail || 'Google authentication failed');
+            }
+        } catch (err) {
+            setError('Google login failed. Please try again.');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleLogin = async (data: any) => {
         setIsLoading(true);
@@ -124,8 +171,8 @@ export const Login = () => {
                                     key={role.id}
                                     onClick={() => setActiveRole(role.id as RoleType)}
                                     className={`flex flex-col items-center gap-2 p-3 min-w-[80px] rounded-xl border transition-all ${activeRole === role.id
-                                            ? `${role.color} border-transparent text-white shadow-lg scale-105`
-                                            : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+                                        ? `${role.color} border-transparent text-white shadow-lg scale-105`
+                                        : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
                                         }`}
                                 >
                                     <role.icon size={20} />
@@ -186,6 +233,25 @@ export const Login = () => {
                                     </>
                                 )}
                             </button>
+
+                            <div className="relative my-6">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-slate-200"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-slate-500">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-center">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => setError('Google Sign-In was interrupted')}
+                                    useOneTap
+                                    theme="filled_blue"
+                                    shape="pill"
+                                />
+                            </div>
                         </form>
 
                         <div className="mt-8 text-center">

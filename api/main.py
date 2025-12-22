@@ -136,6 +136,7 @@ from api.routes import (
     messaging,
     director,
     inventory,
+    auth_google,
 )
 
 # NEW: Webhook and Import Routers
@@ -182,6 +183,7 @@ app.middleware("http")(rate_limit_middleware)
 # Include routers
 app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
+app.include_router(auth_google.router, prefix="/api", tags=["Google Authentication"])
 app.include_router(bulk_operations.router, prefix="/api", tags=["Bulk Operations"])
 app.include_router(command_intelligence.router, prefix="/api", tags=["Command Intelligence"])
 app.include_router(document_intelligence.router, prefix="/api", tags=["Document Intelligence"])
