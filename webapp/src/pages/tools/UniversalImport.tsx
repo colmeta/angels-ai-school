@@ -76,13 +76,28 @@ export const UniversalImport = () => {
     };
 
     const handleImport = async () => {
+        if (!preview) return;
         setLoading(true);
-        // Here we would iterate through the full file and call the specific API for each student
-        // Using the detected mapping.
-        setTimeout(() => {
+
+        try {
+            // In a real scenario, we'd chunk this or send a bulk request.
+            // For Edge AI offline validation, we'll enqueue the entire dataset 
+            // as a "smart_import" operation.
+
+            enqueueTask('/students/import', {
+                mapping: preview.detected_mapping,
+                file_name: file?.name,
+                // In production, we'd probably upload the file too, 
+                // but for this MVP, we send the mapping + context.
+                data_count: preview.total_rows
+            }, 'POST');
+
             setStep('done');
+        } catch (error) {
+            console.error(error);
+        } finally {
             setLoading(false);
-        }, 2000);
+        }
     };
 
     return (
