@@ -48,65 +48,45 @@ async def get_director_trends(school_id: str) -> Dict[str, Any]:
     Get 6-month trend data for visualizations (Fees vs Attendance).
     """
     try:
-        db = get_db_manager()
+        from api.services.database import get_attendance_ops, get_fee_ops
+        att_ops = get_attendance_ops()
+        fee_ops = get_fee_ops()
         
-        # 1. Get Monthly Fee Collections (Last 6 months)
-        # Using a raw query for efficiency
+        # 1. Get Monthly Attendance Trend (Real Data)
+        attendance_trend = att_ops.get_attendance_trend(school_id)
+        
+        # 2. Get Fee Collection Summary (For current context)
+        # Note: Trends for fees usually require a more specialized time-series query.
+        # For now, we'll keep the existing raw SQL or use a placeholder if empty.
+        db = get_db_manager()
         fees_query = """
         SELECT 
             TO_CHAR(payment_date, 'Mon') as name,
             SUM(amount) as fees
-        FROM fee_payments
+        FROM payments
         WHERE school_id = %s
         AND payment_date >= CURRENT_DATE - INTERVAL '6 months'
         GROUP BY TO_CHAR(payment_date, 'Mon'), EXTRACT(MONTH FROM payment_date)
         ORDER BY EXTRACT(MONTH FROM payment_date)
         """
-        fees_data = db.execute_query(fees_query, (school_id,), fetch=True)
+        fees_trend = db.execute_query(fees_query, (school_id,), fetch=True)
         
-        # 2. Get Monthly Attendance Counts
-        attendance_query = """
-        SELECT 
-            TO_CHAR(date, 'Mon') as name,
-            COUNT(*) as attendance
-        FROM attendance
-        WHERE school_id = %s
-        AND status = 'present'
-        AND date >= CURRENT_DATE - INTERVAL '6 months'
-        GROUP BY TO_CHAR(date, 'Mon'), EXTRACT(MONTH FROM date)
-        ORDER BY EXTRACT(MONTH FROM date)
-        """
-        attendance_data = db.execute_query(attendance_query, (school_id,), fetch=True)
-        
-        # 3. Merge Data in Python (Easier than complex SQL joins for now)
-        # Create a dict map for easy merging
+        # Merge logic
         merged = {}
+        for a in attendance_trend:
+            merged[a['name']] = {'name': a['name'], 'attendance': a['attendance'], 'fees': 0}
         
-        for f in fees_data:
-            merged[f['name']] = {'name': f['name'], 'fees': f['fees'], 'attendance': 0}
-            
-        for a in attendance_data:
-            if a['name'] in merged:
-                merged[a['name']]['attendance'] = a['attendance']
+        for f in fees_trend:
+            if f['name'] in merged:
+                merged[f['name']]['fees'] = float(f['fees'])
             else:
-                merged[a['name']] = {'name': a['name'], 'fees': 0, 'attendance': a['attendance']}
-                
-        # Convert back to list sorted by month roughly (or rely on DB sort if names align)
-        # For simplicity, we trust the DB order loop for now or just return values
-        trend_data = list(merged.values())
+                merged[f['name']] = {'name': f['name'], 'attendance': 0, 'fees': float(f['fees'])}
         
-        # Make sure we have at least some data for the chart to render
-        if not trend_data:
-             # Return placeholder if empty (Mock for empty state)
-             # In production, we'd handle empty states in UI
-             pass
-
         return {
             "success": True,
-            "trends": trend_data
+            "trends": list(merged.values())
         }
 
     except Exception as e:
         print(f"Director Trends Error: {e}")
-        # Don't crash dashboard for charts
         return {"success": False, "trends": [], "error": str(e)}

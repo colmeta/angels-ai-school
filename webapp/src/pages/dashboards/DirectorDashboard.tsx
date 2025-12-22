@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import {
     TrendingUp, TrendingDown, Users, DollarSign,
-    AlertTriangle, Activity, Layout, Upload, ShieldCheck
+    AlertTriangle, Activity, Layout, Upload, ShieldCheck, Brain
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -34,6 +34,7 @@ interface DirectorOverview {
         average_grade: string;
         attendance_rate: number;
     };
+    strategic_insight?: string;
     alerts: string[];
 }
 
@@ -103,6 +104,28 @@ export const DirectorDashboard = () => {
 
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 pb-20">
+            {/* AI Strategic Commentary */}
+            {overviewData?.strategic_insight && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl p-6 flex gap-4 items-center shadow-lg shadow-indigo-500/5"
+                >
+                    <div className="bg-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-500/20">
+                        <Brain size={24} className="text-white" />
+                    </div>
+                    <div>
+                        <h3 className="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1 flex items-center gap-2">
+                            Digital CEO Perspective
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                        </h3>
+                        <p className="text-white font-medium italic leading-relaxed">
+                            "{overviewData.strategic_insight}"
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>

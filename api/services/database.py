@@ -1014,6 +1014,75 @@ class MobileMoneyOperations:
         return [dict(row) for row in results]
 
 
+class AttendanceOperations:
+    """All attendance-related database operations"""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def get_daily_attendance_rate(self, school_id: str, date: str = None) -> float:
+        if not date:
+            date = datetime.now().strftime("%Y-%m-%d")
+
+        query = """
+        SELECT 
+            ROUND(COUNT(CASE WHEN status = 'present' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 2) as rate
+        FROM attendance
+        WHERE school_id = %s AND date = %s
+        """
+        result = self.db.execute_query(query, (school_id, date), fetch=True)
+        return float(result[0]["rate"] or 0) if result else 0.0
+
+    def get_attendance_trend(self, school_id: str, months: int = 6) -> List[Dict[str, Any]]:
+        query = f"""
+        SELECT 
+            TO_CHAR(date, 'Mon') as name,
+            ROUND(COUNT(CASE WHEN status = 'present' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 2) as attendance
+        FROM attendance
+        WHERE school_id = %s AND date >= CURRENT_DATE - INTERVAL '{months} months'
+        GROUP BY TO_CHAR(date, 'Mon'), EXTRACT(MONTH FROM date)
+        ORDER BY EXTRACT(MONTH FROM date)
+        """
+        return self.db.execute_query(query, (school_id,), fetch=True)
+
+
+class GradesOperations:
+    """All grade and academic performance operations"""
+
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def get_school_average_performance(self, school_id: str) -> Dict[str, Any]:
+        query = """
+        SELECT 
+            ROUND(AVG(marks), 2) as average_marks,
+            CASE 
+                WHEN AVG(marks) >= 80 THEN 'A'
+                WHEN AVG(marks) >= 70 THEN 'B'
+                WHEN AVG(marks) >= 60 THEN 'C'
+                WHEN AVG(marks) >= 50 THEN 'D'
+                ELSE 'F'
+            END as average_grade
+        FROM grades
+        WHERE school_id = %s
+        """
+        result = self.db.execute_query(query, (school_id,), fetch=True)
+        return result[0] if result else {"average_marks": 0, "average_grade": "N/A"}
+
+    def get_top_performing_classes(self, school_id: str, limit: int = 5) -> List[Dict[str, Any]]:
+        query = """
+        SELECT 
+            class_name,
+            ROUND(AVG(marks), 2) as average_marks
+        FROM grades
+        WHERE school_id = %s
+        GROUP BY class_name
+        ORDER BY average_marks DESC
+        LIMIT %s
+        """
+        return self.db.execute_query(query, (school_id, limit), fetch=True)
+
+
 # ============================================
 # INITIALIZE DATABASE MANAGER (SINGLETON)
 # ============================================
@@ -1068,3 +1137,11 @@ def get_library_ops() -> LibraryOperations:
 
 def get_transport_ops() -> TransportOperations:
     return TransportOperations(get_db())
+
+
+def get_attendance_ops() -> AttendanceOperations:
+    return AttendanceOperations(get_db())
+
+
+def get_grades_ops() -> GradesOperations:
+    return GradesOperations(get_db())
