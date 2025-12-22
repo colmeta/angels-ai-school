@@ -31,8 +31,7 @@ class MonitoringService:
         Returns status of all critical services
         """
         checks = {
-            "v": "3.4-robust-ipv4-final",
-            "deployed_at": "2025-12-22T08:55:00",
+            "v": "3.5-pooler-restored",
             "timestamp": datetime.now().isoformat(),
             "uptime_seconds": int(time.time() - self.start_time),
             "status": "healthy",
@@ -48,28 +47,27 @@ class MonitoringService:
         if disk_status:
             checks["checks"]["disk"] = disk_status
         
-        # Overall status - force healthy for deployment but reflect error in JSON
+        # Overall status - restore real status logic
         if not db_status["healthy"]:
-            checks["status"] = "degraded-db"
+            checks["status"] = "unhealthy"
         
         return checks
     
     async def _check_database(self) -> Dict[str, Any]:
-        """Check database connectivity and response time (Non-blocking, IPv4-forced)"""
+        """Check database connectivity and response time (Non-blocking)"""
         start = time.time()
         
         try:
             import asyncio
-            from urllib.parse import urlparse, parse_qs
+            from urllib.parse import urlparse
             
             def _sync_check():
                 # Parse DATABASE_URL to extract components
                 parsed = urlparse(self.settings.database_url)
-                hostname = parsed.hostname
                 
-                # Build connection parameters
+                # Simple connection params for Pooler URL
                 conn_params = {
-                    'host': hostname,
+                    'host': parsed.hostname,
                     'port': parsed.port or 5432,
                     'user': parsed.username,
                     'password': parsed.password,
@@ -78,30 +76,7 @@ class MonitoringService:
                     'options': '-c search_path=public',
                 }
                 
-                # Force IPv4 by resolving hostname to IPv4 address
-                try:
-                    import socket
-                    ipv4_addr = None
-                    try:
-                        # 1. Try gethostbyname first
-                        ipv4_addr = socket.gethostbyname(hostname)
-                    except:
-                        try:
-                            # 2. Try getaddrinfo as fallback
-                            addr_info = socket.getaddrinfo(hostname, None)
-                            for info in addr_info:
-                                if info[0] == socket.AF_INET:
-                                    ipv4_addr = info[4][0]
-                                    break
-                        except:
-                            ipv4_addr = None
-                            
-                    if ipv4_addr and ":" not in ipv4_addr:
-                        conn_params['host'] = ipv4_addr
-                except Exception as e:
-                    print(f"Health check IPv4 resolution warning: {e}")
-                
-                print(f"🔌 v3.4 connecting to DB host: {conn_params.get('host')}")
+                print(f"🔌 Monitoring connecting to DB host: {conn_params.get('host')}")
                 conn = psycopg2.connect(**conn_params)
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")

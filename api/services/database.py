@@ -35,55 +35,23 @@ class DatabaseManager:
         if not self.database_url:
             raise ValueError("DATABASE_URL environment variable not set")
         
-        # Force IPv4 by parsing URL and resolving to IPv4 address
-        from urllib.parse import urlparse
-        import socket
-        import time
-        
+        # Connection Pooler Support (v3.5)
+        # We now use the standard database_url since the user has switched to 
+        # the Supabase Pooler which supports IPv4 addresses.
         try:
+            from urllib.parse import urlparse
             parsed = urlparse(self.database_url)
-            hostname = parsed.hostname
+            print(f"🔌 DatabaseManager connecting to: {parsed.hostname}")
+        except:
+            pass
             
-            # Ultra-robust resolution for v3.4
-            ipv4_addr = None
-            try:
-                # 1. Try gethostbyname first (it's the simplest way to get IPv4)
-                ipv4_addr = socket.gethostbyname(hostname)
-                print(f"📡 Resolved {hostname} via gethostbyname: {ipv4_addr}")
-            except Exception as e1:
-                print(f"⚠️ gethostbyname failed: {e1}")
-                try:
-                    # 2. Try getaddrinfo as fallback
-                    addr_info = socket.getaddrinfo(hostname, None)
-                    for info in addr_info:
-                        if info[0] == socket.AF_INET:
-                            ipv4_addr = info[4][0]
-                            print(f"📡 Resolved {hostname} via getaddrinfo: {ipv4_addr}")
-                            break
-                except Exception as e2:
-                    print(f"⚠️ getaddrinfo also failed: {e2}")
-            
-            conn_string = self.database_url
-            if ipv4_addr and ":" not in ipv4_addr: # Ensure it's not an IPv6 address that leaked in
-                # Rebuild URL with IPv4 address
-                port = parsed.port or 5432
-                if parsed.password:
-                    conn_string = f"postgresql://{parsed.username}:{parsed.password}@{ipv4_addr}:{port}{parsed.path}"
-                else:
-                    conn_string = f"postgresql://{parsed.username}@{ipv4_addr}:{port}{parsed.path}"
-            
-            print(f"🔌 DatabaseManager connecting to: {conn_string.split('@')[-1] if '@' in conn_string else 'unknown host'}")
-        except Exception as e:
-            print(f"⚠️ Detailed IPv4 resolution error in v3.4: {e}")
-            conn_string = self.database_url
-        
         # Create connection pool
         self.pool = ThreadedConnectionPool(
             min_conn,
             max_conn,
-            conn_string
+            self.database_url
         )
-        print(f"✅ DB Pool v3.4 initialized (IPv4: {conn_string.split('@')[-1] if '@' in conn_string else 'No'})")
+        print(f"✅ DB Pool v3.5 initialized ({min_conn}-{max_conn} connections)")
     
     @contextmanager
     def get_connection(self):
