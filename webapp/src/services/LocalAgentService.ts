@@ -113,6 +113,11 @@ class LocalAgentService {
         });
     }
 
+    subscribe(fn: (status: AIStatus, progress: number) => void) {
+        this.listeners.add(fn);
+        return () => this.listeners.delete(fn);
+    }
+
     subscribeTranscript(fn: (text: string) => void) {
         this.transcriptListeners.add(fn);
         return () => this.transcriptListeners.delete(fn);
