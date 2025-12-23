@@ -20,7 +20,7 @@ export const useBranding = (schoolId: string) => {
       const { data } = await apiClient.get<BrandingResponse>(`/schools/${schoolId}/branding`);
       setBranding({
         schoolId: data.school_id,
-        displayName: data.display_name,
+        displayName: data.display_name || "Angels AI School",
         primaryColor: data.primary_color,
         accentColor: data.accent_color,
         logoUrl: data.logo_url,

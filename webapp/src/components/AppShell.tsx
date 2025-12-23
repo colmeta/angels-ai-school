@@ -49,7 +49,7 @@ export const AppShell = ({ children }: AppShellProps) => {
                 className="h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner"
                 style={{ backgroundColor: accentColor }}
               >
-                {displayName.charAt(0)}
+                {(displayName || "").charAt(0)}
               </div>
             )}
             <div>
@@ -67,8 +67,8 @@ export const AppShell = ({ children }: AppShellProps) => {
                 key={item.path}
                 to={item.path}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === item.path
-                    ? "bg-white/20 shadow-sm"
-                    : "hover:bg-white/10"
+                  ? "bg-white/20 shadow-sm"
+                  : "hover:bg-white/10"
                   }`}
               >
                 {item.label}
@@ -113,8 +113,8 @@ export const AppShell = ({ children }: AppShellProps) => {
                 to={item.path}
                 onClick={() => setIsMenuOpen(false)}
                 className={`flex items-center justify-between p-3 rounded-xl transition-all ${location.pathname === item.path
-                    ? "bg-blue-50 text-blue-700 border border-blue-100"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-blue-50 text-blue-700 border border-blue-100"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
               >
                 <div className="flex items-center gap-3">
