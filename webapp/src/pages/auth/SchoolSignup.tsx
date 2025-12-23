@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { School, User, MapPin, Phone, Mail, Users, CheckCircle, AlertCircle } from 'lucide-react';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import clsx from 'clsx';
+
+function decodeJwt(token: string) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+}
 
 interface RegistrationForm {
     school_name: string;
@@ -34,6 +48,21 @@ export const SchoolSignup = () => {
         student_count_estimate: 100,
         plan: 'pilot'
     });
+
+    const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
+        if (credentialResponse.credential) {
+            const decoded = decodeJwt(credentialResponse.credential);
+            if (decoded) {
+                setForm(prev => ({
+                    ...prev,
+                    director_email: decoded.email || '',
+                    director_first_name: decoded.given_name || '',
+                    director_last_name: decoded.family_name || '',
+                    email: prev.email || decoded.email || '' // Also suggest for school email if empty
+                }));
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -125,6 +154,20 @@ export const SchoolSignup = () => {
                     <School size={48} className="mx-auto text-blue-400 mb-4" />
                     <h1 className="text-3xl font-bold text-white mb-2">Register Your School</h1>
                     <p className="text-slate-300">Start managing your school in 5 minutes</p>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 mb-8 flex flex-col items-center justify-center text-center">
+                    <p className="text-slate-300 mb-4 text-sm">Quickly pre-fill your details with Google</p>
+                    <div className="w-full max-w-xs">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => console.log('Login Failed')}
+                            theme="filled_blue"
+                            shape="pill"
+                            width="100%"
+                            text="signup_with"
+                        />
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -266,7 +309,7 @@ export const SchoolSignup = () => {
                         <h3 className="font-semibold text-white mb-4">Choose Your Plan</h3>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {[
-                                { id: 'pilot', name: 'Free Tier', price: '$0/student', features: ['All Features', 'Pilot Access'], recommended: true },
+                                { id: 'pilot', name: 'Pilot Program', price: 'Free', features: ['All Features', 'Pilot Access'], recommended: true },
                                 { id: 'starter', name: 'Starter', price: '$1/student', features: ['Basic Dashboard', 'Attendance', 'Fees'] },
                                 { id: 'professional', name: 'Professional', price: '$2/student', features: ['All Starter +', 'Reports', 'WhatsApp'], recommended: false },
                                 { id: 'enterprise', name: 'Enterprise', price: '$3/student', features: ['All Pro +', 'White Label', 'Priority Support'] }
