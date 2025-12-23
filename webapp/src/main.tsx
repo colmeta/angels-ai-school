@@ -7,6 +7,7 @@ import App from "./App";
 import "./index.css";
 import { registerSW } from "./serviceWorkerRegistration";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +26,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </GoogleOAuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
