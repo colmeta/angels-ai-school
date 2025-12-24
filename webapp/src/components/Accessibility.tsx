@@ -1,7 +1,7 @@
-"""
-Accessibility(WCAG 2.1) Components
-Makes the app usable for people with disabilities
-"""
+/**
+ * Accessibility(WCAG 2.1) Components
+ * Makes the app usable for people with disabilities
+ */
 
 import { useEffect, useRef } from 'react';
 
