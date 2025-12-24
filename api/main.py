@@ -88,7 +88,11 @@ app.add_middleware(
 # 4. Audit Logging Middleware (Security Trail)
 app.add_middleware(AuditMiddleware)
 
-# 5. Rate Limiting Middleware
+# 5. Memory Monitoring (for 512MB Render free tier)
+from api.middleware.memory_monitor import MemoryMonitorMiddleware
+app.add_middleware(MemoryMonitorMiddleware, max_memory_mb=400)
+
+# 6. Rate Limiting Middleware
 app.middleware("http")(rate_limit_middleware)
 
 from api.routes import (
@@ -137,7 +141,12 @@ from api.routes import (
     director,
     inventory,
     auth_google,
+    ai,
+    documents,
 )
+
+# Add experiments router for A/B testing
+from api.routes import experiments
 
 # NEW: Webhook and Import Routers
 from api.routers import ussd_webhook, whatsapp_webhook, universal_import, school_registration, receptionist, branding
@@ -204,7 +213,10 @@ app.include_router(agents.router, prefix="/api/v1/agents", tags=["AI Agents"])
 app.include_router(director.router, prefix="/api/v1", tags=["Director"]) # Register Director
 app.include_router(inventory.router, prefix="/api/v1", tags=["Inventory"]) # Register Inventory
 app.include_router(clarity.router, prefix="/api/v1/clarity", tags=["Clarity Engine"])
+app.include_router(ai.router, tags=["AI System"])  # NEW: Three-tier AI support
+app.include_router(documents.router, tags=["Documents & Photos"])  # NEW: Photos, IDs, Reports
 app.include_router(finance_router, prefix="/api/v1", tags=["Financial Intelligence"])
+app.include_router(experiments.router, tags=["A/B Testing & Experiments"])  # Register experiments
 
 app.include_router(schools.router, prefix="/api/schools", tags=["School Configuration"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])

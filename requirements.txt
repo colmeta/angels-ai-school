@@ -1,60 +1,58 @@
-# Existing dependencies
-FastAPI
-uvicorn[standard]
-pydantic[email]
-pydantic-settings
-python-multipart
-python-jose[cryptography]
-passlib[bcrypt]
-python-dotenv
-httpx
-aiofiles
-Pillow
-PyPDF2
-openpyxl
-python-dateutil
-pytz
-cryptography
+# Optimized requirements for Render 512MB RAM Free Tier
+# Only essential dependencies
 
-# Database
-psycopg2-binary
-asyncpg
-sqlalchemy
+# Core Framework (Lightweight)
+FastAPI==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+pydantic[email]==2.5.0
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
 
-# Data Processing
-pandas
-numpy
-reportlab
+# Security (Essential)
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+cryptography==41.0.7
 
-# Email Service
-sendgrid
+# HTTP Client (Lightweight)
+httpx==0.25.2
 
-# Error Monitoring
-sentry-sdk
+# Database (Required)
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+sqlalchemy==2.0.23
 
-# WhatsApp/SMS
-twilio
+# Cloud Storage (Essential)
+boto3==1.34.10  # R2 support
+botocore==1.34.10
 
-# USSD & Africa's Talking
-africastalking
+# Photo Processing (OPTIMIZED)
+Pillow==10.1.0  # Image processing
+qrcode[pil]==7.4.2  # QR codes
 
-# AI/NLP (Clarity Engine)
-openai
-anthropic
+# Minimal Data Processing
+python-dateutil==2.8.2
+pytz==2023.3
 
-# Caching & Background Jobs
-redis
-celery
+# System Monitoring
+psutil==5.9.6  # Memory monitoring
 
-# Testing
-pytest
-pytest-asyncio
-pytest-cov
-
-# Code Quality
-black
-flake8
-mypy
+# REMOVED FOR MEMORY SAVINGS:
+# pandas - too heavy (100MB+)
+# numpy - too heavy (50MB+)
+# reportlab - use Pillow instead
+# openai/anthropic - cloud APIs optional
+# redis/celery - not needed for free tier
+# sendgrid - optional
+# twilio - optional
+# africastalking - optional
 
 # Production Server
-gunicorn
+# gunicorn already included above
+
+# OPTIONAL (only install if needed):
+# For WhatsApp/SMS add: twilio, africastalking
+# For AI fallback add: openai, anthropic
+# For data analysis add: pandas, numpy
+# For PDF generation add: reportlab

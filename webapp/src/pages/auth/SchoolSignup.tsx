@@ -27,7 +27,7 @@ interface RegistrationForm {
     director_email: string;
     director_phone: string;
     student_count_estimate: number;
-    plan: 'starter' | 'professional' | 'enterprise' | 'pilot';
+    plan: 'free';
 }
 
 export const SchoolSignup = () => {
@@ -46,7 +46,7 @@ export const SchoolSignup = () => {
         director_email: '',
         director_phone: '',
         student_count_estimate: 100,
-        plan: 'pilot'
+        plan: 'free'
     });
 
     const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
@@ -304,44 +304,29 @@ export const SchoolSignup = () => {
                         </div>
                     </div>
 
-                    {/* Plan Selection */}
-                    <div className="bg-slate-900 border border-slate-700 rounded-xl p-6">
-                        <h3 className="font-semibold text-white mb-4">Choose Your Plan</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* 100% Free Platform Badge */}
+                    <div className="bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 border-2 border-green-500/50 rounded-xl p-8 text-center">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4">
+                            <CheckCircle size={32} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2">100% Free Forever</h3>
+                        <p className="text-slate-300 mb-4">
+                            All features, unlimited students, zero hidden costs
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                             {[
-                                { id: 'pilot', name: 'Pilot Program', price: 'Free', features: ['All Features', 'Pilot Access'], recommended: true },
-                                { id: 'starter', name: 'Starter', price: '$1/student', features: ['Basic Dashboard', 'Attendance', 'Fees'] },
-                                { id: 'professional', name: 'Professional', price: '$2/student', features: ['All Starter +', 'Reports', 'WhatsApp'], recommended: false },
-                                { id: 'enterprise', name: 'Enterprise', price: '$3/student', features: ['All Pro +', 'White Label', 'Priority Support'] }
-                            ].map(plan => (
-                                <label
-                                    key={plan.id}
-                                    className={clsx(
-                                        "border-2 rounded-xl p-4 cursor-pointer transition-all relative",
-                                        form.plan === plan.id ? "border-blue-500 bg-blue-500/10" : "border-slate-700 hover:border-slate-600"
-                                    )}
-                                >
-                                    {plan.recommended && (
-                                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
-                                            Recommended
-                                        </div>
-                                    )}
-                                    <input
-                                        type="radio"
-                                        name="plan"
-                                        value={plan.id}
-                                        checked={form.plan === plan.id}
-                                        onChange={(e) => setForm({ ...form, plan: e.target.value as any })}
-                                        className="sr-only"
-                                    />
-                                    <div className="text-center">
-                                        <h4 className="font-semibold text-white mb-1">{plan.name}</h4>
-                                        <p className="text-blue-400 text-lg font-bold mb-3">{plan.price}</p>
-                                        <ul className="text-sm text-slate-400 space-y-1">
-                                            {plan.features.map(f => <li key={f}>• {f}</li>)}
-                                        </ul>
-                                    </div>
-                                </label>
+                                '✓ On-Device AI',
+                                '✓ Offline Mode',
+                                '✓ Cloud Sync',
+                                '✓ All Features',
+                                '✓ Unlimited Users',
+                                '✓ Priority Updates',
+                                '✓ Community Support',
+                                '✓ No Credit Card'
+                            ].map(feature => (
+                                <div key={feature} className="bg-slate-800/50 rounded-lg p-2 text-green-400">
+                                    {feature}
+                                </div>
                             ))}
                         </div>
                     </div>
