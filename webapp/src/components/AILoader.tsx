@@ -17,7 +17,7 @@ export const AILoader = () => {
             if (newStatus === 'loading') setIsVisible(true);
             if (newStatus === 'ready') setTimeout(() => setIsVisible(false), 5000);
         });
-        return unsubscribe;
+        return () => { unsubscribe(); };
     }, []);
 
     const handleStart = () => localAgent.loadModel();

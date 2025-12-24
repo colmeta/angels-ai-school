@@ -15,6 +15,7 @@ import {
     TrendingUp, TrendingDown, Users, DollarSign,
     AlertTriangle, Activity, Layout, Upload, ShieldCheck, Brain
 } from "lucide-react";
+import { motion } from "framer-motion";
 import clsx from "clsx";
 
 import { apiClient } from "../../lib/apiClient";

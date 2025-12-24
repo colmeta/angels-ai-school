@@ -76,6 +76,7 @@ export const UniversalImport = () => {
         }
     };
 
+    const { enqueueTask } = useOfflineSync();
     const handleImport = async () => {
         if (!preview) return;
         setLoading(true);

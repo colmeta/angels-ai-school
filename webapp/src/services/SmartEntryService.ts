@@ -5,6 +5,7 @@
  * Replaces previous client-side regex mocks with real NLP.
  */
 import { localAgent } from "./LocalAgentService";
+import { apiClient } from "../lib/apiClient";
 
 export interface ParsedCommand {
     action: string;

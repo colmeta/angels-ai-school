@@ -176,7 +176,7 @@ async function processOCR(image: string | File) {
         self.postMessage({ type: 'OCR_STATUS', data: 'processing' });
 
         const result = await Tesseract.recognize(image, 'eng', {
-            logger: m => {
+            logger: (m: any) => {
                 if (m.status === 'recognizing text') {
                     self.postMessage({ type: 'PROGRESS', data: { progress: m.progress * 100, model: 'ocr' } });
                 }

@@ -12,7 +12,7 @@ export const Login = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const schoolId = searchParams.get('school') || 'default';
-    const { branding } = useBrandingStore();
+    const { displayName } = useBrandingStore();
 
     const [activeRole, setActiveRole] = useState<RoleType>('director');
     const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +133,7 @@ export const Login = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <h1 className="text-5xl font-bold mb-6">{branding?.name || 'Angels AI School'}</h1>
+                        <h1 className="text-5xl font-bold mb-6">{displayName || 'Angels AI School'}</h1>
                         <p className="text-xl text-slate-300 mb-8">
                             The Enterprise Operating System for modern education. Manage your entire school ecosystem in one place.
                         </p>

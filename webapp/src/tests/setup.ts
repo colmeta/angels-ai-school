@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+(global as any).IntersectionObserver = class IntersectionObserver {
     constructor() { }
     disconnect() { }
     observe() { }
@@ -41,10 +41,10 @@ const localStorageMock = {
     clear: () => { },
 };
 
-global.localStorage = localStorageMock as Storage;
+(global as any).localStorage = localStorageMock as Storage;
 
 // Mock fetch
-global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+(global as any).fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     return new Response(JSON.stringify({}), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
