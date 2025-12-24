@@ -41,6 +41,9 @@ google-auth
 google-api-python-client
 pywebpush
 
+# Document Generation (Required for export service)
+reportlab
+
 # System Monitoring
 psutil
 
