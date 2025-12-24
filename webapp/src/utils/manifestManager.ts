@@ -129,7 +129,7 @@ export const useDynamicManifest = () => {
         if (storedRole && MANIFESTS[storedRole]) {
             updateManifest(storedRole);
         } else {
-            updateManifest('default');
+            updateManifest('guest');
         }
     } catch (e) {
         console.error('Failed to update PWA manifest', e);

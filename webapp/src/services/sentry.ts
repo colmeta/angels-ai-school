@@ -36,8 +36,9 @@ export const initSentry = () => {
                 if (event.request.query_string) {
                     const sensitiveParams = ['password', 'token', 'api_key'];
                     sensitiveParams.forEach(param => {
-                        if (event.request?.query_string?.includes(param)) {
-                            event.request.query_string = '[REDACTED]';
+                        const qs = event.request?.query_string;
+                        if (typeof qs === 'string' && qs.includes(param)) {
+                            event.request!.query_string = '[REDACTED]';
                         }
                     });
                 }

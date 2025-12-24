@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Settings, Cpu, Cloud, Zap, Check, AlertCircle, Info } from 'lucide-react';
-import { getAIConfig, setAIMode, detectDeviceCapabilities, canRunMode, type AIMode } from '../config/aiConfig';
+import { getAIConfig, setAIMode, detectDeviceCapabilities, canRunMode, type AIMode } from '../../config/aiConfig';
 
 export const AISettingsPanel = () => {
     const [currentMode, setCurrentMode] = useState<AIMode>('hybrid');
@@ -118,10 +118,10 @@ export const AISettingsPanel = () => {
                     <div
                         key={mode.id}
                         className={`relative bg-slate-800/50 border-2 rounded-2xl p-6 transition-all cursor-pointer ${currentMode === mode.id
-                                ? 'border-green-500 shadow-2xl shadow-green-500/20'
-                                : mode.compatible
-                                    ? 'border-slate-700 hover:border-slate-600'
-                                    : 'border-red-500/30 opacity-50 cursor-not-allowed'
+                            ? 'border-green-500 shadow-2xl shadow-green-500/20'
+                            : mode.compatible
+                                ? 'border-slate-700 hover:border-slate-600'
+                                : 'border-red-500/30 opacity-50 cursor-not-allowed'
                             }`}
                         onClick={() => mode.compatible && handleModeChange(mode.id)}
                     >
@@ -169,8 +169,8 @@ export const AISettingsPanel = () => {
                         {mode.compatible && currentMode !== mode.id && (
                             <button
                                 className={`w-full py-3 rounded-xl font-bold transition-all ${mode.recommended
-                                        ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white'
-                                        : 'bg-slate-700 hover:bg-slate-600 text-white'
+                                    ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white'
+                                    : 'bg-slate-700 hover:bg-slate-600 text-white'
                                     }`}
                             >
                                 Switch to {mode.name.split(' ')[0]}

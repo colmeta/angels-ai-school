@@ -6,8 +6,17 @@ import { Calendar as CalIcon, Bell, CheckCircle, Clock } from 'lucide-react';
 
 const localizer = momentLocalizer(moment);
 
+interface CalendarEvent {
+    id: number;
+    title: string;
+    start: Date;
+    end: Date;
+    type: string;
+    synced: boolean;
+}
+
 const CalendarHub: React.FC = () => {
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -64,7 +73,7 @@ const CalendarHub: React.FC = () => {
                     style={{ height: '100%' }}
                     eventPropGetter={(event) => ({
                         className: `rounded-lg border-l-4 ${event.type === 'sports' ? 'bg-orange-50 border-orange-500 text-orange-700' :
-                                'bg-blue-50 border-blue-500 text-blue-700'
+                            'bg-blue-50 border-blue-500 text-blue-700'
                             }`
                     })}
                 />
