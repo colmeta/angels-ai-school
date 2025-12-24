@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Download, X, Loader2, Check } from 'lucide-react';
 import { localAgent, AIStatus } from '../services/LocalAgentService';
+import { t } from '../config/i18n';
 
 export const AILoader = () => {
     const [status, setStatus] = useState<AIStatus>('idle');
@@ -46,11 +47,11 @@ export const AILoader = () => {
 
                             <div className="flex flex-col">
                                 <span className="text-xs font-bold leading-none">
-                                    {status === 'loading' ? 'Downloading Core...' :
-                                        status === 'ready' ? 'AI Ready' : 'Offline AI Core'}
+                                    {status === 'loading' ? t('ai.downloading') :
+                                        status === 'ready' ? t('ai.ready') : t('ai.offlineCore')}
                                 </span>
                                 {status === 'idle' && (
-                                    <span className="text-[10px] text-slate-400">Free Download (200MB)</span>
+                                    <span className="text-[10px] text-slate-400">{t('ai.freeDownload')} (200MB)</span>
                                 )}
                             </div>
                         </div>
@@ -60,7 +61,7 @@ export const AILoader = () => {
                                 onClick={handleStart}
                                 className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
                             >
-                                <Download size={12} /> Download
+                                <Download size={12} /> {t('ai.download')}
                             </button>
                         )}
 

@@ -4,6 +4,7 @@
  * Manages the Edge AI Web Worker.
  * Loads the model locally and provides a simple API for parsing commands.
  */
+import { getAIConfig } from '../config/aiConfig';
 
 export type AIStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -67,8 +68,11 @@ class LocalAgentService {
      * Start loading the model
      * Suggested model: Xenova/gemma-2b-it-quantized
      */
-    async loadModel(modelId: string = 'Xenova/gemma-2b-it') {
+    async loadModel() {
         if (this.status === 'ready' || this.status === 'loading') return;
+
+        const config = await getAIConfig();
+        const modelId = config.models.text;
 
         this.worker?.postMessage({
             type: 'LOAD_MODEL',

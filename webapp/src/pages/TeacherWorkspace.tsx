@@ -28,7 +28,7 @@ export const TeacherWorkspace = () => {
   const { enqueueTask, tasks } = useOfflineSync();
   const schoolId = useBrandingStore((state) => state.schoolId);
   const teacherId = localStorage.getItem("teacher_id") || "demo-teacher";
-  
+
   const [activeTab, setActiveTab] = useState<"upload" | "notifications" | "chat" | "dashboard">("upload");
   const [uploadType, setUploadType] = useState<"attendance" | "results" | "sickbay">("attendance");
   const [selectedClass, setSelectedClass] = useState("Primary 5");
@@ -37,7 +37,7 @@ export const TeacherWorkspace = () => {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [chatInput, setChatInput] = useState("");
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,9 +66,9 @@ export const TeacherWorkspace = () => {
   // Start camera
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
-        audio: false 
+        audio: false
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -120,9 +120,9 @@ export const TeacherWorkspace = () => {
   const uploadMutation = useMutation({
     mutationFn: async () => {
       if (!capturedPhoto) throw new Error("No photo captured");
-      
+
       const formData = new FormData();
-      
+
       // Convert base64 to blob
       const blob = await (await fetch(capturedPhoto)).blob();
       formData.append("photo", blob, "capture.jpg");
@@ -130,13 +130,13 @@ export const TeacherWorkspace = () => {
       formData.append("teacher_id", teacherId);
       formData.append("class_name", selectedClass);
       formData.append("date_str", dayjs().format("YYYY-MM-DD"));
-      
+
       if (uploadType === "results") {
         formData.append("subject", selectedSubject);
         formData.append("exam_name", "Recent Assessment");
         formData.append("max_marks", "100");
       }
-      
+
       let endpoint = "";
       if (uploadType === "attendance") {
         endpoint = `/teachers/${schoolId}/attendance/photo`;
@@ -145,7 +145,7 @@ export const TeacherWorkspace = () => {
       } else {
         endpoint = `/teachers/${schoolId}/sickbay/photo`;
       }
-      
+
       const res = await apiClient.post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -235,11 +235,10 @@ export const TeacherWorkspace = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab as any)}
-            className={`px-4 py-2 font-semibold capitalize ${
-              activeTab === tab
+            className={`px-4 py-2 font-semibold capitalize ${activeTab === tab
                 ? "border-b-2 border-blue-500 text-blue-500"
                 : "text-slate-400 hover:text-slate-200"
-            }`}
+              }`}
           >
             {tab}
             {tab === "notifications" && unreadNotifications > 0 && (
@@ -256,7 +255,7 @@ export const TeacherWorkspace = () => {
         <div className="space-y-6">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
             <h2 className="text-xl font-semibold">📸 Photo Upload</h2>
-            
+
             <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <label className="text-sm font-medium">Upload Type</label>
@@ -268,9 +267,10 @@ export const TeacherWorkspace = () => {
                   <option value="attendance">Attendance Sheet</option>
                   <option value="results">Exam Results</option>
                   <option value="sickbay">Sickbay Register</option>
+                  <option value="passport">Passport Photo</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Class</label>
                 <select
@@ -284,7 +284,7 @@ export const TeacherWorkspace = () => {
                   <option>Secondary 1</option>
                 </select>
               </div>
-              
+
               {uploadType === "results" && (
                 <div>
                   <label className="text-sm font-medium">Subject</label>
@@ -368,13 +368,12 @@ export const TeacherWorkspace = () => {
             )}
 
             {uploadStatus && (
-              <div className={`rounded-lg border p-4 ${
-                uploadStatus.includes("Success") 
+              <div className={`rounded-lg border p-4 ${uploadStatus.includes("Success")
                   ? "border-green-500 bg-green-500/10 text-green-100"
                   : uploadStatus.includes("Error")
-                  ? "border-red-500 bg-red-500/10 text-red-100"
-                  : "border-blue-500 bg-blue-500/10 text-blue-100"
-              }`}>
+                    ? "border-red-500 bg-red-500/10 text-red-100"
+                    : "border-blue-500 bg-blue-500/10 text-blue-100"
+                }`}>
                 {uploadStatus}
               </div>
             )}
@@ -392,7 +391,7 @@ export const TeacherWorkspace = () => {
       {activeTab === "notifications" && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">🔔 Notifications</h2>
-          
+
           {!notifications || notifications.length === 0 ? (
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 text-center text-slate-400">
               No notifications yet. They'll appear here when parents message you or system events occur.
@@ -402,11 +401,10 @@ export const TeacherWorkspace = () => {
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`rounded-2xl border p-4 ${
-                    notif.is_read
+                  className={`rounded-2xl border p-4 ${notif.is_read
                       ? "border-slate-800 bg-slate-900/40"
                       : "border-blue-500 bg-blue-500/10"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -436,7 +434,7 @@ export const TeacherWorkspace = () => {
           <p className="text-sm text-slate-300">
             Ask the AI to generate reports, analyze data, or get teaching recommendations.
           </p>
-          
+
           <div className="h-96 overflow-y-auto space-y-3 rounded-lg bg-slate-950/60 p-4">
             {chatMessages.length === 0 && (
               <p className="text-sm text-slate-400">
@@ -446,17 +444,16 @@ export const TeacherWorkspace = () => {
             {chatMessages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`max-w-sm rounded-lg p-3 ${
-                  msg.role === "user"
+                className={`max-w-sm rounded-lg p-3 ${msg.role === "user"
                     ? "ml-auto bg-blue-600 text-white"
                     : "bg-slate-800 text-slate-200"
-                }`}
+                  }`}
               >
                 {msg.content}
               </div>
             ))}
           </div>
-          
+
           <div className="flex gap-2">
             <input
               value={chatInput}
@@ -479,7 +476,7 @@ export const TeacherWorkspace = () => {
       {activeTab === "dashboard" && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">📊 My Dashboard</h2>
-          
+
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <p className="text-sm text-slate-400">Students</p>

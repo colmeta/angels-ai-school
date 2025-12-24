@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronRight, Home, Settings, GraduationCap, Users } from "lucide-react";
 import { useBrandingStore } from "../stores/branding";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface AppShellProps {
   children: ReactNode;
@@ -74,13 +75,16 @@ export const AppShell = ({ children }: AppShellProps) => {
                 {item.label}
               </Link>
             ))}
-            <button
-              onClick={handleLogout}
-              className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors text-white/90 hover:text-white"
-              title="Logout"
-            >
-              <LogOut size={20} />
-            </button>
+            <div className="ml-4 flex items-center gap-3">
+              <LanguageSwitcher />
+              <button
+                onClick={handleLogout}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/90 hover:text-white"
+                title="Logout"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
           </nav>
 
           {/* Mobile Menu Toggle */}

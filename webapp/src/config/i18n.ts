@@ -120,6 +120,68 @@ export const translations = {
         recommended: { en: 'Recommended Mode', lg: 'Enkola Ekusuubizibwa', sw: 'Hali Inayopendekezwa' },
         switchTo: { en: 'Switch to', lg: 'Kyusa okudda ku', sw: 'Badili kwenda' },
     },
+    // Tech Section
+    tech: {
+        title: { en: 'Revolutionary Technology', lg: 'Tekinoloji ey\'Enjawulo', sw: 'Tekinolojia ya Kimapinduzi' },
+        subtitle: {
+            en: 'Built for Africa, powered by cutting-edge AI that runs entirely on your device',
+            lg: 'Kizimbiddwa ku lw\'Afirika, kikozesa AI ey\'omulembe ekola mu ssimu yo',
+            sw: 'Imeundwa kwa ajili ya Afrika, inaendeshwa na AI ya kisasa inayofanya kazi kwenye kifaa chako'
+        },
+        onDevice: {
+            title: { en: 'On-Device AI', lg: 'AI mu Ssimu', sw: 'AI kwenye Kifaa' },
+            desc: {
+                en: 'Advanced AI models run directly on your phone. No internet? No problem. Your data never leaves your device.',
+                lg: 'AI ekola ku ssimu yo butereevu. Tewali intaneti? Tewali buzibu. Ebikukwatako tebiva ku ssimu yo.',
+                sw: 'Mifano ya hali ya juu ya AI inafanya kazi moja kwa moja kwenye simu yako. Hakuna mtandao? Hakuna shida.'
+            },
+            f1: { en: 'Zero API Costs', lg: 'Tekisasuza API', sw: 'Gharama za API Sifuri' },
+            f2: { en: 'Complete Privacy', lg: 'Ebikukwatako bikuumibwa', sw: 'Faragha Kamili' },
+            f3: { en: 'Instant Responses', lg: 'Kiddamu mangu', sw: 'Majibu ya Papo Hapo' },
+        },
+        offline: {
+            title: { en: 'Offline-First', lg: 'Ekola nga tewali Intaneti', sw: 'Kazi Bila Mtandao' },
+            desc: {
+                en: 'Works perfectly without internet. Syncs automatically when connection returns.',
+                lg: 'Ekola bulungi nga tewali intaneti. Ettaba butereevu bwofuna intaneti.',
+                sw: 'Inafanya kazi kikamilifu bila mtandao. Inasawazisha kiotomatiki mtandao ukirejea.'
+            },
+            f1: { en: '512MB RAM Only', lg: 'RAM ya 512MB yokka', sw: 'RAM ya 512MB Pekee' },
+            f2: { en: 'Works Anywhere', lg: 'Ekola wonna', sw: 'Inafanya kazi Popote' },
+            f3: { en: 'Auto-Sync', lg: 'Ekwata bulungi', sw: 'Usawazishaji wa Kiotomatiki' },
+        },
+        fast: {
+            title: { en: 'Lightning Fast', lg: 'Y\'angu nnyo', sw: 'Haraka Sana' },
+            desc: {
+                en: 'Optimized to perfection. Runs smoothly on the cheapest Android phones.',
+                lg: 'Ekoleddwa bulungi nnyo. Ekola bulungi ku ssimu ey\'ebbeeyi entono.',
+                sw: 'Imeboreshwa kwa ukamilifu. Inafanya kazi vizuri kwenye simu za bei rahisi.'
+            },
+            f1: { en: '50MB App Size', lg: 'Obeneene bwa 50MB', sw: 'Ukubwa wa 50MB' },
+            f2: { en: 'Instant Load', lg: 'Eggulawo mangu', sw: 'Inafunguka Haraka' },
+            f3: { en: 'Butter Smooth', lg: 'Ennyangu', sw: 'Laini Sana' },
+        }
+    },
+    // Detailed Features
+    features_detail: {
+        title: { en: 'Everything You Need, Nothing You Don\'t', lg: 'Buli kyetaaga weeri', sw: 'Kila Kitu Unachohitaji' },
+        studentMgmtDesc: { en: 'Complete student records, attendance, performance tracking', lg: 'Ebikwata ku bayizi, okubeerayo, n\'ebitundu byabwe', sw: 'Rekodi kamili za wanafunzi, mahudhurio, ufuatiliaji wa utendaji' },
+        feeMgmtDesc: { en: 'Invoicing, payments, receipts, automated reminders', lg: 'Okubala ssente, okusasula, ne kanyapa', sw: 'Ankara, malipo, risiti, vikumbusho vya kiotomatiki' },
+        reportsDesc: { en: 'Instant report cards, analytics, progress tracking', lg: 'Lipoota mangu, okubala, n\'okulaba enkulaakulana', sw: 'Ripoti za papo hapo, uchambuzi, ufuatiliaji wa maendeleo' },
+        parentCommDesc: { en: 'SMS, WhatsApp, email notifications (optional paid)', lg: 'SMS, WhatsApp, ne email (birimu okusasula)', sw: 'SMS, WhatsApp, barua pepe (hiari na malipo)' },
+        libraryDesc: { en: 'Book tracking, borrowing, digital catalog', lg: 'Okulaba ebitabo, n\'enkatalogu ya dijito', sw: 'Ufuatiliaji wa vitabu, kuazima, katalogi ya kidijiti' },
+        aiAssistantDesc: { en: 'Voice commands, smart insights, automation', lg: 'Okulayira n\'amaloboozi, okubala okuyonjo', sw: 'Amri za sauti, ufahamu mahiri, otomatiki' },
+        smartScanDesc: { en: 'OCR for forms, instant data capture from paper', lg: 'Okusoma foomu butereevu okuva ku mpapula', sw: 'OCR kwa fomu, kukamata data papo hapo kutoka kwa karatasi' },
+        securityDesc: { en: 'Encrypted data, secure auth, compliance ready', lg: 'Ebikukwatako bikuumibwa munda', sw: 'Data iliyosimbwa, utambuzi salama' },
+    },
+    // AI Status
+    ai: {
+        downloading: { en: 'Downloading Core...', lg: 'Ngenda nsiiga Core...', sw: 'Inapakia Core...' },
+        ready: { en: 'AI Ready', lg: 'AI mwetega', sw: 'AI Iko Tayari' },
+        offlineCore: { en: 'Offline AI Core', lg: 'AI ey\'oku ssimu', sw: 'AI ya Kifaa' },
+        freeDownload: { en: 'Free Download', lg: 'Siiga bwereere', sw: 'Pakua Bure' },
+        download: { en: 'Download', lg: 'Siiga', sw: 'Pakua' },
+    },
 };
 
 // Get current language from localStorage or default to English

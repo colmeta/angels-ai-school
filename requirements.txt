@@ -44,11 +44,6 @@ pywebpush
 # Document Generation (Required for export service)
 reportlab
 
-# Data Processing (Universal Import)
-pandas
-numpy
-openpyxl
-
 # System Monitoring
 psutil
 

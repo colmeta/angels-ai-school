@@ -159,14 +159,18 @@ export function detectDeviceCapabilities(): DeviceCapabilities {
 
 /**
  * Get current AI configuration
- * Can be overridden by user preference in localStorage
+ * Can be overridden by A/B test or user preference
  */
-export function getAIConfig(): AIConfig {
+export async function getAIConfig(): Promise<AIConfig> {
     const userPreference = localStorage.getItem('ai_mode') as AIMode | null;
-    const capabilities = detectDeviceCapabilities();
+    if (userPreference) return AI_CONFIGS[userPreference];
 
-    const mode = userPreference || capabilities.recommendedMode;
-    return AI_CONFIGS[mode];
+    // Try A/B Test first
+    const experimentMode = localStorage.getItem('ab_test_ai_mode') as AIMode | null;
+    if (experimentMode) return AI_CONFIGS[experimentMode];
+
+    const capabilities = detectDeviceCapabilities();
+    return AI_CONFIGS[capabilities.recommendedMode];
 }
 
 /**

@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
-import {
-    Sparkles, Zap, Shield, Globe2, Brain, Heart,
-    ArrowRight, Check, Star, Download, Smartphone,
-    Cloud, Lock, Wifi, WifiOff, Award, Users
+Cloud, Lock, Wifi, WifiOff, Award, Users
 } from 'lucide-react';
+import { t } from '../config/i18n';
 
 export const LandingPage = () => {
     const [scrollY, setScrollY] = useState(0);
@@ -35,14 +32,14 @@ export const LandingPage = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <a href="#features" className="text-slate-300 hover:text-white transition-colors">Features</a>
-                        <a href="#how-it-works" className="text-slate-300 hover:text-white transition-colors">How It Works</a>
-                        <a href="/login" className="text-slate-300 hover:text-white transition-colors">Login</a>
+                        <a href="#features" className="text-slate-300 hover:text-white transition-colors">{t('nav.features')}</a>
+                        <a href="#how-it-works" className="text-slate-300 hover:text-white transition-colors">{t('nav.howItWorks')}</a>
+                        <a href="/login" className="text-slate-300 hover:text-white transition-colors">{t('nav.login')}</a>
                         <a
                             href="/signup"
                             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105"
                         >
-                            Get Started Free
+                            {t('nav.getStarted')}
                         </a>
                     </div>
                 </div>
@@ -53,27 +50,19 @@ export const LandingPage = () => {
                 <div className="max-w-7xl mx-auto text-center relative z-10">
                     <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/50 rounded-full px-6 py-2 mb-8 animate-pulse">
                         <Award size={20} className="text-green-400" />
-                        <span className="text-green-300 font-medium">100% Free Forever • No Credit Card Required</span>
+                        <span className="text-green-300 font-medium">{t('hero.free')} • {t('hero.noCard')}</span>
                     </div>
 
                     <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight">
                         <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Transform Education
+                            {t('hero.transformEducation')}
                         </span>
                         <br />
-                        <span className="text-white">With AI That</span>
-                        <br />
-                        <span className="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                            Lives On Your Phone
-                        </span>
+                        <span className="text-white">{t('hero.aiOnPhone').split(' ')[0]} {t('hero.aiOnPhone').split(' ').slice(1).join(' ')}</span>
                     </h1>
 
                     <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-                        The world's first school management platform with{' '}
-                        <span className="text-blue-400 font-semibold">on-device AI</span> that works{' '}
-                        <span className="text-green-400 font-semibold">offline</span>, runs on{' '}
-                        <span className="text-purple-400 font-semibold">512MB RAM</span>, and costs{' '}
-                        <span className="text-yellow-400 font-semibold">absolutely nothing</span>.
+                        {t('hero.description')}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -81,7 +70,7 @@ export const LandingPage = () => {
                             href="/signup"
                             className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 px-10 py-5 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3 shadow-2xl shadow-blue-500/50"
                         >
-                            Start Using Now
+                            {t('hero.startNow')}
                             <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                         </a>
                         <a
@@ -89,7 +78,7 @@ export const LandingPage = () => {
                             className="bg-slate-800/50 hover:bg-slate-700/50 border border-white/10 px-10 py-5 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 backdrop-blur-xl"
                         >
                             <Download size={24} />
-                            Watch Demo
+                            {t('hero.watchDemo')}
                         </a>
                     </div>
 
@@ -116,11 +105,11 @@ export const LandingPage = () => {
                     <div className="text-center mb-16">
                         <h2 className="text-5xl md:text-6xl font-black mb-6">
                             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                Revolutionary Technology
+                                {t('tech.title')}
                             </span>
                         </h2>
                         <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-                            Built for Africa, powered by cutting-edge AI that runs entirely on your device
+                            {t('tech.subtitle')}
                         </p>
                     </div>
 
@@ -128,24 +117,24 @@ export const LandingPage = () => {
                         {[
                             {
                                 icon: Brain,
-                                title: 'On-Device AI',
-                                desc: 'Advanced AI models run directly on your phone. No internet? No problem. Your data never leaves your device.',
+                                title: t('tech.onDevice.title'),
+                                desc: t('tech.onDevice.desc'),
                                 gradient: 'from-blue-500 to-cyan-500',
-                                features: ['Zero API Costs', 'Complete Privacy', 'Instant Responses']
+                                features: [t('tech.onDevice.f1'), t('tech.onDevice.f2'), t('tech.onDevice.f3')]
                             },
                             {
                                 icon: WifiOff,
-                                title: 'Offline-First',
-                                desc: 'Works perfectly without internet. Syncs automatically when connection returns.',
+                                title: t('tech.offline.title'),
+                                desc: t('tech.offline.desc'),
                                 gradient: 'from-purple-500 to-pink-500',
-                                features: ['512MB RAM Only', 'Works Anywhere', 'Auto-Sync']
+                                features: [t('tech.offline.f1'), t('tech.offline.f2'), t('tech.offline.f3')]
                             },
                             {
                                 icon: Zap,
-                                title: 'Lightning Fast',
-                                desc: 'Optimized to perfection. Runs smoothly on the cheapest Android phones.',
+                                title: t('tech.fast.title'),
+                                desc: t('tech.fast.desc'),
                                 gradient: 'from-yellow-500 to-orange-500',
-                                features: ['50MB App Size', 'Instant Load', 'Butter Smooth']
+                                features: [t('tech.fast.f1'), t('tech.fast.f2'), t('tech.fast.f3')]
                             }
                         ].map((feature, i) => (
                             <div
@@ -176,21 +165,20 @@ export const LandingPage = () => {
                 <div className="max-w-7xl mx-auto">
                     <h2 className="text-5xl font-black text-center mb-16">
                         <span className="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                            Everything You Need, Nothing You Don't
+                            {t('features.title')}
                         </span>
                     </h2>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[
-                            { icon: '👥', title: 'Student Management', desc: 'Complete student records, attendance, performance tracking' },
-                            { icon: '💰', title: 'Fee Management', desc: 'Invoicing, payments, receipts, automated reminders' },
-                            { icon: '📊', title: 'Academic Reports', desc: 'Instant report cards, analytics, progress tracking' },
-                            { icon: '📱', title: 'Parent Communication', desc: 'SMS, WhatsApp, email notifications (optional paid)' },
-                            { icon: '📚', title: 'Library System', desc: 'Book tracking, borrowing, digital catalog' },
-                            { icon: '🏃', title: 'Sports & Activities', desc: 'Event management, team selection, schedules' },
-                            { icon: '🤖', title: 'AI Assistant', desc: 'Voice commands, smart insights, automation' },
-                            { icon: '📸', title: 'Smart Scan', desc: 'OCR for forms, instant data capture from paper' },
-                            { icon: '🔒', title: 'Bank-Grade Security', desc: 'Encrypted data, secure auth, compliance ready' }
+                            { icon: '👥', title: t('features.studentMgmt'), desc: t('features.studentMgmtDesc') },
+                            { icon: '💰', title: t('features.feeMgmt'), desc: t('features.feeMgmtDesc') },
+                            { icon: '📊', title: t('features.reports'), desc: t('features.reportsDesc') },
+                            { icon: '📱', title: t('features.parentComm'), desc: t('features.parentCommDesc') },
+                            { icon: '📚', title: t('features.library'), desc: t('features.libraryDesc') },
+                            { icon: '🤖', title: t('features.aiAssistant'), desc: t('features.aiAssistantDesc') },
+                            { icon: '📸', title: t('features.smartScan'), desc: t('features.smartScanDesc') },
+                            { icon: '🔒', title: t('features.security'), desc: t('features.securityDesc') }
                         ].map((feature, i) => (
                             <div
                                 key={i}
@@ -295,8 +283,8 @@ export const LandingPage = () => {
                                 <a
                                     href="/signup"
                                     className={`block text-center py-4 rounded-xl font-bold transition-all ${version.recommended
-                                            ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500'
-                                            : 'bg-slate-700 hover:bg-slate-600'
+                                        ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500'
+                                        : 'bg-slate-700 hover:bg-slate-600'
                                         }`}
                                 >
                                     Choose {version.name.split(' ')[0]}

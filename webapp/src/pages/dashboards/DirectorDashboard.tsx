@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import {
     TrendingUp, TrendingDown, Users, DollarSign,
-    AlertTriangle, Activity, Layout, Upload, ShieldCheck, Brain
+    AlertTriangle, Activity, Layout, Upload, ShieldCheck, Brain, CreditCard
 } from "lucide-react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
@@ -161,6 +161,13 @@ export const DirectorDashboard = () => {
                 >
                     <Upload size={24} className="mb-1" />
                     <span className="text-sm font-semibold">Universal Import</span>
+                </button>
+                <button
+                    onClick={() => window.location.href = '/tools/document-hub'}
+                    className="bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all"
+                >
+                    <CreditCard size={24} className="mb-1" />
+                    <span className="text-sm font-semibold">Document Hub</span>
                 </button>
                 <button
                     className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all"

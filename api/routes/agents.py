@@ -9,8 +9,7 @@ from datetime import datetime
 from api.services.executive import ExecutiveAssistant
 from api.core.mcp import get_mcp_client, MCPAgentRequest
 from api.services.database import get_db_manager
-from api.agents.staff.director import DigitalCEO
-from api.agents.staff.bursar import Bursar
+from api.agents.staff import DigitalCEO, Bursar, Assistant
 from api.models.agents import (
     CommandStartRequest, DocumentBatchRequest, AutomateTaskRequest, 
     ParentQueryRequest
@@ -299,41 +298,24 @@ async def teacher_liberation_agent(school_id: str, request: AutomateTaskRequest)
 @router.post("/{school_id}/executive-assistant/daily-digest")
 async def executive_assistant_agent(school_id: str):
     """
-    Executive Assistant Agent - Daily operations coordination
-    Real workflow orchestration
+    Executive Assistant Agent - Daily operations coordination.
+    Now uses the standardized Assistant staff agent.
     """
     try:
-        assistant = ExecutiveAssistant(school_id)
-        dashboard = assistant.get_dashboard()
+        assistant = Assistant()
+        response = await assistant.perform_task("daily_digest", {"school_id": school_id})
         
-        # Also compile today's key events
-        db = get_db_manager()
-        todays_events = {
-            "new_students": db.execute_query(
-                "SELECT COUNT(*) as count FROM students WHERE school_id = %s AND enrollment_date = CURRENT_DATE",
-                (school_id,), fetch=True
-            )[0]["count"],
-            "fee_payments": db.execute_query(
-                "SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM payments WHERE school_id = %s AND payment_date = CURRENT_DATE",
-                (school_id,), fetch=True
-            )[0],
-            "incidents": db.execute_query(
-                "SELECT COUNT(*) as count FROM incidents WHERE school_id = %s AND DATE(incident_date) = CURRENT_DATE",
-                (school_id,), fetch=True
-            )[0]["count"],
-            "health_visits": db.execute_query(
-                "SELECT COUNT(*) as count FROM health_visits WHERE school_id = %s AND DATE(visit_date) = CURRENT_DATE",
-                (school_id,), fetch=True
-            )[0]["count"]
-        }
-        
+        if not response.success:
+            raise HTTPException(status_code=500, detail=response.error)
+
         return {
             "success": True,
-            "agent": "Executive Assistant",
-            "dashboard": dashboard,
-            "todays_events": todays_events,
-            "generated_at": datetime.now().isoformat()
+            "agent": response.agent,
+            "todays_events": response.result,
+            "generated_at": response.timestamp
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

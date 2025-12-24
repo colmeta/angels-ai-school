@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { AppShell } from "./components/AppShell";
 import { RouteGuard } from "./components/RouteGuard";
+import { LandingPage } from "./pages/LandingPage";
 import { Home } from "./pages/Home";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { TeacherWorkspace } from "./pages/TeacherWorkspace";
@@ -19,6 +20,7 @@ import { ClassDashboard } from "./pages/dashboards/ClassDashboard";
 import { StudentProfile } from "./pages/dashboards/StudentProfile";
 import { StaffProfile } from "./pages/dashboards/StaffProfile";
 import { TemplateBuilder } from "./pages/tools/TemplateBuilder";
+import { DocumentHub } from "./pages/tools/DocumentHub";
 import { UniversalImport } from "./pages/tools/UniversalImport";
 import { SmartScan } from "./components/SmartScan";
 import { WhatsAppConfig } from "./pages/admin/WhatsAppConfig";
@@ -26,11 +28,21 @@ import { SchoolSignup } from "./pages/auth/SchoolSignup";
 import { Login } from "./pages/auth/Login";
 
 import { AILoader } from "./components/AILoader";
+import { ExperimentService } from "./services/ExperimentService";
+import { useEffect } from "react";
 
 const DEFAULT_SCHOOL_ID = "angels-ai-demo";
 
 const App = () => {
   const schoolId = useBrandingStore((state) => state.schoolId) ?? DEFAULT_SCHOOL_ID;
+
+  useEffect(() => {
+    // Enroll in A/B test if school ID is present
+    if (schoolId) {
+      ExperimentService.enrollInAIModeExperiment(schoolId);
+    }
+  }, [schoolId]);
+
   useBranding(schoolId);
   useDynamicManifest(); // Auto-switch PWA identity based on role
   useOfflineSync();
@@ -44,7 +56,8 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/signup" element={<SchoolSignup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboards" element={<Home />} />
           <Route path="/tools/import" element={<UniversalImport />} />
           <Route path="/tools/scan" element={<SmartScan />} />
 
@@ -54,6 +67,7 @@ const App = () => {
             <Route path="/admin/whatsapp-config" element={<WhatsAppConfig />} />
             <Route path="/agents" element={<AgentsOverview />} />
             <Route path="/tools/template-builder" element={<TemplateBuilder />} />
+            <Route path="/tools/document-hub" element={<DocumentHub />} />
           </Route>
 
           {/* 2. DIRECTOR SUITE (Analytics & Strategy) */}
