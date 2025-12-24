@@ -142,7 +142,9 @@ from api.routes import (
     inventory,
     auth_google,
     ai,
+    ai,
     documents,
+    attendance,
 )
 
 # Add experiments router for A/B testing
@@ -252,6 +254,7 @@ app.include_router(universal_import.router, tags=["Universal Import"])  # Zero-f
 app.include_router(school_registration.router, tags=["School Registration"])  # Self-service signup
 app.include_router(receptionist.router, tags=["24/7 AI Receptionist"])  # Embeddable chatbot
 app.include_router(branding.router, tags=["Dynamic Branding"])  # White-label customization
+app.include_router(attendance.router, tags=["Attendance (Dynamic)"]) # Dynamic inputs
 
 # Additional Critical Features (Phase 3)
 app.include_router(canteen.router, prefix="/api", tags=["Canteen/Tuck Shop"])
