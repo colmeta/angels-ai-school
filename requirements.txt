@@ -27,8 +27,8 @@ sqlalchemy==2.0.23
 boto3==1.34.10  # R2 support
 botocore==1.34.10
 
-# Photo Processing (OPTIMIZED)
-Pillow==10.1.0  # Image processing
+# Photo Processing & Document Generation
+Pillow==10.2.0  # Fixed for Python 3.13 compatibility
 qrcode[pil]==7.4.2  # QR codes
 
 # Minimal Data Processing
