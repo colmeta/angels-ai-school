@@ -35,7 +35,7 @@ class EventsService:
         """Create school event"""
         query = """
         INSERT INTO school_events (
-            school_id, event_name, event_type, event_date, start_time,
+            school_id, title, event_type, event_date, start_time,
             end_time, location, description, requires_rsvp, target_audience, max_attendees
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING id
@@ -44,7 +44,7 @@ class EventsService:
         result = self.db.execute_query(
             query,
             (self.school_id, event_name, event_type, event_date, start_time,
-             end_time, location, description, requires_rsvp, target_audience, max_attendees),
+             end_time, location, description, requires_rsvp, [target_audience], max_attendees),
             fetch=True
         )
         
@@ -67,7 +67,7 @@ class EventsService:
         query = """
         SELECT 
             id,
-            event_name,
+            title as event_name,
             event_type,
             event_date,
             start_time,

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { clarityClient } from "../lib/apiClient";
 import { useBrandingStore } from "../stores/branding";
+import BriefingWidget from "../components/Dashboard/BriefingWidget";
 
 interface ClaritySummary {
   success: boolean;
@@ -45,6 +46,8 @@ export const AdminDashboard = () => {
         </button>
       </header>
 
+      <BriefingWidget role="admin" />
+
       <div className="grid gap-4 md:grid-cols-3">
         <MetricCard label="Fee Collection Rate" value="92%" trend="+4% vs last term" />
         <MetricCard label="Attendance Health" value="96%" trend="On target" />
@@ -53,12 +56,12 @@ export const AdminDashboard = () => {
 
       <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Digital CEO Daily Brief</h2>
+          <h2 className="text-xl font-semibold">In-Depth Strategy Intelligence</h2>
           {isFetching && <span className="text-xs text-blue-300 animate-pulse">Refreshing…</span>}
         </div>
         <p className="text-sm text-slate-300 leading-relaxed">
           {data?.analysis?.summary ??
-            "Briefing will appear here once you’re online. Offline operations continue meanwhile."}
+            "Deeper strategic analysis will appear here. The Executive Assistant above handles your immediate daily briefings."}
         </p>
         <div className="grid gap-3 md:grid-cols-2">
           <ListCard title="Key Findings" items={data?.analysis?.findings ?? placeholderFindings} />

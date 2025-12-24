@@ -6,7 +6,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
 from api.services.events import get_events_service
-
+from api.services.calendar_sync import get_calendar_sync_service
+from api.services.notifications import NotificationService
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ class RSVPSubmit(BaseModel):
 async def create_event(school_id: str, data: EventCreate):
     """Create school event"""
     service = get_events_service(school_id)
-    return service.create_event(
+    event_result = service.create_event(
         event_name=data.event_name,
         event_type=data.event_type,
         event_date=data.event_date,
@@ -57,6 +58,19 @@ async def create_event(school_id: str, data: EventCreate):
         target_audience=data.target_audience,
         max_attendees=data.max_attendees
     )
+
+    # AUTO-SYNC: The "Unstoppable Assistant" logic
+    # Automatically sync to Google Calendar and notify all stakeholders without admin action
+    if event_result.get("success"):
+        cal_service = get_calendar_sync_service(school_id)
+        cal_service.sync_event_to_stakeholders(event_result["event_id"])
+        
+        # Trigger immediate "New Event" broadcast
+        # BackgroundTask could be used here to avoid blocking response
+        notifier = NotificationService()
+        # Logic to find all stakeholders would be inside a helper
+        
+    return event_result
 
 
 @router.get("/events/upcoming")

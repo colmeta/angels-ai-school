@@ -20,6 +20,8 @@ import { useBrandingStore } from "../stores/branding";
 import { useOfflineSync } from "../hooks/useOfflineSync";
 import { initiateMobileMoney, MobileMoneyPayload } from "../lib/payments";
 import { apiClient } from "../lib/apiClient";
+import BriefingWidget from "../components/Dashboard/BriefingWidget";
+import CalendarHub from "./parent/CalendarHub";
 
 interface Child {
   id: string;
@@ -81,7 +83,7 @@ export const ParentPortal = () => {
   const { data: flags } = useFeatureFlags(schoolId);
   const { tasks, enqueueTask } = useOfflineSync();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "notifications" | "reports" | "payments" | "chat">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "notifications" | "reports" | "payments" | "chat" | "calendar">("dashboard");
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<LocalChatEntry[]>([]);
   const [input, setInput] = useState("");
@@ -262,7 +264,7 @@ export const ParentPortal = () => {
   // Mark notification as read
   const markAsRead = async (notificationId: string) => {
     if (!navigator.onLine) return;
-    
+
     try {
       await apiClient.post(
         `/parent/${schoolId}/parent/${parentId}/notifications/${notificationId}/read`
@@ -296,11 +298,10 @@ export const ParentPortal = () => {
               <button
                 key={child.id}
                 onClick={() => setSelectedChildId(child.id)}
-                className={`rounded-lg px-4 py-2 font-semibold ${
-                  selectedChildId === child.id
+                className={`rounded-lg px-4 py-2 font-semibold ${selectedChildId === child.id
                     ? "bg-blue-600 text-white"
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                }`}
+                  }`}
               >
                 {child.first_name} {child.last_name}
                 <span className="ml-2 text-xs opacity-70">{child.class_name}</span>
@@ -312,15 +313,14 @@ export const ParentPortal = () => {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-slate-700 overflow-x-auto">
-        {["dashboard", "notifications", "reports", "payments", "chat"].map((tab) => (
+        {["dashboard", "calendar", "notifications", "reports", "payments", "chat"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab as any)}
-            className={`px-4 py-2 font-semibold capitalize whitespace-nowrap ${
-              activeTab === tab
+            className={`px-4 py-2 font-semibold capitalize whitespace-nowrap ${activeTab === tab
                 ? "border-b-2 border-blue-500 text-blue-500"
                 : "text-slate-400 hover:text-slate-200"
-            }`}
+              }`}
           >
             {tab}
             {tab === "notifications" && unreadCount > 0 && (
@@ -335,6 +335,7 @@ export const ParentPortal = () => {
       {/* Dashboard Tab */}
       {activeTab === "dashboard" && (
         <div className="space-y-4">
+          <BriefingWidget role="parent" />
           <div className="grid gap-4 md:grid-cols-3">
             {dashboard?.attendance_summary
               ?.filter((a: any) => a.student_id === selectedChildId)
@@ -409,11 +410,10 @@ export const ParentPortal = () => {
                 <div
                   key={notif.id}
                   onClick={() => markAsRead(notif.id)}
-                  className={`rounded-2xl border p-4 cursor-pointer transition ${
-                    notif.is_read
+                  className={`rounded-2xl border p-4 cursor-pointer transition ${notif.is_read
                       ? "border-slate-800 bg-slate-900/40"
                       : "border-blue-500 bg-blue-500/10 hover:bg-blue-500/20"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -472,13 +472,12 @@ export const ParentPortal = () => {
                         <td className="px-3 py-2">{dayjs(record.date).format("MMM D, YYYY")}</td>
                         <td className="px-3 py-2">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              record.status === "present"
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${record.status === "present"
                                 ? "bg-green-500/20 text-green-100"
                                 : record.status === "absent"
-                                ? "bg-red-500/20 text-red-100"
-                                : "bg-yellow-500/20 text-yellow-100"
-                            }`}
+                                  ? "bg-red-500/20 text-red-100"
+                                  : "bg-yellow-500/20 text-yellow-100"
+                              }`}
                           >
                             {record.status}
                           </span>
@@ -599,13 +598,12 @@ export const ParentPortal = () => {
                         <td className="px-3 py-2">{dayjs(fee.due_date).format("MMM D, YYYY")}</td>
                         <td className="px-3 py-2">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              fee.status === "paid"
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${fee.status === "paid"
                                 ? "bg-green-500/20 text-green-100"
                                 : fee.status === "overdue"
-                                ? "bg-red-500/20 text-red-100"
-                                : "bg-amber-500/20 text-amber-100"
-                            }`}
+                                  ? "bg-red-500/20 text-red-100"
+                                  : "bg-amber-500/20 text-amber-100"
+                              }`}
                           >
                             {fee.status}
                           </span>
@@ -680,8 +678,8 @@ export const ParentPortal = () => {
               {paymentMutation.isPending
                 ? "Processing..."
                 : navigator.onLine
-                ? "Send Payment Request"
-                : "Queue Payment (Offline)"}
+                  ? "Send Payment Request"
+                  : "Queue Payment (Offline)"}
             </button>
             {paymentFeedback && (
               <span className="text-sm text-slate-300">{paymentFeedback}</span>
@@ -707,11 +705,10 @@ export const ParentPortal = () => {
             {chatHistory.map((entry) => (
               <div
                 key={entry.id}
-                className={`max-w-sm rounded-lg p-3 ${
-                  entry.role === "parent"
+                className={`max-w-sm rounded-lg p-3 ${entry.role === "parent"
                     ? "ml-auto bg-blue-600 text-white"
                     : "bg-slate-800 text-slate-200"
-                }`}
+                  }`}
               >
                 <p>{entry.message}</p>
                 {entry.status === "queued" && (
@@ -740,6 +737,9 @@ export const ParentPortal = () => {
           </div>
         </div>
       )}
+
+      {/* Calendar Tab */}
+      {activeTab === "calendar" && <CalendarHub />}
     </section>
   );
 };

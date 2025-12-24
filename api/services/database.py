@@ -51,7 +51,7 @@ class DatabaseManager:
             max_conn,
             self.database_url
         )
-        print(f"✅ DB Pool v3.5 initialized ({min_conn}-{max_conn} connections)")
+        print(f"DB Pool v3.5 initialized ({min_conn}-{max_conn} connections)")
     
     @contextmanager
     def get_connection(self):

@@ -257,26 +257,50 @@ class NotificationService:
             }
     
     async def _send_push_notification(self, recipient_id: str, title: str, message: str, data: Optional[Dict] = None) -> Dict:
-        """Send web push notification"""
-        
+        """Send web push notification using VAPID protocol"""
+        from pywebpush import webpush, WebPushException
+
         # Get user's push subscriptions from database
         subscriptions = self._get_push_subscriptions(recipient_id)
         
         if not subscriptions:
-            return {
-                "success": False,
-                "error": "No push subscriptions found"
-            }
+            return {"success": False, "error": "No push subscriptions found"}
         
-        # Would use pywebpush library here in production
-        # For now, queue for service worker to handle
+        success_count = 0
+        errors = []
+
+        for sub in subscriptions:
+            try:
+                webpush(
+                    subscription_info=sub,
+                    data=json.dumps({
+                        "title": title,
+                        "body": message,
+                        "data": data or {},
+                        "icon": "/pwa-192x192.png",
+                        "badge": "/favicon.ico"
+                    }),
+                    vapid_private_key=self.vapid_private,
+                    vapid_claims={"sub": f"mailto:{self.vapid_email}"}
+                )
+                success_count += 1
+            except WebPushException as ex:
+                logger.error(f"PWA Push failed: {ex}")
+                errors.append(str(ex))
+        
         return {
-            "success": True,
-            "provider": "web_push",
-            "subscriptions": len(subscriptions),
-            "queued": True
+            "success": success_count > 0,
+            "provider": "web_push(vapid)",
+            "sent": success_count,
+            "failed": len(subscriptions) - success_count,
+            "errors": errors
         }
-    
+
+    def _get_push_subscriptions(self, recipient_id: str) -> List[Dict]:
+        """Fetch VAPID subscriptions from the database"""
+        query = "SELECT subscription_json FROM push_subscriptions WHERE user_id = %s"
+        rows = self.db.execute_query(query, (recipient_id,), fetch=True)
+        return [json.loads(row['subscription_json']) for row in rows] if rows else []
     def _store_notification(
         self,
         school_id: str,
