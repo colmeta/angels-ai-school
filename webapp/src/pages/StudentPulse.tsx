@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import clsx from "clsx";
 import {
   Book, Calendar, GraduationCap, Activity, MessageSquare, AlertTriangle,
-  ChevronRight, Trophy, Clock
+  ChevronRight, Trophy, Clock, Download
 } from "lucide-react";
 
 import { useBrandingStore } from "../stores/branding";

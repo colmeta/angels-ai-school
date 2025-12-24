@@ -1,4 +1,20 @@
-Cloud, Lock, Wifi, WifiOff, Award, Users
+import React, { useState, useEffect } from 'react';
+import {
+    ArrowRight,
+    Brain,
+    Check,
+    Download,
+    Globe2,
+    Shield,
+    Sparkles,
+    Star,
+    Zap,
+    Cloud,
+    Lock,
+    Wifi,
+    WifiOff,
+    Award,
+    Users
 } from 'lucide-react';
 import { t } from '../config/i18n';
 

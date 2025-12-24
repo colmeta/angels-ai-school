@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Settings, Cpu, Cloud, Zap, Check, AlertCircle, Info } from 'lucide-react';
-import { getAIConfig, setAIMode, detectDeviceCapabilities, canRunMode, type AIMode } from '../../config/aiConfig';
+import { getAIConfig, setAIMode, detectDeviceCapabilities, canRunMode, type AIMode, AI_CONFIGS } from '../../config/aiConfig';
 
 export const AISettingsPanel = () => {
     const [currentMode, setCurrentMode] = useState<AIMode>('hybrid');
     const [capabilities, setCapabilities] = useState(detectDeviceCapabilities());
-    const [activeConfig, setActiveConfig] = useState(getAIConfig());
+    const [activeConfig, setActiveConfig] = useState<AIConfig>(AI_CONFIGS.hybrid);
 
     useEffect(() => {
-        const config = getAIConfig();
-        setCurrentMode(config.mode);
-        setActiveConfig(config);
+        const fetchConfig = async () => {
+            const config = await getAIConfig();
+            setCurrentMode(config.mode);
+            setActiveConfig(config);
+        };
+        fetchConfig();
     }, []);
 
     const handleModeChange = (mode: AIMode) => {
