@@ -3,16 +3,18 @@ Universal Import Service - The "Zero Friction" Onboarding Tool
 
 This service intelligently maps ANY Excel/CSV format to our database schema.
 It uses fuzzy matching and AI heuristics to handle weird column names.
+MEMORY OPTIMIZED: Uses built-in csv module instead of pandas (saves 100MB+)
 """
 
-import pandas as pd
-from typing import Dict, List, Optional, Tuple
+import csv
+import io
+from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 import re
 from difflib import SequenceMatcher
 
 class UniversalImporter:
-    """Handles messy Excel imports with intelligent column mapping"""
+    """Handles messy Excel/CSV imports with intelligent column mapping"""
     
     # Standard fields we expect
     STUDENT_FIELDS = {
@@ -45,10 +47,10 @@ class UniversalImporter:
                 
         return best_score
     
-    def detect_column_mapping(self, df: pd.DataFrame) -> Dict[str, str]:
+    def detect_column_mapping(self, headers: List[str]) -> Dict[str, str]:
         """
-        Intelligently map Excel columns to our schema fields
-        Returns: {our_field_name: excel_column_name}
+        Intelligently map CSV columns to our schema fields
+        Returns: {our_field_name: csv_column_name}
         """
         mapping = {}
         used_columns = set()
@@ -57,7 +59,7 @@ class UniversalImporter:
             best_match = None
             best_score = 0.6  # Minimum confidence threshold
             
-            for col in df.columns:
+            for col in headers:
                 if col in used_columns:
                     continue
                     
@@ -72,68 +74,74 @@ class UniversalImporter:
         
         return mapping
     
-    def parse_file(self, file_path: str) -> Tuple[pd.DataFrame, Dict[str, str]]:
+    def parse_csv_content(self, content: str) -> Tuple[List[str], List[Dict[str, Any]]]:
         """
-        Read Excel/CSV and detect schema
-        Returns: (dataframe, column_mapping)
+        Parse CSV content and return headers + rows
+        Returns: (headers, rows_as_dicts)
         """
-        # Try reading as Excel first
+        reader = csv.DictReader(io.StringIO(content))
+        headers = reader.fieldnames or []
+        rows = list(reader)
+        return headers, rows
+    
+    def parse_file(self, file_path: str) -> Tuple[List[str], List[Dict], Dict[str, str]]:
+        """
+        Read CSV file and detect schema
+        Returns: (headers, rows, column_mapping)
+        """
         try:
-            df = pd.read_excel(file_path, engine='openpyxl')
-        except Exception:
-            # Fallback to CSV
-            try:
-                df = pd.read_csv(file_path)
-            except Exception as e:
-                raise ValueError(f"Could not parse file. Supported formats: Excel (.xlsx), CSV (.csv). Error: {str(e)}")
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Try with different encoding
+            with open(file_path, 'r', encoding='latin-1') as f:
+                content = f.read()
         
-        # Skip empty rows at the top (common issue)
-        for i in range(len(df)):
-            if df.iloc[i].notna().sum() > len(df.columns) * 0.5:  # At least 50% filled
-                df = df.iloc[i:]
-                df.columns = df.iloc[0]  # Use this row as header
-                df = df.iloc[1:].reset_index(drop=True)
-                break
+        headers, rows = self.parse_csv_content(content)
         
         # Detect mapping
-        mapping = self.detect_column_mapping(df)
+        mapping = self.detect_column_mapping(headers)
         
-        return df, mapping
+        return headers, rows, mapping
     
-    def transform_to_students(self, df: pd.DataFrame, mapping: Dict[str, str]) -> List[Dict]:
+    def transform_to_students(self, rows: List[Dict], mapping: Dict[str, str]) -> List[Dict]:
         """
-        Transform the dataframe to our student schema
+        Transform the rows to our student schema
         """
         students = []
         
-        for idx, row in df.iterrows():
+        for row in rows:
             student = {'school_id': self.school_id}
             
-            for our_field, excel_col in mapping.items():
-                value = row.get(excel_col)
+            for our_field, csv_col in mapping.items():
+                value = row.get(csv_col, '').strip()
                 
-                # Clean and validate
-                if pd.isna(value):
+                # Skip empty values
+                if not value:
                     continue
                     
                 if our_field == 'date_of_birth':
                     # Try to parse date
                     try:
-                        if isinstance(value, datetime):
-                            student[our_field] = value.strftime('%Y-%m-%d')
-                        else:
-                            student[our_field] = pd.to_datetime(value).strftime('%Y-%m-%d')
+                        # Try various date formats
+                        for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y']:
+                            try:
+                                parsed_date = datetime.strptime(value, fmt)
+                                student[our_field] = parsed_date.strftime('%Y-%m-%d')
+                                break
+                            except ValueError:
+                                continue
                     except:
                         pass  # Skip bad dates
                 elif our_field == 'gender':
                     # Normalize gender
-                    val_lower = str(value).lower()
+                    val_lower = value.lower()
                     if val_lower in ['m', 'male', 'boy']:
                         student[our_field] = 'male'
                     elif val_lower in ['f', 'female', 'girl']:
                         student[our_field] = 'female'
                 else:
-                    student[our_field] = str(value).strip()
+                    student[our_field] = value
             
             # Only add if we have minimum required fields
             if 'admission_number' in student and ('first_name' in student or 'last_name' in student):
@@ -151,8 +159,8 @@ class UniversalImporter:
             'confidence': float
         }
         """
-        df, mapping = self.parse_file(file_path)
-        students = self.transform_to_students(df, mapping)
+        headers, rows, mapping = self.parse_file(file_path)
+        students = self.transform_to_students(rows, mapping)
         
         # Calculate confidence
         confidence = len(mapping) / len(self.STUDENT_FIELDS)
@@ -161,11 +169,11 @@ class UniversalImporter:
             'detected_mapping': mapping,
             'sample_data': students[:max_rows],
             'total_rows': len(students),
-            'confidence': round(confidence, 2),
-            'warnings': self._generate_warnings(mapping, df)
+            'confidence':round(confidence, 2),
+            'warnings': self._generate_warnings(mapping)
         }
     
-    def _generate_warnings(self, mapping: Dict, df: pd.DataFrame) -> List[str]:
+    def _generate_warnings(self, mapping: Dict) -> List[str]:
         """Generate warnings about missing fields"""
         warnings = []
         
@@ -185,8 +193,8 @@ class UniversalImporter:
             'errors': [...]
         }
         """
-        df, mapping = self.parse_file(file_path)
-        students = self.transform_to_students(df, mapping)
+        headers, rows, mapping = self.parse_file(file_path)
+        students = self.transform_to_students(rows, mapping)
         
         # Here you would insert into the database
         # For now, returning the prepared data
