@@ -54,8 +54,10 @@ async def circuit_breaker_handler(request: Request, exc: CircuitBreakerOpenExcep
     )
 
 # Security & Performance Middlewares
-allowed_hosts = ["localhost", "127.0.0.1", ".onrender.com"] 
-if settings.allowed_brand_domains:
+# Allow all hosts in production (Render, custom domains)
+# Security is maintained through CORS middleware below
+allowed_hosts = ["*"] if settings.environment == "production" else ["localhost", "127.0.0.1"]
+if settings.allowed_brand_domains and settings.environment != "production":
     allowed_hosts.extend(settings.allowed_brand_domains)
 
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
