@@ -46,6 +46,20 @@ reportlab
 
 # System Monitoring
 psutil
+email-validator
+pyjwt
+google-auth
+google-api-python-client
+python-multipart
+reportlab
+boto3
+sqlalchemy
+crewai
+Pillow
+faker
+pytest
+pytest-cov
+httpx
 
 # REMOVED FOR MEMORY SAVINGS:
 # pandas - too heavy (100MB+)

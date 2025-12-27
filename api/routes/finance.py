@@ -20,3 +20,31 @@ async def get_savings_dashboard(school_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/defaulters")
+async def get_fee_defaulters(school_id: str):
+    """
+    Get list of fee defaulters for load testing.
+    """
+    try:
+        from api.services.database import DatabaseManager
+        db = DatabaseManager()
+        
+        # Schema: student_fees.payment_status = 'pending' or balance > 0
+        # We need to join with students to get names
+        query = """
+        SELECT s.id, s.first_name, s.last_name, s.admission_number, sf.balance, sf.total_fees
+        FROM student_fees sf
+        JOIN students s ON sf.student_id = s.id
+        WHERE s.school_id = %s
+        AND sf.balance > 0
+        LIMIT 100
+        """
+        
+        results = db.execute_query(query, (school_id,))
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if 'db' in locals():
+            db.close_all_connections()

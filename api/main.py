@@ -93,7 +93,7 @@ from api.routes import (
     support, analytics, discounts, transport, boarding, 
     government_reporting, feeding, library, discipline, homework, events, 
     messaging, ussd, whatsapp, translation, uneb, monitoring, canteen, 
-    payroll, alumni, clarity, finance, experiments
+    payroll, alumni, clarity, finance, experiments, reports
 )
 
 from api.routers import (
@@ -145,6 +145,7 @@ app.include_router(library.router, prefix="/api", tags=["Library Management"])
 app.include_router(discipline.router, prefix="/api", tags=["Disciplinary Records"])
 app.include_router(homework.router, prefix="/api", tags=["Homework Tracking"])
 app.include_router(events.router, prefix="/api", tags=["School Events"])
+app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 
 app.include_router(messaging.router, prefix="/api", tags=["Internal Messaging (Free)"])
 app.include_router(ussd.router, prefix="/api", tags=["USSD Support"])

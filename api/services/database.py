@@ -128,7 +128,7 @@ class DatabaseManager:
     def close_all_connections(self):
         """Close all connections in the pool"""
         self.pool.closeall()
-        print("🔒 All database connections closed")
+        print("All database connections closed")
 
 
 # ============================================
