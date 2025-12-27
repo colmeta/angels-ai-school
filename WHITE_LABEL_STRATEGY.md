@@ -231,9 +231,9 @@ def generate_report_card(student, school_branding):
 
 | Plan | Price | White Label Level |
 |------|-------|-------------------|
-| **Starter** | $1/student | Angels AI branding |
-| **Professional** | $2/student | Custom colors + logo |
-| **Enterprise** | $3/student | Full white label + custom domain |
+| **Public School** | $0 (Free) | Angels AI branding |
+| **Private School** | $0 (Free) | Custom colors + logo |
+| **Premium/Group** | $0 (Free) | Full white label + custom domain |
 
 **Value Proposition:**
 - Starter: Try for cheap

@@ -46,7 +46,7 @@ Schools can register themselves - NO manual database work!
 **Process:**
 1. School visits `/signup`
 2. Fills out form (school info + director info)
-3. Chooses plan (Starter/$1, Professional/$2, Enterprise/$3)
+3. Gets instant access to ALL features (Free Forever)
 4. Gets instant login credentials
 5. Starts using immediately
 
@@ -183,7 +183,7 @@ npm run dev
 | **Photo-to-Data** | ✅ | ❌ | ❌ |
 | **Universal Import** | ✅ | ⚠️ Manual | ⚠️ Manual |
 | **Offline-First** | ✅ | ❌ | ⚠️ Limited |
-| **Price** | $1/student | $20/student | $10/student |
+| **Price** | Free Forever | $20/student | $10/student |
 | **Self-Service Signup** | ✅ | ❌ | ❌ |
 
 ---

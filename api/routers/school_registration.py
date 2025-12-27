@@ -127,20 +127,14 @@ async def register_school(registration: SchoolRegistration):
                 True
             ))
             
-            # 6. Set school plan/features
-            # Map 'free' to 'pilot' during pilot program
-            plan = registration.plan
-            if plan == 'free':
-                plan = 'pilot'
-                
-            plans = {
-                "starter": ["basic_dashboard", "attendance", "fees"],
-                "professional": ["basic_dashboard", "attendance", "fees", "reports", "whatsapp"],
-                "enterprise": ["all_features", "white_label", "custom_domain", "priority_support"],
-                "pilot": ["all_features", "white_label", "custom_domain", "priority_support", "pilot_access"]
-            }
+            # 6. Set school plan/features (100% Free - All Features Enabled)
+            all_features = [
+                "basic_dashboard", "attendance", "fees", "reports", "whatsapp",
+                "all_features", "white_label", "custom_domain", "priority_support", 
+                "pilot_access", "ai_magic_box", "universal_import"
+            ]
             
-            for feature in plans.get(plan, plans["pilot"]):  # Default to pilot if unknown
+            for feature in all_features:
                 cursor.execute("""
                     INSERT INTO school_feature_flags (id, school_id, feature_name, is_enabled)
                     VALUES (%s, %s, %s, %s)

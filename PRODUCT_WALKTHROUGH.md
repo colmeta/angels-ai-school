@@ -182,9 +182,7 @@ Tracks:
 
 | Plan | Price | Features |
 |------|-------|----------|
-| **Starter** | $1/student | Angels AI branding |
-| **Professional** | $2/student | Custom logo + colors |
-| **Enterprise** | $3/student | Full white label + custom domain |
+| **All Schools** | $0 (Free) | All features + White Label |
 
 ### White Label Capabilities
 

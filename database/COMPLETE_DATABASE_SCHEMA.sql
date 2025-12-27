@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS school_branding (
     logo_url TEXT,
     favicon_url TEXT,
     custom_domain VARCHAR(255),
+    tagline TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(school_id)
@@ -54,17 +55,29 @@ CREATE TABLE IF NOT EXISTS school_feature_flags (
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    school_id UUID REFERENCES schools(id) ON DELETE SET NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     phone VARCHAR(50),
     role VARCHAR(50) NOT NULL, -- admin, teacher, parent, student, staff
-    is_active BOOLEAN DEFAULT true,
+    status VARCHAR(20) DEFAULT 'active', -- active, suspended, pending
+    google_id VARCHAR(255),
+    auth_provider VARCHAR(50) DEFAULT 'local',
+    email_verified BOOLEAN DEFAULT false,
     last_login TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Ensure columns exist for existing databases
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS school_id UUID REFERENCES schools(id) ON DELETE SET NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) DEFAULT 'local';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT false;
+
 
 CREATE TABLE IF NOT EXISTS user_schools (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,15 +92,52 @@ CREATE TABLE IF NOT EXISTS user_schools (
 CREATE TABLE IF NOT EXISTS user_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
-    session_token VARCHAR(255) NOT NULL UNIQUE,
+    school_id UUID REFERENCES schools(id) ON DELETE CASCADE,
+    token_jti VARCHAR(255) NOT NULL UNIQUE, -- matches AuthService implementation
     refresh_token VARCHAR(255),
     ip_address INET,
     user_agent TEXT,
     device_type VARCHAR(50),
-    is_active BOOLEAN DEFAULT true,
+    revoked BOOLEAN DEFAULT false,
+    revoked_at TIMESTAMP WITH TIME ZONE,
     last_activity TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ensure columns exist for existing databases
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS token_jti VARCHAR(255);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS revoked BOOLEAN DEFAULT false;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS school_id UUID REFERENCES schools(id) ON DELETE CASCADE;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
+
+
+CREATE TABLE IF NOT EXISTS user_links (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    entity_type VARCHAR(50) NOT NULL, -- teacher, parent, student
+    entity_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, entity_type, entity_id)
+);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    used BOOLEAN DEFAULT false,
+    used_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    used BOOLEAN DEFAULT false,
+    used_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -105,15 +155,24 @@ CREATE TABLE IF NOT EXISTS students (
     date_of_birth DATE,
     gender VARCHAR(20),
     class_name VARCHAR(50),
+    current_grade VARCHAR(50), -- added to match service layer
     stream VARCHAR(50),
     blood_type VARCHAR(5),
     address TEXT,
     status VARCHAR(20) DEFAULT 'active',
+    enrollment_status VARCHAR(20) DEFAULT 'active', -- added to match service layer
     photo_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE, -- added for soft delete
     UNIQUE(school_id, admission_number)
 );
+
+-- Ensure columns exist for existing databases
+ALTER TABLE students ADD COLUMN IF NOT EXISTS current_grade VARCHAR(50);
+ALTER TABLE students ADD COLUMN IF NOT EXISTS enrollment_status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE students ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;
+
 
 CREATE TABLE IF NOT EXISTS parents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -123,6 +182,10 @@ CREATE TABLE IF NOT EXISTS parents (
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255),
     phone VARCHAR(50) NOT NULL,
+    primary_phone VARCHAR(50), -- added to match service layer
+    whatsapp_number VARCHAR(50), -- added to match service layer
+    preferred_language VARCHAR(50) DEFAULT 'English', -- added to match service layer
+    preferred_contact_method VARCHAR(50) DEFAULT 'sms', -- added to match service layer
     national_id VARCHAR(50),
     address TEXT,
     occupation VARCHAR(100),
@@ -130,12 +193,20 @@ CREATE TABLE IF NOT EXISTS parents (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS student_parents (
+-- Ensure columns exist for existing databases
+ALTER TABLE parents ADD COLUMN IF NOT EXISTS primary_phone VARCHAR(50);
+ALTER TABLE parents ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(50);
+ALTER TABLE parents ADD COLUMN IF NOT EXISTS preferred_language VARCHAR(50) DEFAULT 'English';
+ALTER TABLE parents ADD COLUMN IF NOT EXISTS preferred_contact_method VARCHAR(50) DEFAULT 'sms';
+
+
+CREATE TABLE IF NOT EXISTS student_parent_relationships ( -- renamed to match spr join in code
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     parent_id UUID NOT NULL REFERENCES parents(id) ON DELETE CASCADE,
     relationship VARCHAR(50) NOT NULL, -- father, mother, guardian
     is_primary BOOLEAN DEFAULT false,
+    is_primary_contact BOOLEAN DEFAULT false, -- added to match service layer
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(student_id, parent_id)
 );
@@ -226,12 +297,22 @@ CREATE TABLE IF NOT EXISTS timetables (
 CREATE TABLE IF NOT EXISTS fee_structures (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
-    class_name VARCHAR(50) NOT NULL,
-    term VARCHAR(20) NOT NULL,
-    year INTEGER NOT NULL,
-    fee_items JSONB NOT NULL,
+    name VARCHAR(255), -- added to match service layer
+    class_name VARCHAR(50),
+    grade_level VARCHAR(50), -- added to match service layer
+    term VARCHAR(20),
+    academic_term VARCHAR(20), -- added to match service layer
+    year INTEGER,
+    academic_year INTEGER, -- added to match service layer
+    fee_items JSONB,
+    tuition_amount DECIMAL(10,2), -- added to match service layer
+    additional_fees DECIMAL(10,2), -- added to match service layer
     total_amount DECIMAL(10,2) NOT NULL,
     currency VARCHAR(10) DEFAULT 'UGX',
+    due_date DATE, -- added to match service layer
+    late_fee_amount DECIMAL(10,2), -- added to match service layer
+    late_fee_starts_after_days INTEGER, -- added to match service layer
+    is_active BOOLEAN DEFAULT true, -- added to match service layer
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -240,8 +321,9 @@ CREATE TABLE IF NOT EXISTS student_fees (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-    term VARCHAR(20) NOT NULL,
-    year INTEGER NOT NULL,
+    fee_structure_id UUID REFERENCES fee_structures(id), -- added to match service layer
+    term VARCHAR(20),
+    year INTEGER,
     total_fees DECIMAL(10,2) NOT NULL,
     amount_paid DECIMAL(10,2) DEFAULT 0,
     balance DECIMAL(10,2) NOT NULL,
@@ -249,11 +331,13 @@ CREATE TABLE IF NOT EXISTS student_fees (
     due_date DATE,
     discount_percentage DECIMAL(5,2) DEFAULT 0,
     discount_reason VARCHAR(255),
+    custom_amount DECIMAL(10,2), -- added to match service layer
+    final_amount DECIMAL(10,2), -- added to match service layer
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS payments (
+CREATE TABLE IF NOT EXISTS fee_payments ( -- renamed to match record_payment in code
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
@@ -261,11 +345,14 @@ CREATE TABLE IF NOT EXISTS payments (
     amount DECIMAL(10,2) NOT NULL,
     payment_method VARCHAR(50) NOT NULL,
     transaction_id VARCHAR(255),
-    payment_status VARCHAR(20) DEFAULT 'pending',
+    payment_status VARCHAR(20) DEFAULT 'success', -- changed default to success
     paid_by VARCHAR(255),
     payment_phone VARCHAR(50),
+    phone_number VARCHAR(50), -- added to match service layer
+    payment_reference VARCHAR(255), -- added to match service layer
     reference VARCHAR(255),
     notes TEXT,
+    received_by UUID REFERENCES users(id), -- added to match service layer
     payment_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -977,11 +1064,11 @@ CREATE TABLE IF NOT EXISTS alumni (
 
 CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    school_id UUID NOT NULL,
+    school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL,
-    resource_type VARCHAR(50) NOT NULL,
-    resource_id VARCHAR(255) NOT NULL,
+    entity_type VARCHAR(100), -- changed from resource_type
+    entity_id VARCHAR(255), -- changed from resource_id
     changes JSONB,
     ip_address INET,
     user_agent TEXT,
@@ -1005,6 +1092,8 @@ CREATE TABLE IF NOT EXISTS security_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Audit logs are handled in section 25 above
+
 -- ============================================================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
@@ -1014,15 +1103,15 @@ CREATE INDEX IF NOT EXISTS idx_students_class ON students(school_id, class_name,
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(school_id, date);
 CREATE INDEX IF NOT EXISTS idx_attendance_student ON attendance(student_id, date);
 CREATE INDEX IF NOT EXISTS idx_grades_student ON grades(student_id, term, year);
-CREATE INDEX IF NOT EXISTS idx_payments_student ON payments(student_id, payment_date);
+CREATE INDEX IF NOT EXISTS idx_payments_student ON fee_payments(student_id, payment_date);
 CREATE INDEX IF NOT EXISTS idx_fees_student ON student_fees(student_id, term, year);
 CREATE INDEX IF NOT EXISTS idx_messages_school ON messages(school_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_documents_school ON documents(school_id, document_type);
 CREATE INDEX IF NOT EXISTS idx_audit_user_time ON audit_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_school_time ON audit_logs(school_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_id, is_active);
-CREATE INDEX IF NOT EXISTS idx_sessions_token ON user_sessions(session_token);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_id, revoked);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON user_sessions(token_jti);
 
 -- ============================================================================
 -- FUNCTIONS & TRIGGERS
@@ -1039,6 +1128,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS audit_logs_immutable ON audit_logs;
 CREATE TRIGGER audit_logs_immutable
 BEFORE UPDATE OR DELETE ON audit_logs
 FOR EACH ROW EXECUTE FUNCTION prevent_audit_modification();
@@ -1052,12 +1142,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_schools_updated_at ON schools;
 CREATE TRIGGER update_schools_updated_at BEFORE UPDATE ON schools
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     
+DROP TRIGGER IF EXISTS update_students_updated_at ON students;
 CREATE TRIGGER update_students_updated_at BEFORE UPDATE ON students
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     
+DROP TRIGGER IF EXISTS update_teachers_updated_at ON teachers;
 CREATE TRIGGER update_teachers_updated_at BEFORE UPDATE ON teachers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
