@@ -1,0 +1,27 @@
+# Render Deployment Configuration
+# For 512MB RAM Free Tier
+
+# Build Command
+build = "pip install -r requirements.txt"
+
+# Start Command - CRITICAL: Single worker only for 512MB RAM
+# Using 1 worker with 2 threads keeps memory under 300MB
+[deploy]
+startCommand = "gunicorn api.main:app --workers 1 --threads 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120 --max-requests 1000 --max-requests-jitter 50"
+
+[env]
+# Python optimization flags
+PYTHONUNBUFFERED = "1"
+PYTHONDONTWRITEBYTECODE = "1"
+
+# Memory limits
+WEB_CONCURRENCY = "1"  # Single worker
+WORKERS = "1"
+THREADS = "2"
+
+# Disable unnecessary features in production
+PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
+
+[services.web]
+# Health check
+healthCheckPath = "/api/health"

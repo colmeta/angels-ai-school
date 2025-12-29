@@ -1,0 +1,1477 @@
+{
+  "school": {
+    "id": "test-school-001",
+    "name": "St. Angels Academy",
+    "motto": "Excellence Through Knowledge",
+    "address": "123 Education Road, Kampala, Uganda",
+    "phone": "+256 700 123456",
+    "email": "info@stangels.ac.ug",
+    "principal": "Dr. Sarah Nakato",
+    "established": "2010",
+    "student_count": 450,
+    "staff_count": 35
+  },
+  "students": [
+    {
+      "id": "STU001",
+      "name": "John Mukasa",
+      "grade": "P.7",
+      "age": 13,
+      "gender": "M",
+      "parent_phone": "+256 700 111222"
+    },
+    {
+      "id": "STU002",
+      "name": "Mary Nalongo",
+      "grade": "P.7",
+      "age": 13,
+      "gender": "F",
+      "parent_phone": "+256 700 222333"
+    },
+    {
+      "id": "STU003",
+      "name": "Peter Okello",
+      "grade": "P.6",
+      "age": 12,
+      "gender": "M",
+      "parent_phone": "+256 700 333444"
+    },
+    {
+      "id": "STU004",
+      "name": "Grace Namatovu",
+      "grade": "P.6",
+      "age": 12,
+      "gender": "F",
+      "parent_phone": "+256 700 444555"
+    },
+    {
+      "id": "STU005",
+      "name": "David Ssemakula",
+      "grade": "P.5",
+      "age": 11,
+      "gender": "M",
+      "parent_phone": "+256 700 555666"
+    },
+    {
+      "id": "STU006",
+      "name": "Sarah Achieng",
+      "grade": "P.5",
+      "age": 11,
+      "gender": "F",
+      "parent_phone": "+256 700 666777"
+    },
+    {
+      "id": "STU007",
+      "name": "Samuel Wafula",
+      "grade": "P.4",
+      "age": 10,
+      "gender": "M",
+      "parent_phone": "+256 700 777888"
+    },
+    {
+      "id": "STU008",
+      "name": "Rebecca Nambi",
+      "grade": "P.4",
+      "age": 10,
+      "gender": "F",
+      "parent_phone": "+256 700 888999"
+    },
+    {
+      "id": "STU009",
+      "name": "Joshua Kiprotich",
+      "grade": "P.3",
+      "age": 9,
+      "gender": "M",
+      "parent_phone": "+256 700 999000"
+    },
+    {
+      "id": "STU010",
+      "name": "Faith Akello",
+      "grade": "P.3",
+      "age": 9,
+      "gender": "F",
+      "parent_phone": "+256 700 000111"
+    }
+  ],
+  "teachers": [
+    {
+      "id": "TCH001",
+      "name": "Mr. James Omondi",
+      "subject": "Mathematics",
+      "email": "j.omondi@stangels.ac.ug"
+    },
+    {
+      "id": "TCH002",
+      "name": "Mrs. Alice Namusoke",
+      "subject": "English",
+      "email": "a.namusoke@stangels.ac.ug"
+    },
+    {
+      "id": "TCH003",
+      "name": "Mr. Robert Kato",
+      "subject": "Science",
+      "email": "r.kato@stangels.ac.ug"
+    },
+    {
+      "id": "TCH004",
+      "name": "Ms. Christine Aber",
+      "subject": "Social Studies",
+      "email": "c.aber@stangels.ac.ug"
+    },
+    {
+      "id": "TCH005",
+      "name": "Mr. Patrick Lubega",
+      "subject": "Religious Education",
+      "email": "p.lubega@stangels.ac.ug"
+    }
+  ],
+  "grades": {
+    "STU001": {
+      "Math": 85,
+      "English": 78,
+      "Science": 92,
+      "SST": 88,
+      "RE": 75
+    },
+    "STU002": {
+      "Math": 92,
+      "English": 88,
+      "Science": 85,
+      "SST": 90,
+      "RE": 82
+    },
+    "STU003": {
+      "Math": 75,
+      "English": 82,
+      "Science": 78,
+      "SST": 80,
+      "RE": 77
+    },
+    "STU004": {
+      "Math": 88,
+      "English": 90,
+      "Science": 86,
+      "SST": 85,
+      "RE": 88
+    },
+    "STU005": {
+      "Math": 70,
+      "English": 75,
+      "Science": 72,
+      "SST": 74,
+      "RE": 70
+    }
+  },
+  "attendance": {
+    "STU001": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU002": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU003": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU004": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "absent"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU005": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU006": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU007": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "absent"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU008": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU009": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "absent"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "absent"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ],
+    "STU010": [
+      {
+        "date": "2025-12-25",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-24",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-23",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-22",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-21",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-20",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-19",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-18",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-17",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-16",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-15",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-14",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-13",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-12",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-11",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-10",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-09",
+        "status": "absent"
+      },
+      {
+        "date": "2025-12-08",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-07",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-06",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-05",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-04",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-03",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-02",
+        "status": "present"
+      },
+      {
+        "date": "2025-12-01",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-30",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-29",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-28",
+        "status": "present"
+      },
+      {
+        "date": "2025-11-27",
+        "status": "absent"
+      },
+      {
+        "date": "2025-11-26",
+        "status": "present"
+      }
+    ]
+  },
+  "fee_structure": {
+    "term_fee": 450000,
+    "exam_fee": 50000,
+    "library_fee": 20000,
+    "sports_fee": 30000,
+    "total": 550000
+  },
+  "fee_payments": {
+    "STU001": {
+      "paid": 550000,
+      "balance": 0,
+      "status": "full"
+    },
+    "STU002": {
+      "paid": 550000,
+      "balance": 0,
+      "status": "full"
+    },
+    "STU003": {
+      "paid": 400000,
+      "balance": 150000,
+      "status": "partial"
+    },
+    "STU004": {
+      "paid": 550000,
+      "balance": 0,
+      "status": "full"
+    },
+    "STU005": {
+      "paid": 300000,
+      "balance": 250000,
+      "status": "partial"
+    }
+  },
+  "timetable": {
+    "Monday": [
+      {
+        "time": "8:00-9:00",
+        "subject": "Mathematics",
+        "teacher": "Mr. James Omondi"
+      },
+      {
+        "time": "9:00-10:00",
+        "subject": "English",
+        "teacher": "Mrs. Alice Namusoke"
+      },
+      {
+        "time": "10:00-10:30",
+        "subject": "Break",
+        "teacher": "-"
+      },
+      {
+        "time": "10:30-11:30",
+        "subject": "Science",
+        "teacher": "Mr. Robert Kato"
+      },
+      {
+        "time": "11:30-12:30",
+        "subject": "Social Studies",
+        "teacher": "Ms. Christine Aber"
+      }
+    ],
+    "Tuesday": [
+      {
+        "time": "8:00-9:00",
+        "subject": "English",
+        "teacher": "Mrs. Alice Namusoke"
+      },
+      {
+        "time": "9:00-10:00",
+        "subject": "Mathematics",
+        "teacher": "Mr. James Omondi"
+      },
+      {
+        "time": "10:00-10:30",
+        "subject": "Break",
+        "teacher": "-"
+      },
+      {
+        "time": "10:30-11:30",
+        "subject": "Religious Education",
+        "teacher": "Mr. Patrick Lubega"
+      },
+      {
+        "time": "11:30-12:30",
+        "subject": "Science",
+        "teacher": "Mr. Robert Kato"
+      }
+    ]
+  }
+}

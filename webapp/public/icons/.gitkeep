@@ -1,0 +1,8 @@
+# Place your app icons here:
+# - icon-192.png (192x192)
+# - icon-512.png (512x512)
+# 
+# You can generate these from a single icon using:
+# https://realfavicongenerator.net/
+# or
+# npx @vite-pwa/assets-generator --preset minimal public/icon.svg

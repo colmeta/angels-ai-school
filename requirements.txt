@@ -1,0 +1,81 @@
+# Optimized requirements for Render 512MB RAM Free Tier
+# Only essential dependencies
+
+# Core Framework (Lightweight)
+FastAPI
+uvicorn[standard]
+gunicorn
+pydantic[email]
+pydantic-settings
+python-multipart
+python-dotenv
+
+# Security (Essential)
+python-jose[cryptography]
+PyJWT
+passlib[bcrypt]
+cryptography
+
+# HTTP Client (Lightweight)
+httpx
+
+# Database (Required)
+psycopg2-binary
+asyncpg
+sqlalchemy
+
+# Cloud Storage (Essential)
+boto3
+botocore
+
+# Photo Processing & Document Generation
+Pillow
+qrcode[pil]
+
+# Minimal Data Processing
+python-dateutil
+pytz
+
+# Automation & Communications
+google-auth
+google-api-python-client
+pywebpush
+
+# Document Generation (Required for export service)
+reportlab
+
+# System Monitoring
+psutil
+email-validator
+pyjwt
+google-auth
+google-api-python-client
+python-multipart
+reportlab
+boto3
+sqlalchemy
+crewai
+Pillow
+faker
+pytest
+pytest-cov
+httpx
+
+# REMOVED FOR MEMORY SAVINGS:
+# pandas - too heavy (100MB+)
+# numpy - too heavy (50MB+)
+# reportlab - use Pillow instead
+# openai/anthropic - cloud APIs optional
+# redis/celery - not needed for free tier
+# sendgrid - optional
+# twilio - optional
+# africastalking - optional
+
+# Production Server
+# gunicorn already included above
+
+# OPTIONAL (only install if needed):
+# For WhatsApp/SMS add: twilio, africastalking
+# For AI fallback add: openai, anthropic
+# For data analysis add: pandas, numpy
+# For PDF generation add: reportlab

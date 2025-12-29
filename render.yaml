@@ -1,0 +1,52 @@
+# Render.yaml optimized for 512MB free tier
+
+services:
+  # Backend API
+  - type: web
+    name: angels-ai-backend
+    env: python
+    region: frankfurt  # Or closest to your users
+    plan: free
+    
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 30 --timeout-keep-alive 5 --limit-max-requests 800
+    
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      
+      - key: DATABASE_URL
+        sync: false  # Set in Render dashboard
+      
+      - key: SECRET_KEY
+        generateValue: true
+      
+      # Memory optimization flags
+      - key: PYTHONUNBUFFERED
+        value: 1
+      
+      - key: PYTHONDONTWRITEBYTECODE
+        value: 1
+      
+      - key: DB_POOL_SIZE
+        value: 3
+      
+      - key: DB_MAX_OVERFLOW
+        value: 1
+      
+      # Optional services (set in dashboard)
+      - key: SENTRY_DSN
+        sync: false
+      
+      - key: SENDGRID_API_KEY
+        sync: false
+      
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+    
+    healthCheckPath: /api/health
+    
+    autoDeploy: true

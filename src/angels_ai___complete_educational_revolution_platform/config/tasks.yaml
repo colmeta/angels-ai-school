@@ -1,0 +1,205 @@
+---
+daily_strategic_intelligence_briefing_and_executive_leadership:
+  description: Generate comprehensive daily strategic intelligence briefings for school
+    leadership. Analyze current school performance metrics, identify emerging opportunities
+    and threats, monitor competitive landscape, track industry trends, and provide
+    actionable strategic recommendations. Include financial performance analysis,
+    academic outcome trends, operational efficiency metrics, parent satisfaction indicators,
+    and market positioning insights. Research funding opportunities, partnership possibilities,
+    and growth strategies specific to African education markets. Coordinate all other
+    agents and provide executive-level oversight of the entire Angels AI system.
+  expected_output: 'Executive-level strategic briefing document containing: 1) School
+    Performance Dashboard (financial, academic, operational metrics), 2) Risk Assessment
+    & Mitigation Strategies, 3) Opportunity Analysis (funding, partnerships, growth),
+    4) Competitive Intelligence Report, 5) Strategic Recommendations with priority
+    rankings, 6) Market Trend Analysis specific to African education, 7) Revenue Optimization
+    Opportunities, 8) Operational Efficiency Improvements, 9) Angels AI System Performance
+    and Agent Coordination Report. Format as professional CEO-level briefing with
+    executive summary and detailed analysis sections.'
+  agent: angels_ai_digital_ceo
+process_natural_language_administrative_commands:
+  description: Process complex natural language commands from school administrators
+    and convert them into precise, executable workflows using advanced RAG capabilities.
+    Handle commands like 'Send personalized fee updates to Grade 5 parents based on
+    their payment status' or 'Generate academic progress reports for students who
+    received grades this week.' Analyze command intent, query relevant school policies
+    and data using RAG, break down complex requests into step-by-step technical specifications,
+    and coordinate execution across multiple agents and systems.
+  expected_output: 'Comprehensive command processing report including: 1) Command
+    Intent Analysis, 2) Required Data Sources and RAG Queries, 3) Step-by-Step Technical
+    Execution Plan, 4) Agent Coordination Strategy, 5) Success Criteria and Quality
+    Metrics, 6) Risk Assessment and Contingency Plans, 7) Estimated Execution Timeline,
+    8) JSON-formatted technical specifications for backend implementation. Include
+    intelligent context awareness and policy compliance validation.'
+  agent: command_intelligence_agent___clarity_engine
+  context:
+  - daily_strategic_intelligence_briefing_and_executive_leadership
+comprehensive_funding_and_opportunity_discovery:
+  description: Execute comprehensive web scraping and research to discover funding
+    opportunities, grants, loans, partnerships, and revenue-generating opportunities
+    for schools. Research government grants, NGO funding, international education
+    programs, competitions, corporate sponsorships, and business partnerships. Monitor
+    education websites, grant databases, funding portals, and opportunity platforms.
+    Analyze success probabilities, application requirements, deadlines, and strategic
+    fit for each opportunity discovered.
+  expected_output: 'Comprehensive opportunity intelligence report including: 1) Discovered
+    Funding Opportunities (grants, loans, sponsorships) with full details, 2) Success
+    Probability Analysis and Ranking, 3) Application Requirements and Timeline Matrix,
+    4) Strategic Fit Assessment for each opportunity, 5) Revenue Potential Calculations,
+    6) Application Strategy Recommendations, 7) Competitive Analysis of applicant
+    landscape, 8) Partnership and Collaboration Opportunities, 9) Monitoring Setup
+    for ongoing opportunity discovery. Focus on African education funding sources
+    and international development programs.'
+  agent: opportunity_intelligence_agent___funding_hunter
+  context:
+  - daily_strategic_intelligence_briefing_and_executive_leadership
+advanced_document_intelligence_and_rag_processing:
+  description: 'Transform any document, paper, PDF, handwritten form, or scanned image
+    into structured digital data using advanced RAG capabilities and OCR technology.
+    INTELLIGENTLY ANALYZE and AUTO-ROUTE documents to appropriate school departments:
+    student registration forms → academic records, fee payments → finance department,
+    medical forms → health records, teacher documents → HR systems, disciplinary reports
+    → administration, parent communications → parent engagement system. Process registration
+    forms, report cards, financial documents, government paperwork, handwritten student
+    records, and administrative forms. Extract student information, parent contacts,
+    financial data, academic records, and administrative details with perfect accuracy.
+    Create searchable RAG-powered knowledge bases from school documents and provide
+    intelligent document retrieval and cross-referencing. NO MANUAL DATA ENTRY REQUIRED
+    - complete automation from scan to appropriate system placement.'
+  expected_output: 'Comprehensive document processing report including: 1) Document
+    Classification and Auto-Routing Results (which department/system received the
+    data), 2) Extracted Structured Data (JSON format) with confidence scores, 3) OCR
+    Accuracy Assessment and Quality Metrics, 4) RAG Knowledge Base Integration Status,
+    5) Data Validation and Cross-Reference Results, 6) Identified Data Relationships
+    and Dependencies, 7) Automated Database Import Confirmations, 8) Document Archive
+    and Retrieval System Setup, 9) Intelligent Routing Decision Logic and Success
+    Rates. Include specific handling for African educational document formats, multilingual
+    content, and handwritten text recognition. Provide detailed routing map showing
+    exactly where each piece of extracted information was automatically placed.'
+  agent: document_intelligence_agent___rag_master
+  context:
+  - process_natural_language_administrative_commands
+24_7_parent_engagement_and_oracle_services:
+  description: Provide comprehensive 24/7 parent engagement services through WhatsApp,
+    SMS, and multi-channel communication platforms. Handle all parent inquiries, provide
+    instant answers to questions about fees, academics, schedules, events, policies,
+    and procedures. Generate personalized academic progress reports, fee status updates,
+    behavioral reports, attendance summaries, and achievement celebrations. Support
+    multiple African languages including English, Swahili, Amharic, Hausa, Yoruba,
+    Igbo, French, and Arabic. Integrate with mobile money systems for fee payments
+    and provide proactive communication about school activities and student achievements.
+  expected_output: 'Comprehensive Parent Engagement Report including: 1) 24/7 Communication
+    Analytics with Response Times and Satisfaction Metrics, 2) Multi-Language Support
+    Performance and Translation Accuracy Statistics, 3) Parent Inquiry Resolution
+    Rates and Category Analysis, 4) Proactive Communication Effectiveness and Parent
+    Engagement Scores, 5) Mobile Payment Integration Success Rates and Financial Transaction
+    Analytics, 6) Personalized Report Generation and Delivery Statistics, 7) Parent
+    Satisfaction Surveys and Feedback Analysis, 8) Communication Channel Optimization
+    and Performance Recommendations. Achieve 95%+ parent satisfaction through intelligent,
+    responsive, and culturally appropriate communication.'
+  agent: parent_engagement_agent___the_oracle
+  context:
+  - process_natural_language_administrative_commands
+  - advanced_document_intelligence_and_rag_processing
+  - comprehensive_funding_and_opportunity_discovery
+execute_advanced_financial_compliance_and_revenue_optimization:
+  description: Execute comprehensive financial operations including the OODA loop
+    financial compliance workflow (Observe, Orient, Decide, Act), automated fee collection,
+    payment tracking, revenue optimization, and financial intelligence. Implement
+    graduated response systems for payment management, mobile money integration for
+    African markets, cash flow optimization, and financial performance analysis. Handle
+    daily financial monitoring, parent payment communications, and strategic financial
+    recommendations.
+  expected_output: 'Comprehensive financial operations report including: 1) Daily
+    Financial Compliance Status and OODA Loop Results, 2) Fee Collection Performance
+    and Optimization Recommendations, 3) Payment Pattern Analysis and Trend Predictions,
+    4) Mobile Money Integration Performance and Usage Statistics, 5) Revenue Optimization
+    Opportunities and Strategic Recommendations, 6) Cash Flow Analysis and Projection
+    Models, 7) Financial Risk Assessment and Mitigation Strategies, 8) Parent Payment
+    Communication Effectiveness and Improvement Plans. Include African market-specific
+    financial insights and mobile payment ecosystem analysis.'
+  agent: financial_operations_agent___automated_treasurer
+  context:
+  - process_natural_language_administrative_commands
+  - 24_7_parent_engagement_and_oracle_services
+academic_excellence_and_predictive_intelligence:
+  description: Manage comprehensive academic operations including automated report
+    card generation, predictive analytics for student performance, at-risk student
+    identification, personalized learning recommendations, curriculum compliance monitoring,
+    and educational outcome optimization. Use AI and RAG capabilities to analyze learning
+    patterns, generate insights for teachers and parents, and provide data-driven
+    academic improvement strategies. Handle examination management, academic scheduling,
+    and performance tracking with intelligent analysis.
+  expected_output: 'Comprehensive academic operations report including: 1) Student
+    Performance Analysis and Trend Identification, 2) At-Risk Student Predictive Models
+    and Intervention Recommendations, 3) Personalized Learning Pathway Suggestions
+    for each student, 4) Curriculum Compliance Status and Gap Analysis, 5) Teacher
+    Performance Insights and Support Recommendations, 6) Parent Academic Engagement
+    Strategies, 7) Educational Outcome Optimization Plans, 8) Academic Resource Allocation
+    Recommendations. Include culturally appropriate academic approaches for African
+    educational contexts.'
+  agent: academic_operations_agent___educational_excellence_manager
+  context:
+  - advanced_document_intelligence_and_rag_processing
+  - 24_7_parent_engagement_and_oracle_services
+complete_teacher_liberation_and_administrative_automation:
+  description: Systematically eliminate 100% of teachers' non-teaching administrative
+    burdens through intelligent automation. Automate attendance tracking, grade recording,
+    parent communication drafting, lesson plan template generation, report card creation,
+    meeting scheduling, form completion, and all documentation tasks. Measure teacher
+    time savings continuously and optimize automation workflows. Provide teachers
+    with simple interfaces that require minimal input but deliver maximum administrative
+    efficiency, allowing them to focus entirely on teaching and student development.
+  expected_output: 'Comprehensive teacher liberation report including: 1) Complete
+    Administrative Task Elimination Inventory, 2) Teacher Time Savings Analysis (target:
+    20+ hours per week per teacher), 3) Automated Workflow Implementation Status and
+    Performance, 4) Teacher Satisfaction and Stress Reduction Metrics, 5) Educational
+    Outcome Improvements from Increased Teaching Focus, 6) System Usage Analytics
+    and Optimization Opportunities, 7) Cost-Benefit Analysis of Teacher Liberation,
+    8) Recommendations for Additional Automation Enhancements. Document transformation
+    from administrative burden to pure educational focus.'
+  agent: teacher_liberation_agent___administrative_freedom_fighter
+  context:
+  - academic_excellence_and_predictive_intelligence
+  - 24_7_parent_engagement_and_oracle_services
+executive_operations_and_strategic_administration:
+  description: Coordinate comprehensive executive administrative functions including
+    student registration and admission automation, strategic report writing, meeting
+    management, policy implementation, compliance monitoring, stakeholder communication,
+    event planning and management, resource allocation optimization, strategic planning
+    support, board meeting preparation, regulatory compliance coordination, and executive
+    decision support. Integrate all school operations, provide executive-level insights,
+    coordinate between all departments, and ensure seamless school administration
+    at the highest strategic level.
+  expected_output: 'Comprehensive Executive Operations Report including: 1) Student
+    Registration and Admission Automation Success Metrics, 2) Strategic Report Generation
+    and Executive Communication Effectiveness, 3) Meeting Management and Stakeholder
+    Coordination Analytics, 4) Policy Implementation and Compliance Monitoring Status,
+    5) Event Planning and Resource Allocation Optimization Results, 6) Cross-Department
+    Integration and Workflow Efficiency Metrics, 7) Executive Decision Support Analytics
+    and Strategic Planning Insights, 8) Board Meeting and Stakeholder Communication
+    Performance. Achieve 70% reduction in executive administrative workload and 95%
+    improvement in strategic decision-making speed and quality.'
+  agent: executive_assistant_agent___ultimate_administrative_coordinator
+  context:
+  - complete_teacher_liberation_and_administrative_automation
+  - execute_advanced_financial_compliance_and_revenue_optimization
+comprehensive_security_and_safety_management:
+  description: Execute comprehensive school security and student safety management
+    through intelligent monitoring, automated alert systems, emergency response coordination,
+    visitor management, incident reporting, and safety compliance. Handle student
+    check-in/out notifications, emergency broadcasts, security threat assessment,
+    safety protocol enforcement, and real-time safety intelligence. Coordinate with
+    parents, staff, and emergency services to ensure maximum student safety and security
+    at all times.
+  expected_output: 'Comprehensive security and safety report including: 1) Daily Security
+    Status and Incident Summary, 2) Student Safety Monitoring and Check-in/out Analytics,
+    3) Emergency Response System Performance and Readiness Assessment, 4) Visitor
+    Management and Access Control Effectiveness, 5) Safety Compliance Status and Risk
+    Assessment, 6) Incident Response Times and Resolution Success Rates, 7) Parent
+    and Staff Safety Communication Effectiveness, 8) Security System Optimization
+    Recommendations. Ensure maximum child protection and safety protocol adherence.'
+  agent: security_safety_guardian_agent
+  context:
+  - executive_operations_and_strategic_administration
+  - 24_7_parent_engagement_and_oracle_services
