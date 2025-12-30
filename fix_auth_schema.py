@@ -1,5 +1,9 @@
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add the current directory to sys.path to ensure we can import 'api'
 sys.path.append(os.getcwd())
