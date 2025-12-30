@@ -31,6 +31,8 @@ export const UserSignup = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState<'form' | 'success'>('form');
     const [loading, setLoading] = useState(false);
+    const [isGoogleSignup, setIsGoogleSignup] = useState(false);
+    const [googleCredential, setGoogleCredential] = useState<string>('');
     const [error, setError] = useState('');
 
     const [form, setForm] = useState<SignupForm>({
@@ -43,18 +45,36 @@ export const UserSignup = () => {
         photo_url: ''
     });
 
-    const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
-        if (credentialResponse.credential) {
-            const decoded = decodeJwt(credentialResponse.credential);
-            if (decoded) {
-                setForm(prev => ({
-                    ...prev,
-                    email: decoded.email || '',
-                    first_name: decoded.given_name || '',
-                    last_name: decoded.family_name || '',
-                    photo_url: decoded.picture || ''
-                }));
+    const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+        if (!credentialResponse.credential) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${apiUrl}/api/auth/google/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    credential: credentialResponse.credential
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store tokens
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('user_id', data.user.id);
+                setStep('success');
+            } else {
+                setError(data.detail || 'Google Sign-In failed');
             }
+        } catch (err) {
+            setError('Connection failed. Please check internet and try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -73,22 +93,43 @@ export const UserSignup = () => {
             return;
         }
 
+        // Bcrypt has a 72-byte limit
+        if (form.password.length > 72) {
+            setError('Password is too long. Maximum 72 characters.');
+            return;
+        }
+
         setLoading(true);
 
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-            const response = await fetch(`${apiUrl}/api/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: form.email,
-                    password: form.password,
-                    first_name: form.first_name,
-                    last_name: form.last_name,
-                    phone: form.phone,
-                    photo_url: form.photo_url || null
-                })
-            });
+
+            let response;
+            if (isGoogleSignup) {
+                // Google Sign-Up with phone number
+                response = await fetch(`${apiUrl}/api/auth/google/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        credential: googleCredential,
+                        phone: form.phone
+                    })
+                });
+            } else {
+                // Regular email/password signup
+                response = await fetch(`${apiUrl}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: form.email,
+                        password: form.password,
+                        first_name: form.first_name,
+                        last_name: form.last_name,
+                        phone: form.phone,
+                        photo_url: form.photo_url || null
+                    })
+                });
+            }
 
             const data = await response.json();
 
@@ -159,18 +200,29 @@ export const UserSignup = () => {
                     <p className="text-slate-300">Join Angels AI School - For Teachers, Parents & Students</p>
                 </div>
 
-                {/* Google Sign-In */}
-                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 mb-8 flex flex-col items-center justify-center text-center">
-                    <p className="text-slate-300 mb-4 text-sm">Quickly pre-fill your details with Google</p>
-                    <div className="w-full max-w-xs">
+                {/* Google Sign-Up - Direct Registration */}
+                <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-xl p-6 mb-8">
+                    <div className="text-center mb-4">
+                        <h3 className="text-white font-semibold mb-2">🚀 Instant Sign-Up with Google</h3>
+                        <p className="text-slate-300 text-sm">No password needed - register in one click!</p>
+                    </div>
+                    <div className="flex justify-center">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => setError('Google Sign-In failed')}
                             theme="filled_blue"
                             shape="pill"
-                            width="100%"
                             text="signup_with"
                         />
+                    </div>
+                </div>
+
+                <div className="relative mb-8">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-600"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-4 bg-slate-800 text-slate-400">Or sign up with email</span>
                     </div>
                 </div>
 
