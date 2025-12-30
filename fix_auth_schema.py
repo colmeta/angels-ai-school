@@ -18,7 +18,8 @@ def fix_schema():
         # 1. Make password_hash nullable
         print("Alterting users table to make password_hash nullable...")
         db.execute_query(
-            "ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;"
+            "ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;",
+            fetch=False
         )
         print("✅ usage: password_hash is now nullable.")
 
