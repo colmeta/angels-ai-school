@@ -9,10 +9,17 @@ router = APIRouter(prefix="/auth/google", tags=["Authentication"])
 settings = get_settings()
 
 class GoogleLoginRequest(BaseModel):
-    token: str
+    token: Optional[str] = None
+    credential: Optional[str] = None
 
-class GoogleRegisterRequest(BaseModel):
-    credential: str
+    def get_token(self) -> str:
+        t = self.token or self.credential
+        if not t:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="token or credential is required")
+        return t
+
+class GoogleRegisterRequest(GoogleLoginRequest):
     phone: str
 
 @router.post("/login")
@@ -30,8 +37,9 @@ async def google_login(
     try:
         # Verify token with Google
         async with httpx.AsyncClient() as client:
+            token = request.get_token()
             response = await client.get(
-                f"https://oauth2.googleapis.com/tokeninfo?id_token={request.token}"
+                f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
             )
             
             if response.status_code != 200:
@@ -85,8 +93,9 @@ async def google_register(
     try:
         # Verify token with Google
         async with httpx.AsyncClient() as client:
+            token = request.get_token()
             response = await client.get(
-                f"https://oauth2.googleapis.com/tokeninfo?id_token={request.credential}"
+                f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
             )
             
             if response.status_code != 200:
