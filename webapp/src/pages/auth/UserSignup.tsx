@@ -69,7 +69,10 @@ export const UserSignup = () => {
                 localStorage.setItem('user_id', data.user.id);
                 setStep('success');
             } else {
-                setError(data.detail || 'Google Sign-In failed');
+                const msg = typeof data.detail === 'string'
+                    ? data.detail
+                    : (Array.isArray(data.detail) ? data.detail[0].msg : JSON.stringify(data.detail));
+                setError(msg || 'Google Sign-In failed');
             }
         } catch (err) {
             setError('Connection failed. Please check internet and try again.');
@@ -90,12 +93,6 @@ export const UserSignup = () => {
 
         if (form.password.length < 8) {
             setError('Password must be at least 8 characters');
-            return;
-        }
-
-        // Bcrypt has a 72-byte limit
-        if (form.password.length > 72) {
-            setError('Password is too long. Maximum 72 characters.');
             return;
         }
 
@@ -139,7 +136,10 @@ export const UserSignup = () => {
                 localStorage.setItem('user_id', data.user_id);
                 setStep('success');
             } else {
-                setError(data.detail || 'Registration failed. Please try again.');
+                const msg = typeof data.detail === 'string'
+                    ? data.detail
+                    : (Array.isArray(data.detail) ? data.detail[0].msg : JSON.stringify(data.detail));
+                setError(msg || 'Registration failed. Please try again.');
             }
         } catch (err) {
             setError('Connection failed. Please check internet and try again.');

@@ -33,13 +33,16 @@ class AuthService:
     # Password Operations
     def hash_password(self, password: str) -> str:
         """Hash a password using bcrypt"""
-        # Truncate to 72 bytes to satisfy bcrypt limit
-        return pwd_context.hash(password[:72])
+        # Bcrypt has a 72-byte limit for the password.
+        # We truncate to 72 bytes (UTF-8 encoded) to avoid errors.
+        pwd_bytes = password.encode('utf-8')[:72]
+        return pwd_context.hash(pwd_bytes.decode('utf-8', errors='ignore'))
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a password against its hash"""
-        # Truncate to 72 bytes to satisfy bcrypt limit
-        return pwd_context.verify(plain_password[:72], hashed_password)
+        # Bcrypt has a 72-byte limit for the password.
+        pwd_bytes = plain_password.encode('utf-8')[:72]
+        return pwd_context.verify(pwd_bytes.decode('utf-8', errors='ignore'), hashed_password)
     
     # User Registration
     def register_user(

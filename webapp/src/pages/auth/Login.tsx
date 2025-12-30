@@ -56,7 +56,10 @@ export const Login = () => {
 
                 navigate(roleRoutes[result.user.role] || '/');
             } else {
-                setError(result.detail || 'Google authentication failed');
+                const msg = typeof result.detail === 'string'
+                    ? result.detail
+                    : (Array.isArray(result.detail) ? result.detail[0].msg : JSON.stringify(result.detail));
+                setError(msg || 'Google authentication failed');
             }
         } catch (err) {
             setError('Google login failed. Please try again.');
@@ -102,7 +105,10 @@ export const Login = () => {
 
                 navigate(roleRoutes[result.user.role] || '/');
             } else {
-                setError(result.detail || 'Invalid credentials');
+                const msg = typeof result.detail === 'string'
+                    ? result.detail
+                    : (Array.isArray(result.detail) ? result.detail[0].msg : JSON.stringify(result.detail));
+                setError(msg || 'Invalid credentials');
             }
         } catch (err) {
             setError('Connection failed. Please check internet.');

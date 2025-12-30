@@ -80,8 +80,12 @@ export const SchoolSignup = () => {
                 setResult(data);
                 setStep('success');
             }
-        } catch (error) {
-            alert('Registration failed. Please try again.');
+        } catch (error: any) {
+            const data = error.response?.data;
+            const msg = data && data.detail
+                ? (typeof data.detail === 'string' ? data.detail : (Array.isArray(data.detail) ? data.detail[0].msg : JSON.stringify(data.detail)))
+                : 'Registration failed. Please try again.';
+            alert(msg);
         } finally {
             setLoading(false);
         }
