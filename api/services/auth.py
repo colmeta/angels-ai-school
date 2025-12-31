@@ -32,17 +32,18 @@ class AuthService:
     
     # Password Operations
     def hash_password(self, password: str) -> str:
-        """Hash a password using bcrypt"""
-        # Bcrypt has a 72-byte limit for the password.
-        # We truncate to 72 bytes (UTF-8 encoded) to avoid errors.
-        pwd_bytes = password.encode('utf-8')[:72]
-        return pwd_context.hash(pwd_bytes.decode('utf-8', errors='ignore'))
+        """
+        Hash a password using bcrypt. 
+        We use SHA-256 pre-hashing to bypass bcrypt's 72-byte limit.
+        """
+        return pwd_context.hash(hashlib.sha256(password.encode('utf-8')).hexdigest())
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a password against its hash"""
-        # Bcrypt has a 72-byte limit for the password.
-        pwd_bytes = plain_password.encode('utf-8')[:72]
-        return pwd_context.verify(pwd_bytes.decode('utf-8', errors='ignore'), hashed_password)
+        return pwd_context.verify(
+            hashlib.sha256(plain_password.encode('utf-8')).hexdigest(),
+            hashed_password
+        )
     
     # User Registration
     def register_user(
@@ -52,7 +53,7 @@ class AuthService:
         first_name: str,
         last_name: str,
         school_id: Optional[str] = None,
-        role: Optional[str] = None,
+        role: Optional[str] = 'director', # Default to director if not provided
         phone: Optional[str] = None,
         photo_url: Optional[str] = None,
         entity_type: Optional[str] = None,
@@ -62,6 +63,10 @@ class AuthService:
         Register a new user
         Returns: user dict or raises ValueError
         """
+        # Ensure role is set
+        if not role:
+            role = 'director'
+
         # Check if email exists
         existing = self.db.execute_query(
             "SELECT id FROM users WHERE email = %s",
@@ -219,11 +224,11 @@ class AuthService:
                     (google_id, user["id"])
                 )
             else:
-                # Auto-register personal account (no school/role initially)
+                # Auto-register personal account (default role to 'director' to avoid NOT NULL)
                 user = self.db.execute_query(
                     """
-                    INSERT INTO users (email, first_name, last_name, google_id, auth_provider, email_verified)
-                    VALUES (%s, %s, %s, %s, 'google', true)
+                    INSERT INTO users (email, first_name, last_name, google_id, auth_provider, email_verified, role)
+                    VALUES (%s, %s, %s, %s, 'google', true, 'director')
                     RETURNING id, school_id, email, first_name, last_name, role, status
                     """,
                     (email, first_name, last_name, google_id),
