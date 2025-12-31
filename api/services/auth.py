@@ -170,16 +170,18 @@ class AuthService:
         # Create session
         self.db.execute_query(
             """
-            INSERT INTO user_sessions (user_id, token_jti, ip_address, user_agent, expires_at)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO user_sessions (user_id, school_id, token_jti, ip_address, user_agent, expires_at)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 user["id"],
+                user["school_id"],
                 access_jti,
                 ip_address,
                 user_agent,
                 datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            )
+            ),
+            fetch=False
         )
         
         # Remove password_hash from response
@@ -242,11 +244,11 @@ class AuthService:
                 # Auto-register personal account (default role to 'director' to avoid NOT NULL)
                 user = self.db.execute_query(
                     """
-                    INSERT INTO users (email, first_name, last_name, google_id, auth_provider, email_verified, role)
-                    VALUES (%s, %s, %s, %s, 'google', true, 'director')
-                    RETURNING id, school_id, email, first_name, last_name, role, status
+                    INSERT INTO users (email, first_name, last_name, google_id, auth_provider, email_verified, role, photo_url)
+                    VALUES (%s, %s, %s, %s, 'google', true, 'director', %s)
+                    RETURNING id, school_id, email, first_name, last_name, role, status, photo_url
                     """,
-                    (email, first_name, last_name, google_id),
+                    (email, first_name, last_name, google_id, None),
                     fetch=True
                 )[0]
         
@@ -268,16 +270,18 @@ class AuthService:
         # Create session
         self.db.execute_query(
             """
-            INSERT INTO user_sessions (user_id, token_jti, ip_address, user_agent, expires_at)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO user_sessions (user_id, school_id, token_jti, ip_address, user_agent, expires_at)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
                 user["id"],
+                user["school_id"],
                 access_jti,
                 ip_address,
                 user_agent,
                 datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            )
+            ),
+            fetch=False
         )
         
         return {
