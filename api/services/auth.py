@@ -170,7 +170,7 @@ class AuthService:
         # Create session
         self.db.execute_query(
             """
-            INSERT INTO user_sessions (user_id, school_id, token_jti, ip_address, user_agent, expires_at)
+            INSERT INTO user_sessions (user_id, school_id, session_token, ip_address, user_agent, expires_at)
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
@@ -270,7 +270,7 @@ class AuthService:
         # Create session
         self.db.execute_query(
             """
-            INSERT INTO user_sessions (user_id, school_id, token_jti, ip_address, user_agent, expires_at)
+            INSERT INTO user_sessions (user_id, school_id, session_token, ip_address, user_agent, expires_at)
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
@@ -332,7 +332,7 @@ class AuthService:
             
             # Check if session is revoked
             sessions = self.db.execute_query(
-                "SELECT revoked FROM user_sessions WHERE token_jti = %s",
+                "SELECT revoked FROM user_sessions WHERE session_token = %s",
                 (payload["jti"],),
                 fetch=True
             )
@@ -397,7 +397,7 @@ class AuthService:
             """
             UPDATE user_sessions
             SET revoked = true, revoked_at = CURRENT_TIMESTAMP
-            WHERE token_jti = %s
+            WHERE session_token = %s
             """,
             (payload["jti"],),
             fetch=False

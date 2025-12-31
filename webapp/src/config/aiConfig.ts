@@ -40,7 +40,7 @@ export const AI_CONFIGS: Record<AIMode, AIConfig> = {
             text: 'Xenova/gemma-2b',
             voice: 'Xenova/whisper-tiny.en',
             ocr: 'tesseract.js',
-            quantized: false
+            quantized: true
         },
         features: {
             cloudSync: false,
