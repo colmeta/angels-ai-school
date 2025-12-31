@@ -128,7 +128,8 @@ async def google_register(
             db = get_db_manager()
             db.execute_query(
                 "UPDATE users SET phone = %s WHERE id = %s",
-                (request.phone, login_result["user"]["id"])
+                (request.phone, login_result["user"]["id"]),
+                fetch=False
             )
             
             return login_result

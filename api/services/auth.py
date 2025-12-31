@@ -39,11 +39,36 @@ class AuthService:
         return pwd_context.hash(hashlib.sha256(password.encode('utf-8')).hexdigest())
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        """Verify a password against its hash"""
-        return pwd_context.verify(
-            hashlib.sha256(plain_password.encode('utf-8')).hexdigest(),
-            hashed_password
-        )
+        """
+        Verify a password against its hash.
+        Includes legacy fallbacks for raw passwords and truncated passwords.
+        """
+        if not hashed_password:
+            return False
+
+        # 1. Try SHA-256 pre-hash (New standard)
+        try:
+            if pwd_context.verify(hashlib.sha256(plain_password.encode('utf-8')).hexdigest(), hashed_password):
+                return True
+        except Exception:
+            pass
+
+        # 2. Try Raw Password (Legacy)
+        try:
+            if pwd_context.verify(plain_password, hashed_password):
+                return True
+        except Exception:
+            pass
+
+        # 3. Try Truncated Password (Legacy intermediate fix)
+        try:
+            pwd_bytes = plain_password.encode('utf-8')[:72]
+            if pwd_context.verify(pwd_bytes.decode('utf-8', errors='ignore'), hashed_password):
+                return True
+        except Exception:
+            pass
+
+        return False
     
     # User Registration
     def register_user(
@@ -97,7 +122,8 @@ class AuthService:
                 INSERT INTO user_links (user_id, entity_type, entity_id)
                 VALUES (%s, %s, %s)
                 """,
-                (user["id"], entity_type, entity_id)
+                (user["id"], entity_type, entity_id),
+                fetch=False
             )
         
         # Create email verification token
@@ -146,7 +172,8 @@ class AuthService:
         # Update last login
         self.db.execute_query(
             "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s",
-            (user["id"],)
+            (user["id"],),
+            fetch=False
         )
         
         # Generate tokens
@@ -221,7 +248,8 @@ class AuthService:
                 # Link Google ID to existing email account
                 self.db.execute_query(
                     "UPDATE users SET google_id = %s, auth_provider = 'google' WHERE id = %s",
-                    (google_id, user["id"])
+                    (google_id, user["id"]),
+                    fetch=False
                 )
             else:
                 # Auto-register personal account (default role to 'director' to avoid NOT NULL)
@@ -242,7 +270,8 @@ class AuthService:
         # Update last login
         self.db.execute_query(
             "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s",
-            (user["id"],)
+            (user["id"],),
+            fetch=False
         )
         
         # Generate tokens
@@ -379,7 +408,8 @@ class AuthService:
             SET revoked = true, revoked_at = CURRENT_TIMESTAMP
             WHERE token_jti = %s
             """,
-            (payload["jti"],)
+            (payload["jti"],),
+            fetch=False
         )
     
     def logout_all(self, user_id: str) -> None:
@@ -390,7 +420,8 @@ class AuthService:
             SET revoked = true, revoked_at = CURRENT_TIMESTAMP
             WHERE user_id = %s AND revoked = false
             """,
-            (user_id,)
+            (user_id,),
+            fetch=False
         )
     
     # Password Reset
@@ -448,7 +479,8 @@ class AuthService:
         password_hash = self.hash_password(new_password)
         self.db.execute_query(
             "UPDATE users SET password_hash = %s WHERE id = %s",
-            (password_hash, token_data["user_id"])
+            (password_hash, token_data["user_id"]),
+            fetch=False
         )
         
         # Mark token as used
@@ -458,7 +490,8 @@ class AuthService:
             SET used = true, used_at = CURRENT_TIMESTAMP
             WHERE token = %s
             """,
-            (token,)
+            (token,),
+            fetch=False
         )
         
         # Revoke all user sessions
@@ -502,7 +535,8 @@ class AuthService:
         # Mark email as verified
         self.db.execute_query(
             "UPDATE users SET email_verified = true WHERE id = %s",
-            (token_data["user_id"],)
+            (token_data["user_id"],),
+            fetch=False
         )
         
         # Mark token as used
@@ -512,7 +546,8 @@ class AuthService:
             SET used = true, used_at = CURRENT_TIMESTAMP
             WHERE token = %s
             """,
-            (token,)
+            (token,),
+            fetch=False
         )
         
         return True
@@ -535,7 +570,8 @@ class AuthService:
             INSERT INTO audit_logs (school_id, user_id, action, entity_type, entity_id, changes, ip_address, user_agent)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (school_id, user_id, action, entity_type, entity_id, changes, ip_address, user_agent)
+            (school_id, user_id, action, entity_type, entity_id, changes, ip_address, user_agent),
+            fetch=False
         )
 
 
