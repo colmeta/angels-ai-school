@@ -13,8 +13,8 @@ from passlib.context import CryptContext
 from api.core.config import get_settings
 from api.services.database import get_db_manager
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing - native PBKDF2 skips the 72-byte bcrypt limit
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
 # JWT settings
 settings = get_settings()
@@ -33,42 +33,29 @@ class AuthService:
     # Password Operations
     def hash_password(self, password: str) -> str:
         """
-        Hash a password using bcrypt. 
-        We use SHA-256 pre-hashing to bypass bcrypt's 72-byte limit.
+        Hash a password using pbkdf2_sha256 (Native Python, no 72-byte limit)
         """
-        return pwd_context.hash(hashlib.sha256(password.encode('utf-8')).hexdigest())
+        return pwd_context.hash(password)
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """
         Verify a password against its hash.
-        Includes legacy fallbacks for raw passwords and truncated passwords.
+        Supports both PBKDF2 (new) and Bcrypt (legacy).
         """
         if not hashed_password:
             return False
 
-        # 1. Try SHA-256 pre-hash (New standard)
         try:
-            if pwd_context.verify(hashlib.sha256(plain_password.encode('utf-8')).hexdigest(), hashed_password):
-                return True
+            # Passlib handles dispatching between pbkdf2_sha256 and bcrypt automatically
+            return pwd_context.verify(plain_password, hashed_password)
         except Exception:
-            pass
+            # Fallback for old truncated bcrypt hashes if needed
+            try:
+                pwd_bytes = plain_password.encode('utf-8')[:72]
+                return pwd_context.verify(pwd_bytes.decode('utf-8', errors='ignore'), hashed_password)
+            except Exception:
+                return False
 
-        # 2. Try Raw Password (Legacy)
-        try:
-            if pwd_context.verify(plain_password, hashed_password):
-                return True
-        except Exception:
-            pass
-
-        # 3. Try Truncated Password (Legacy intermediate fix)
-        try:
-            pwd_bytes = plain_password.encode('utf-8')[:72]
-            if pwd_context.verify(pwd_bytes.decode('utf-8', errors='ignore'), hashed_password):
-                return True
-        except Exception:
-            pass
-
-        return False
     
     # User Registration
     def register_user(
