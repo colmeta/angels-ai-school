@@ -64,7 +64,7 @@ async def google_login(
                 email=google_data["email"],
                 first_name=google_data.get("given_name", ""),
                 last_name=google_data.get("family_name", ""),
-                ip_address=req.client.host if req.client else None,
+                ip_address=(req.client.host if req.client else None),
                 user_agent=req.headers.get("user-agent")
             )
             

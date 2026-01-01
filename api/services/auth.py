@@ -133,6 +133,9 @@ class AuthService:
         Authenticate user and create session
         Returns: {user, access_token, refresh_token} or raises ValueError
         """
+        # Fix IP: If multiple IPs (comma separated), take the first one
+        if ip_address and ',' in ip_address:
+            ip_address = ip_address.split(',')[0].strip()
         # Get user
         users = self.db.execute_query(
             """
@@ -208,6 +211,9 @@ class AuthService:
         """
         Authenticate or register a user via Google
         """
+        # Fix IP: If multiple IPs (comma separated), take the first one
+        if ip_address and ',' in ip_address:
+            ip_address = ip_address.split(',')[0].strip()
         # 1. Check if user exists by google_id
         users = self.db.execute_query(
             """

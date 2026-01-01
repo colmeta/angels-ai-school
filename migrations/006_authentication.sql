@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS roles (
 CREATE TABLE IF NOT EXISTS user_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    token_jti VARCHAR(255) UNIQUE NOT NULL,
+    session_token VARCHAR(255) UNIQUE NOT NULL,
     ip_address VARCHAR(50),
     user_agent TEXT,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
